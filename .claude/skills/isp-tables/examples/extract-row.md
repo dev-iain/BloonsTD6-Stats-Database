@@ -1,44 +1,37 @@
 # Example: `extract_row(code: str, stats: dict) -> dict`
 
-Take the function `extract_row(code, stats)` in `btd6/etl/extract.py`, whose ISP is provided below. First, we use interface-based modeling; we know that the function takes in the parameters `code` and `stats`, thus we model the different characteristics of each. To determine important characteristics, we first fixate on the function of the code: the caller wants one flat row describing an upgrade, including which bloon types its first projectile can pop. We know that the `immuneBloonProperties` bitmask on the projectile directly decides the `damage_type` and every `can_pop_*` flag, thus we first have to model the `immuneBloonProperties` characteristic of `stats` because it directly influences the functionality. We are also told that camo detection is read from a different field (`filterInvisible`), and that it must not change the damage type or the `can_pop_*` flags, thus we also model this characteristic to ensure the two do not influence each other. Next, we know that the function walks `attacks -> projectiles` through `_order` lists with `first_of`, so we must model the structure of `stats`: an upgrade with no attacks at all (or an empty `_order`) must still return a row instead of raising. Finally, we are interested in the interaction between the bitmask and the output flags, not the bitmask on its own; so, we create a characteristic that models which bloon properties the resolved `damage_type` says the projectile cannot pop, and check that the row reports exactly that set. For `code`, the only behavior is conversion to a path (`_023` becomes `0-2-3`), so we model only whether the code has leading underscore digits in the expected form.
+Take the function `extract_row(code, stats)` in `btd6/etl/extract.py`, whose ISP is provided below. First, we use interface-based modeling; we know that the function takes in the parameters `code` and `stats`, thus we model the different characteristics of each. To determine important characteristics, we first fixate on the function of the code: the caller wants one flat row describing an upgrade, including which bloon types its first projectile can pop. We know that the `immuneBloonProperties` bitmask on the projectile directly decides the `damage_type` and every `can_pop_*` flag, thus we first model the value of `immuneBloonProperties`, including the missing key, a single immunity, several immunities and a mask that is not in `DAMAGE_TYPES`. The expected `can_pop_*` flags are the functional outcome of that bitmask, so they are checked in the oracle instead of being modeled as a characteristic of their own. Next, we know that the function walks `attacks -> projectiles` through `_order` lists with `first_of`, so we model the structure of `stats`: an upgrade with no attacks at all (or an attack with no projectiles) must still return a row instead of raising. For `code`, the only behavior is conversion to a path (`_023` becomes `0-2-3`), so we model only whether the code is the base upgrade (all zeros) or a purchased upgrade.
 
 ## ISP
 
-| Parameter | Characteristic | Partition | Value |
+|Parameter|Characteristic|Partition|Value|
 |---|---|---|---|
-| `stats` (projectile) | A) `immuneBloonProperties` | A1: Key absent (defaults to 0) | `{}` |
-||| A2: Known, single immunity | `1` (Shatter) |
-||| A3: Known, multiple immunities (Base) | `73` (Energy) |
-||| A4: Unknown mask | `3` |
-| `stats` (projectile) | B) `filterInvisible` | B1: Absent | `{}` |
-||| B2: True (Base) | `True` |
-||| B3: False | `False` |
-| `stats` | C) Attack structure | C1: Full `attacks -> projectiles` chain (Base) | `{"attacks": {"_order": ["a"], "a": {"projectiles": {"_order": ["p"], "p": {...}}}}}` |
-||| C2: Attack with no projectiles | `{"attacks": {"_order": ["a"], "a": {}}}` |
-||| C3: No attacks | `{}` |
-| `stats` & row | D) `can_pop_*` flags vs resolved damage type | D1: Row flags equal the damage type's cannot-pop set | mask `17` (Sharp): `can_pop_lead == False`, `can_pop_frozen == False`, all others `True` |
-||| D2: Unknown type pops everything | mask `3`: `damage_type == "Unknown"`, all `can_pop_*` `True` |
-| `code` | E) Format | E1: Underscore + 3 digits (Base) | `"_100"` -> `"1-0-0"` |
-||| E2: Base upgrade | `"_000"` -> `"0-0-0"` |
+|`stats` (projectile)|A) `immuneBloonProperties`|A1: Key absent (defaults to 0)|`{}`|
+|||A2: Known, single immunity|`1` (Shatter)|
+|||A3: Known, multiple immunities|`73` (Energy)|
+|||A4: Unknown mask|`3`|
+|`stats`|B) Attack structure|B1: Full `attacks -> projectiles` chain|`{"attacks": {"_order": ["a"], "a": {"projectiles": {"_order": ["p"], "p": {...}}}}}`|
+|||B2: Attack with no projectiles|`{"attacks": {"_order": ["a"], "a": {}}}`|
+|||B3: No attacks|`{}`|
+|`code`|C) Upgrade code|C1: Purchased upgrade|`"_100"` -> `"1-0-0"`|
+|||C2: Base upgrade|`"_000"` -> `"0-0-0"`|
 
-Feasibility notes: B and A are independent, so all A x B combinations are feasible and at least one pair per value is enough (all-pairs), but A1/A4 must each be tested with B2 to show camo does not change `damage_type`. C2 and C3 make A and B irrelevant (no projectile), so they are tested once each. Real regression rows from `data.csv`: `0-0-0` (Sharp, pierce 1) and `1-0-0` (Energy, pierce 2).
+Base case: A3, B1, C1
+
+Feasibility notes: B2 and B3 make A irrelevant (no projectile), so they are tested once each with A at base. Real regression rows from `data.csv`: `0-0-0` (Sharp, pierce 1) and `1-0-0` (Energy, pierce 2).
 
 ## Base Choice Coverage
 
-Characteristic D is not a free choice: its blocks are determined by A (D2 is the same input as A4, and D1 is checked by the expected flags of every known mask), so D is not varied independently. It is verified through the `Expected result` of the A cases instead. BCC is therefore taken over A, B, C and E.
-
 Base input (all-base): `code = "_100"`, `stats = {"range": 50, "attacks": {"_order": ["a"], "a": {"rate": 0.045, "projectiles": {"_order": ["p"], "p": {"damage": 1, "pierce": 2, "immuneBloonProperties": 73, "filterInvisible": True}}}}}`. This mirrors the real `1-0-0` row in `data.csv`.
 
-| Case ID | A selection | B selection | C selection | E selection | Changed characteristic | Expected result |
-| ------- | ----------- | ----------- | ----------- | ----------- | ---------------------- | --------------- |
-| BCC-1 | A3 | B2 | C1 | E1 | None — All Base | `row["path"] == "1-0-0"`, `damage_type == "Energy"`, `projectile_pierce == 2`, `can_hit_camo == False`, `can_pop_lead == False`, `can_pop_purple == False`, `can_pop_glass == False`, `can_pop_black == True`, `can_pop_white == True`, `can_pop_frozen == True` |
-| BCC-2 | A1 | B2 | C1 | E1 | A | `damage_type == "Normal"`, every `can_pop_*` is `True`, `can_hit_camo == False` |
-| BCC-3 | A2 | B2 | C1 | E1 | A | `damage_type == "Shatter"`, `can_pop_lead == False`, every other `can_pop_*` is `True` |
-| BCC-4 | A4 | B2 | C1 | E1 | A | `damage_type == "Unknown"`, every `can_pop_*` is `True` |
-| BCC-5 | A3 | B1 | C1 | E1 | B | `can_hit_camo == True`, `damage_type == "Energy"` (unchanged from BCC-1) |
-| BCC-6 | A3 | B3 | C1 | E1 | B | `can_hit_camo == True`, `damage_type == "Energy"` (unchanged from BCC-1) |
-| BCC-7 | A3 | B2 | C2 | E1 | C with the attack changed to `{"rate": 0.045}` (no `projectiles` key): `projectile_pierce is None`, `projectile_damage is None`, `attack_rate == 0.045`, `damage_type == "Normal"`, every `can_pop_*` is `True`, `can_hit_camo == True` |
-| BCC-8 | A3 | B2 | C3 | E1 | C | `attack_rate is None`, `projectile_pierce is None`, `range == 50`, `damage_type == "Normal"`, every `can_pop_*` is `True` |
-| BCC-9 | A3 | B2 | C1 | E2 | E | `row["path"] == "0-0-0"`; every other field equals BCC-1 |
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A3 | B1 | C1 | `row["path"] == "1-0-0"`, `damage_type == "Energy"`, `projectile_pierce == 2`, `can_hit_camo == False`, `can_pop_lead == False`, `can_pop_purple == False`, `can_pop_glass == False`, `can_pop_black == True`, `can_pop_white == True`, `can_pop_frozen == True` | `test_extract_row_all_base` |
+| T2 | A1 | B1 | C1 | `damage_type == "Normal"`, every `can_pop_*` is `True` | `test_extract_row_immunity_absent` |
+| T3 | A2 | B1 | C1 | `damage_type == "Shatter"`, `can_pop_lead == False`, every other `can_pop_*` is `True` | `test_extract_row_single_immunity` |
+| T4 | A4 | B1 | C1 | `damage_type == "Unknown"`, every `can_pop_*` is `True` | `test_extract_row_unknown_mask` |
+| T5 | A3 | B2 | C1 | with the attack changed to `{"rate": 0.045}` (no `projectiles` key): `projectile_pierce is None`, `projectile_damage is None`, `attack_rate == 0.045`, `damage_type == "Normal"`, every `can_pop_*` is `True`, `can_hit_camo == True` | `test_extract_row_attack_without_projectiles` |
+| T6 | A3 | B3 | C1 | `attack_rate is None`, `projectile_pierce is None`, `range == 50`, `damage_type == "Normal"`, every `can_pop_*` is `True` | `test_extract_row_no_attacks` |
+| T7 | A3 | B1 | C2 | `row["path"] == "0-0-0"`; every other field equals T1 | `test_extract_row_base_upgrade_code` |
 
-For BCC-7 and BCC-8 the A and B selections stay at base, but they have no effect because no projectile exists; the case is still valid and the expected result shows that.
+For T5 and T6 the A selection stays at base, but it has no effect because no projectile exists; the case is still valid and the oracle shows that.

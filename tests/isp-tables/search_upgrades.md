@@ -1,5 +1,7 @@
 # `search_upgrades(connection, filters: UpgradeFilters | None = None, sort_by: str | None = None, descending: bool = True, limit: int | None = None) -> list[sqlite3.Row]`
 
+Returns the upgrades that satisfy every filter in `filters`, ordered by `sort_by` and cut to `limit` rows. A filter left as `None` restricts nothing.
+
 ## Rules for these tests
 
 - Behavior is defined in `docs/queries.md`.
@@ -18,64 +20,63 @@ Fixture rows (from `data.csv`):
 
 E2 only: add Alchemist `0-0-1`, `projectile_pierce = NULL`, `can_pop_lead = False`, `damage_type = Sharp` (inserted by hand).
 
+Take the function `search_upgrades`. First, we use interface-based modeling; we know that the function takes in a filters object, a sort column, a direction and a limit, thus we model the characteristics of each. To determine important characteristics, we first fixate on the function of the code: the caller wants only the upgrades that satisfy every filter they gave, and a filter left as `None` must not restrict anything. We know that `min_pierce` is compared against the `projectile_pierce` column, thus we model its position relative to the stored values, with boundary values on both sides of a real value, because off-by-one errors (`>` versus `>=`) are the most likely bug, plus a negative value, which is invalid. We also model `can_pop_lead` as `True`, `False` and `None`, since `False` means "cannot pop lead" and is different from "no filter". The filters object itself can be omitted, in which case neither filter applies. How the two filters combine (AND semantics, one filter, no filters) is not a characteristic of its own: it follows from which blocks of A and B are selected, and the oracles check it. For the receiver state, the database contents decide the outcome, so we model whether the table has rows at all, and whether a stored pierce is `NULL`, which must never satisfy `min_pierce`. `sort_by` is interpolated into SQL, so we model not sorting, a whitelisted column and a hostile string. We model `limit` at its smallest valid value and below it, and the sort direction, which only matters once a sort column is given.
+
 ## ISP
 
-| Variable | Characteristic | Partition/Block | Representative Value |
+|Parameter|Characteristic|Partition|Value|
 |---|---|---|---|
-| V1: `filters.min_pierce` | A: Threshold vs stored pierce values (1, 2, 3, 3) | A1 (Base): below every value | `0` |
-| V1: `filters.min_pierce` | A: Threshold vs stored pierce values | A2: equal to an existing value (inclusive boundary) | `3` |
-| V1: `filters.min_pierce` | A: Threshold vs stored pierce values | A3: one above the highest value | `4` |
-| V1: `filters.min_pierce` | A: Threshold vs stored pierce values | A4: no filter | `None` |
-| V1: `filters.min_pierce` | A: Threshold vs stored pierce values | A5: negative (invalid) | `-1` |
-| V2: `filters.can_pop_lead` | B: Lead filter | B1: must pop lead | `True` |
-| V2: `filters.can_pop_lead` | B: Lead filter | B2 (Base): must not pop lead | `False` |
-| V2: `filters.can_pop_lead` | B: Lead filter | B3: no filter | `None` |
-| V3: `filters` | C: Filters object | C1 (Base): an `UpgradeFilters` instance | `UpgradeFilters(min_pierce=..., can_pop_lead=...)` |
-| V3: `filters` | C: Filters object | C2: omitted | `None` |
-| V4: database | D: Table state | D1 (Base): rows exist | the four-row fixture |
-| V4: database | D: Table state | D2: empty | schema only, no rows |
-| V4: database | E: Pierce values stored | E1 (Base): all non-null | the four-row fixture |
-| V4: database | E: Pierce values stored | E2: one `NULL` | fixture plus Alchemist `0-0-1` |
-| V5: `sort_by` | F: Sort column | F1 (Base): no sort | `None` |
-| V5: `sort_by` | F: Sort column | F2: whitelisted column | `"projectile_pierce"` |
-| V5: `sort_by` | F: Sort column | F3: not whitelisted (hostile) | `"; DROP TABLE upgrades"` |
-| V6: `limit` | G: Limit | G1 (Base): no limit | `None` |
-| V6: `limit` | G: Limit | G2: smallest valid | `1` |
-| V6: `limit` | G: Limit | G3: below 1 (invalid) | `0` |
-| V1 + V2 | H: Filter combination | H1 (Base): both given (AND) | `min_pierce=3, can_pop_lead=False` -> `["1-1-0"]` |
-| V1 + V2 | H: Filter combination | H2: only one given | `min_pierce=3, can_pop_lead=None` -> `["1-1-0", "2-1-0"]` |
-| V1 + V2 | H: Filter combination | H3: neither given | `UpgradeFilters()` -> every row |
-| V7: `descending` | I: Sort direction | I1 (Base): descending (the default) | `True` |
-| V7: `descending` | I: Sort direction | I2: ascending | `False` |
+|`filters.min_pierce`|A) Threshold vs stored pierce values (1, 2, 3, 3)|A1: Below every value|`0`|
+|||A2: Equal to an existing value (inclusive boundary)|`3`|
+|||A3: One above the highest value|`4`|
+|||A4: No filter|`None`|
+|||A5: Negative (invalid)|`-1`|
+|`filters.can_pop_lead`|B) Lead filter|B1: Must pop lead|`True`|
+|||B2: Must not pop lead|`False`|
+|||B3: No filter|`None`|
+|`filters`|C) Filters object|C1: An `UpgradeFilters` instance|`UpgradeFilters(min_pierce=..., can_pop_lead=...)`|
+|||C2: Omitted|`None`|
+|`connection` (state: rows)|D) Table state|D1: Rows exist|the four-row fixture|
+|||D2: Empty|schema only, no rows|
+|`connection` (state: pierce)|E) Pierce values stored|E1: All non-`NULL`|the four-row fixture|
+|||E2: One `NULL`|fixture plus Alchemist `0-0-1`|
+|`sort_by`|F) Sort column|F1: No sort|`None`|
+|||F2: Whitelisted column|`"projectile_pierce"`|
+|||F3: Not whitelisted (hostile)|`"; DROP TABLE upgrades"`|
+|`limit`|G) Limit|G1: No limit|`None`|
+|||G2: Smallest valid|`1`|
+|||G3: Below 1 (invalid)|`0`|
+|`descending`|H) Sort direction|H1: Descending (the default)|`True`|
+|||H2: Ascending|`False`|
 
-C2 takes no filters, so A and B do not apply to it.
+Base case: A1, B2, C1, D1, E1, F1, G1, H1
+
+Feasibility notes: C2 takes no filters, so A and B do not apply to it. H has no effect unless F is F2, so H2 cannot be varied alone from the base; it is covered by an extra non-BCC test. The base for A is `0` (A1) rather than `3` so that E2 is a meaningful test: with `min_pierce=0`, a `NULL` pierce would be wrongly included by an implementation that treats `NULL` as `0`, but is excluded by correct SQL comparison semantics.
 
 ## Base Choice Coverage
 
-Excluded from BCC: H is decided by which of A and B is `None` (H2 in BCC-4 and BCC-7, H3 in EXTRA-1). I has no effect unless F is F2 (I2 in EXTRA-3).
+| BCC Test | A | B | C | D | E | F | G | H | Oracle | Test Name |
+|---|---|---|---|---|---|---|---|---|---|---|
+| T1 | A1 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | `search_upgrades(conn, UpgradeFilters(min_pierce=0, can_pop_lead=False))` returns `["0-0-0", "1-1-0"]` | `test_search_upgrades_all_base` |
+| T2 | A2 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | `UpgradeFilters(min_pierce=3, can_pop_lead=False)` returns `["1-1-0"]` | `test_search_upgrades_pierce_inclusive_boundary` |
+| T3 | A3 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | `UpgradeFilters(min_pierce=4, can_pop_lead=False)` returns `[]` | `test_search_upgrades_pierce_above_highest` |
+| T4 | A4 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | `UpgradeFilters(min_pierce=None, can_pop_lead=False)` returns `["0-0-0", "1-1-0"]` | `test_search_upgrades_pierce_none` |
+| T5 | A5 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | `UpgradeFilters(min_pierce=-1, can_pop_lead=False)` raises `ValueError` | `test_search_upgrades_pierce_negative` |
+| T6 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | `UpgradeFilters(min_pierce=0, can_pop_lead=True)` returns `["2-0-0", "2-1-0"]` | `test_search_upgrades_lead_true` |
+| T7 | A1 | B3 | C1 | D1 | E1 | F1 | G1 | H1 | `UpgradeFilters(min_pierce=0, can_pop_lead=None)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_lead_none` |
+| T8 | — | — | C2 | D1 | E1 | F1 | G1 | H1 | `search_upgrades(conn)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_filters_omitted` |
+| T9 | A1 | B2 | C1 | D2 | E1 | F1 | G1 | H1 | on the empty table, `UpgradeFilters(min_pierce=0, can_pop_lead=False)` returns `[]` | `test_search_upgrades_empty_table` |
+| T10 | A1 | B2 | C1 | D1 | E2 | F1 | G1 | H1 | with Alchemist `0-0-1` inserted, `UpgradeFilters(min_pierce=0, can_pop_lead=False)` returns `["0-0-0", "1-1-0"]`; Alchemist `0-0-1` is absent | `test_search_upgrades_null_pierce` |
+| T11 | A1 | B2 | C1 | D1 | E1 | F2 | G1 | H1 | base filters with `sort_by="projectile_pierce"` returns `["1-1-0", "0-0-0"]` | `test_search_upgrades_sort_whitelisted` |
+| T12 | A1 | B2 | C1 | D1 | E1 | F3 | G1 | H1 | base filters with `sort_by="; DROP TABLE upgrades"` raises `ValueError`; afterward `SELECT COUNT(*) FROM upgrades` returns `4` | `test_search_upgrades_sort_not_whitelisted` |
+| T13 | A1 | B2 | C1 | D1 | E1 | F1 | G2 | H1 | base filters with `limit=1` returns `["0-0-0"]` | `test_search_upgrades_limit_one` |
+| T14 | A1 | B2 | C1 | D1 | E1 | F1 | G3 | H1 | base filters with `limit=0` raises `ValueError` | `test_search_upgrades_limit_zero` |
 
-| Case ID | A | B | C | D | E | F | G | Changed characteristic | Expected result |
-|---|---|---|---|---|---|---|---|---|---|
-| BCC-1 | A1 | B2 | C1 | D1 | E1 | F1 | G1 | None — All Base | `search_upgrades(conn, UpgradeFilters(min_pierce=0, can_pop_lead=False))` returns `["0-0-0", "1-1-0"]` |
-| BCC-2 | A2 | B2 | C1 | D1 | E1 | F1 | G1 | A | `UpgradeFilters(min_pierce=3, can_pop_lead=False)` returns `["1-1-0"]` |
-| BCC-3 | A3 | B2 | C1 | D1 | E1 | F1 | G1 | A | `UpgradeFilters(min_pierce=4, can_pop_lead=False)` returns `[]` |
-| BCC-4 | A4 | B2 | C1 | D1 | E1 | F1 | G1 | A | `UpgradeFilters(min_pierce=None, can_pop_lead=False)` returns `["0-0-0", "1-1-0"]` |
-| BCC-5 | A5 | B2 | C1 | D1 | E1 | F1 | G1 | A | `UpgradeFilters(min_pierce=-1, can_pop_lead=False)` raises `ValueError` |
-| BCC-6 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | B | `UpgradeFilters(min_pierce=0, can_pop_lead=True)` returns `["2-0-0", "2-1-0"]` |
-| BCC-7 | A1 | B3 | C1 | D1 | E1 | F1 | G1 | B | `UpgradeFilters(min_pierce=0, can_pop_lead=None)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` |
-| BCC-8 | — | — | C2 | D1 | E1 | F1 | G1 | C | `search_upgrades(conn)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` |
-| BCC-9 | A1 | B2 | C1 | D2 | E1 | F1 | G1 | D | on the empty table, `UpgradeFilters(min_pierce=0, can_pop_lead=False)` returns `[]` |
-| BCC-10 | A1 | B2 | C1 | D1 | E2 | F1 | G1 | E | with Alchemist `0-0-1` inserted, `UpgradeFilters(min_pierce=0, can_pop_lead=False)` returns `["0-0-0", "1-1-0"]`; Alchemist `0-0-1` is absent |
-| BCC-11 | A1 | B2 | C1 | D1 | E1 | F2 | G1 | F | base filters with `sort_by="projectile_pierce"` returns `["1-1-0", "0-0-0"]` |
-| BCC-12 | A1 | B2 | C1 | D1 | E1 | F3 | G1 | F | base filters with `sort_by="; DROP TABLE upgrades"` raises `ValueError`; afterward `SELECT COUNT(*) FROM upgrades` returns `4` |
-| BCC-13 | A1 | B2 | C1 | D1 | E1 | F1 | G2 | G | base filters with `limit=1` returns `["0-0-0"]` |
-| BCC-14 | A1 | B2 | C1 | D1 | E1 | F1 | G3 | G | base filters with `limit=0` raises `ValueError` |
+### Extra non-BCC tests
 
-## Extra non-BCC tests
-
-| Case ID | Covers | Expected result |
-|---|---|---|
-| EXTRA-1 | H3 | `search_upgrades(conn, UpgradeFilters())` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` |
-| EXTRA-2 | I1, tie-break, `NULL` last | with E2, `search_upgrades(conn, sort_by="projectile_pierce")` returns `["1-1-0", "2-1-0", "2-0-0", "0-0-0", Alchemist "0-0-1"]` |
-| EXTRA-3 | I2, `NULL` last | with E2, `search_upgrades(conn, sort_by="projectile_pierce", descending=False)` returns `["0-0-0", "2-0-0", "1-1-0", "2-1-0", Alchemist "0-0-1"]` |
-| EXTRA-4 | #37 acceptance | `search_upgrades(conn, sort_by="projectile_pierce", limit=2)` returns `["1-1-0", "2-1-0"]` |
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T15 | A4 and B3 together (neither filter given) | `search_upgrades(conn, UpgradeFilters())` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_no_filters` |
+| T16 | H1 with F2, tie-break, `NULL` last | with E2, `search_upgrades(conn, sort_by="projectile_pierce")` returns `["1-1-0", "2-1-0", "2-0-0", "0-0-0", Alchemist "0-0-1"]` | `test_search_upgrades_sort_descending_null_last` |
+| T17 | H2 with F2, `NULL` last | with E2, `search_upgrades(conn, sort_by="projectile_pierce", descending=False)` returns `["0-0-0", "2-0-0", "1-1-0", "2-1-0", Alchemist "0-0-1"]` | `test_search_upgrades_sort_ascending_null_last` |
+| T18 | #37 acceptance (F2 with G2-style limit) | `search_upgrades(conn, sort_by="projectile_pierce", limit=2)` returns `["1-1-0", "2-1-0"]` | `test_search_upgrades_sort_with_limit` |

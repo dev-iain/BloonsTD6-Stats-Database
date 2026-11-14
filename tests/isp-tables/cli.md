@@ -23,7 +23,15 @@
 
 ---
 
-## Table 1: dispatch and `search`
+## main: dispatch and `search`
+
+```python
+def main(argv: list[str] | None = None) -> int
+```
+
+Parses `argv`, dispatches to the `search` or `load` subcommand, prints results to stdout and returns the exit code. This section covers dispatch and `search`.
+
+Take the function `main(argv)`. First, we use interface-based modeling; we know that the function takes in `argv`, thus we model the characteristics of each part of it that the user can vary. To determine important characteristics, we first fixate on the function of the code: the user wants the upgrades that match every filter they gave, and a bad input must produce one clear error line instead of a traceback. We know that the first token decides which handler runs, thus we model which command was given, including no command and an unknown one, and a `load` call that is handed `search` options. Each `search` option has its own validation, so we model `--min-pierce`, `--damage-type`, `--sort` and `--limit` as valid, invalid and absent, since argparse rejects some of them (`SystemExit`) while the query layer rejects others (`ValueError`, exit 2). For the lead and camo flags we model which flags are present, including the contradictory case of naming lead in both `--can-pop` and `--cannot-pop`. For the receiver state, the database file decides whether a query can run at all, so we model whether it is loaded, empty, missing or not a database, and separately whether it holds rows outside the Magic category, which `search` must ignore. How many rows come back is decided by the other characteristics, so it is checked in the oracle rather than modeled.
 
 Fixture: a temporary file `tmp_path / "btd6.db"` (`--db` needs a path, so not `:memory:`), schema from `docs/queries.md`, with these rows (category `Magic`):
 
@@ -34,91 +42,96 @@ Fixture: a temporary file `tmp_path / "btd6.db"` (`--db` needs a path, so not `:
 | Super Monkey | `2-0-0` | 2 | True | Plasma | False |
 | Super Monkey | `2-1-0` | 3 | True | Plasma | False |
 
-J2 only: add Dart Monkey `0-0-0`, category `Primary`, `projectile_pierce = 3`, `can_pop_lead = False`, `damage_type = Sharp`, `can_hit_camo = False` (inserted by hand).
+I2 only: add Dart Monkey `0-0-0`, category `Primary`, `projectile_pierce = 3`, `can_pop_lead = False`, `damage_type = Sharp`, `can_hit_camo = False` (inserted by hand).
 
 Base input: `main(["--db", DB, "search", "--cannot-pop", "lead", "--min-pierce", "1"])`.
 
 ### ISP
 
-| Variable | Characteristic | Partition/Block | Representative Value |
+|Parameter|Characteristic|Partition|Value|
 |---|---|---|---|
-| V1: subcommand | A: Which command | A1 (Base): `search` | `"search"` |
-| V1: subcommand | A: Which command | A2: `load` given search options | `"load", "--cannot-pop", "lead", "--min-pierce", "1"` |
-| V1: subcommand | A: Which command | A3: none | `["--db", DB]` |
-| V1: subcommand | A: Which command | A4: unknown | `"fetch"` |
-| V2: database file | B: State before the call | B1 (Base): exists and loaded | the four-row fixture |
-| V2: database file | B: State before the call | B2: exists but empty | schema only, no rows |
-| V2: database file | B: State before the call | B3: missing | `tmp_path / "missing.db"` |
-| V2: database file | B: State before the call | B4: exists but is not a database | a text file containing `hello` |
-| V3: `--min-pierce` | C: Value | C1 (Base): valid, at or below stored values | `"1"` |
-| V3: `--min-pierce` | C: Value | C2: not a number | `"abc"` |
-| V3: `--min-pierce` | C: Value | C3: negative | `"-1"` |
-| V3: `--min-pierce` | C: Value | C4: above every stored value | `"4"` |
-| V4: `--damage-type` | D: Value | D1 (Base): not given | — |
-| V4: `--damage-type` | D: Value | D2: known name | `"Sharp"` |
-| V4: `--damage-type` | D: Value | D3: unknown name | `"Bogus"` |
-| V5: `--sort` | E: Value | E1 (Base): not given | — |
-| V5: `--sort` | E: Value | E2: whitelisted column | `"projectile_pierce"` |
-| V5: `--sort` | E: Value | E3: not whitelisted | `"bogus"` |
-| V6: `--limit` | F: Value | F1 (Base): not given | — |
-| V6: `--limit` | F: Value | F2: smallest valid | `"1"` |
-| V6: `--limit` | F: Value | F3: below 1 | `"0"` |
-| V7: `--can-pop` / `--cannot-pop` | H: Lead flags | H1 (Base): `--cannot-pop lead` | `"--cannot-pop", "lead"` |
-| V7: `--can-pop` / `--cannot-pop` | H: Lead flags | H2: `--can-pop lead` | `"--can-pop", "lead"` |
-| V7: `--can-pop` / `--cannot-pop` | H: Lead flags | H3: neither | — |
-| V7: `--can-pop` / `--cannot-pop` | H: Lead flags | H4: both name lead | `"--can-pop", "lead", "--cannot-pop", "lead"` |
-| V8: `--camo` / `--no-camo` | I: Camo flag | I1 (Base): neither | — |
-| V8: `--camo` / `--no-camo` | I: Camo flag | I2: `--camo` | `"--camo"` |
-| V8: `--camo` / `--no-camo` | I: Camo flag | I3: `--no-camo` | `"--no-camo"` |
-| V2: database file | J: Non-magic rows present | J1 (Base): none | the four-row fixture |
-| V2: database file | J: Non-magic rows present | J2: one | fixture plus Dart Monkey `0-0-0` |
-| output | G: Number of result rows | G1 (Base): many | base input -> 2 rows |
-| output | G: Number of result rows | G2: one | `--damage-type Sharp` -> 1 row |
-| output | G: Number of result rows | G3: zero | `--min-pierce 4` -> no rows |
+|`argv` (subcommand)|A) Which command|A1: `search`|`"search"`|
+|||A2: `load` given search options|`"load", "--cannot-pop", "lead", "--min-pierce", "1"`|
+|||A3: None|`["--db", DB]`|
+|||A4: Unknown|`"fetch"`|
+|`--db` (state: file)|B) State before the call|B1: Exists and loaded|the four-row fixture|
+|||B2: Exists but empty|schema only, no rows|
+|||B3: Missing|`tmp_path / "missing.db"`|
+|||B4: Exists but is not a database|a text file containing `hello`|
+|`--min-pierce`|C) Value|C1: Valid, at or below stored values|`"1"`|
+|||C2: Not a number|`"abc"`|
+|||C3: Negative|`"-1"`|
+|||C4: Above every stored value|`"4"`|
+|`--damage-type`|D) Value|D1: Not given|none|
+|||D2: Known name|`"Sharp"`|
+|||D3: Unknown name|`"Bogus"`|
+|`--sort`|E) Value|E1: Not given|none|
+|||E2: Whitelisted column|`"projectile_pierce"`|
+|||E3: Not whitelisted|`"bogus"`|
+|`--limit`|F) Value|F1: Not given|none|
+|||F2: Smallest valid|`"1"`|
+|||F3: Below 1|`"0"`|
+|`--can-pop` / `--cannot-pop`|G) Lead flags|G1: `--cannot-pop lead`|`"--cannot-pop", "lead"`|
+|||G2: `--can-pop lead`|`"--can-pop", "lead"`|
+|||G3: Neither|none|
+|||G4: Both name lead|`"--can-pop", "lead", "--cannot-pop", "lead"`|
+|`--camo` / `--no-camo`|H) Camo flag|H1: Neither|none|
+|||H2: `--camo`|`"--camo"`|
+|||H3: `--no-camo`|`"--no-camo"`|
+|`--db` (state: rows)|I) Non-Magic rows present|I1: None|the four-row fixture|
+|||I2: One|fixture plus Dart Monkey `0-0-0`|
 
-A3 and A4 take only `--db`, since search options belong to the `search` subparser.
+Base case: A1, B1, C1, D1, E1, F1, G1, H1, I1
+
+Feasibility notes: A3 and A4 take only `--db`, since search options belong to the `search` subparser, so C through H do not apply to them. B2 to B4 are tested with the base options only.
 
 ### Base Choice Coverage
 
-G is excluded from BCC: the row count is decided by the other characteristics (G2 in BCC-11 and BCC-15, G3 in BCC-5, BCC-10 and BCC-20).
-
-| Case ID | A | B | C | D | E | F | H | I | J | Changed characteristic | Expected result |
+| BCC Test | A | B | C | D | E | F | G | H | I | Oracle | Test Name |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| BCC-1 | A1 | B1 | C1 | D1 | E1 | F1 | H1 | I1 | J1 | None — All Base | returns `0`; stdout is `format_results` of `["0-0-0", "1-1-0"]` |
-| BCC-2 | A2 | B1 | C1 | D1 | E1 | F1 | H1 | I1 | J1 | A | `SystemExit.code == 2`; last stderr line `btd6: error: unrecognized arguments: --cannot-pop lead --min-pierce 1` |
-| BCC-3 | A3 | B1 | — | — | — | — | — | — | J1 | A | returns `2`; stderr starts with `usage: btd6` |
-| BCC-4 | A4 | B1 | — | — | — | — | — | — | J1 | A | `SystemExit.code == 2`; last stderr line starts with `btd6: error: argument command: invalid choice: 'fetch'` |
-| BCC-5 | A1 | B2 | C1 | D1 | E1 | F1 | H1 | I1 | J1 | B | returns `0`; stdout is `No upgrades match these filters.` |
-| BCC-6 | A1 | B3 | C1 | D1 | E1 | F1 | H1 | I1 | J1 | B | returns `1`; stderr `Database not found at <tmp>/missing.db. Run "python -m btd6 load" first.`; `missing.db` still does not exist afterward |
-| BCC-7 | A1 | B4 | C1 | D1 | E1 | F1 | H1 | I1 | J1 | B | returns `1`; stderr `Unexpected error: file is not a database`; stderr contains no `Traceback` |
-| BCC-8 | A1 | B1 | C2 | D1 | E1 | F1 | H1 | I1 | J1 | C | `SystemExit.code == 2`; last stderr line `btd6 search: error: argument --min-pierce: invalid float value: 'abc'` |
-| BCC-9 | A1 | B1 | C3 | D1 | E1 | F1 | H1 | I1 | J1 | C | returns `2`; stderr `min_pierce must be 0 or more, got -1.0` |
-| BCC-10 | A1 | B1 | C4 | D1 | E1 | F1 | H1 | I1 | J1 | C | returns `0`; stdout is `No upgrades match these filters.` |
-| BCC-11 | A1 | B1 | C1 | D2 | E1 | F1 | H1 | I1 | J1 | D | returns `0`; stdout is `format_results` of `["0-0-0"]` |
-| BCC-12 | A1 | B1 | C1 | D3 | E1 | F1 | H1 | I1 | J1 | D | returns `2`; stderr `Unknown damage type "Bogus". Valid types: Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Shatter, Sharp, Unknown` |
-| BCC-13 | A1 | B1 | C1 | D1 | E2 | F1 | H1 | I1 | J1 | E | returns `0`; stdout is `format_results` of `["1-1-0", "0-0-0"]` |
-| BCC-14 | A1 | B1 | C1 | D1 | E3 | F1 | H1 | I1 | J1 | E | `SystemExit.code == 2`; last stderr line starts with `btd6 search: error: argument --sort: invalid choice: 'bogus'` |
-| BCC-15 | A1 | B1 | C1 | D1 | E1 | F2 | H1 | I1 | J1 | F | returns `0`; stdout is `format_results` of `["0-0-0"]` |
-| BCC-16 | A1 | B1 | C1 | D1 | E1 | F3 | H1 | I1 | J1 | F | returns `2`; stderr `limit must be at least 1, got 0` |
-| BCC-17 | A1 | B1 | C1 | D1 | E1 | F1 | H2 | I1 | J1 | H | returns `0`; stdout is `format_results` of `["2-0-0", "2-1-0"]` |
-| BCC-18 | A1 | B1 | C1 | D1 | E1 | F1 | H3 | I1 | J1 | H | returns `0`; stdout is `format_results` of `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` |
-| BCC-19 | A1 | B1 | C1 | D1 | E1 | F1 | H4 | I1 | J1 | H | returns `2`; stderr `--can-pop and --cannot-pop both list lead` |
-| BCC-20 | A1 | B1 | C1 | D1 | E1 | F1 | H1 | I2 | J1 | I | returns `0`; stdout is `No upgrades match these filters.` |
-| BCC-21 | A1 | B1 | C1 | D1 | E1 | F1 | H1 | I3 | J1 | I | returns `0`; stdout is `format_results` of `["0-0-0", "1-1-0"]` |
-| BCC-22 | A1 | B1 | C1 | D1 | E1 | F1 | H1 | I1 | J2 | J | with Dart Monkey `0-0-0` inserted, returns `0`; stdout is `format_results` of Super Monkey `["0-0-0", "1-1-0"]`; Dart Monkey is absent |
+| T1 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | returns `0`; stdout is `format_results` of `["0-0-0", "1-1-0"]` | `test_main_search_all_base` |
+| T2 | A2 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `SystemExit.code == 2`; last stderr line `btd6: error: unrecognized arguments: --cannot-pop lead --min-pierce 1` | `test_main_search_load_given_search_options` |
+| T3 | A3 | B1 | — | — | — | — | — | — | I1 | returns `2`; stderr starts with `usage: btd6` | `test_main_search_no_command` |
+| T4 | A4 | B1 | — | — | — | — | — | — | I1 | `SystemExit.code == 2`; last stderr line starts with `btd6: error: argument command: invalid choice: 'fetch'` | `test_main_search_unknown_command` |
+| T5 | A1 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | returns `0`; stdout is `No upgrades match these filters.` | `test_main_search_empty_database` |
+| T6 | A1 | B3 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | returns `1`; stderr `Database not found at <tmp>/missing.db. Run "python -m btd6 load" first.`; `missing.db` still does not exist afterward | `test_main_search_database_missing` |
+| T7 | A1 | B4 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | returns `1`; stderr `Unexpected error: file is not a database`; stderr contains no `Traceback` | `test_main_search_database_not_a_database` |
+| T8 | A1 | B1 | C2 | D1 | E1 | F1 | G1 | H1 | I1 | `SystemExit.code == 2`; last stderr line `btd6 search: error: argument --min-pierce: invalid float value: 'abc'` | `test_main_search_min_pierce_not_a_number` |
+| T9 | A1 | B1 | C3 | D1 | E1 | F1 | G1 | H1 | I1 | returns `2`; stderr `min_pierce must be 0 or more, got -1.0` | `test_main_search_min_pierce_negative` |
+| T10 | A1 | B1 | C4 | D1 | E1 | F1 | G1 | H1 | I1 | returns `0`; stdout is `No upgrades match these filters.` | `test_main_search_min_pierce_above_all` |
+| T11 | A1 | B1 | C1 | D2 | E1 | F1 | G1 | H1 | I1 | returns `0`; stdout is `format_results` of `["0-0-0"]` | `test_main_search_damage_type_known` |
+| T12 | A1 | B1 | C1 | D3 | E1 | F1 | G1 | H1 | I1 | returns `2`; stderr `Unknown damage type "Bogus". Valid types: Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Shatter, Sharp, Unknown` | `test_main_search_damage_type_unknown` |
+| T13 | A1 | B1 | C1 | D1 | E2 | F1 | G1 | H1 | I1 | returns `0`; stdout is `format_results` of `["1-1-0", "0-0-0"]` | `test_main_search_sort_whitelisted` |
+| T14 | A1 | B1 | C1 | D1 | E3 | F1 | G1 | H1 | I1 | `SystemExit.code == 2`; last stderr line starts with `btd6 search: error: argument --sort: invalid choice: 'bogus'` | `test_main_search_sort_not_whitelisted` |
+| T15 | A1 | B1 | C1 | D1 | E1 | F2 | G1 | H1 | I1 | returns `0`; stdout is `format_results` of `["0-0-0"]` | `test_main_search_limit_one` |
+| T16 | A1 | B1 | C1 | D1 | E1 | F3 | G1 | H1 | I1 | returns `2`; stderr `limit must be at least 1, got 0` | `test_main_search_limit_zero` |
+| T17 | A1 | B1 | C1 | D1 | E1 | F1 | G2 | H1 | I1 | returns `0`; stdout is `format_results` of `["2-0-0", "2-1-0"]` | `test_main_search_can_pop_lead` |
+| T18 | A1 | B1 | C1 | D1 | E1 | F1 | G3 | H1 | I1 | returns `0`; stdout is `format_results` of `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_main_search_no_lead_flags` |
+| T19 | A1 | B1 | C1 | D1 | E1 | F1 | G4 | H1 | I1 | returns `2`; stderr `--can-pop and --cannot-pop both list lead` | `test_main_search_lead_in_both_flags` |
+| T20 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H2 | I1 | returns `0`; stdout is `No upgrades match these filters.` | `test_main_search_camo` |
+| T21 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H3 | I1 | returns `0`; stdout is `format_results` of `["0-0-0", "1-1-0"]` | `test_main_search_no_camo` |
+| T22 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | I2 | with Dart Monkey `0-0-0` inserted, returns `0`; stdout is `format_results` of Super Monkey `["0-0-0", "1-1-0"]`; Dart Monkey is absent | `test_main_search_non_magic_rows_excluded` |
 
 ### Extra non-BCC tests
 
-| Case ID | Covers | Expected result |
-|---|---|---|
-| EXTRA-1 | `--help` (#41) | `main(["--help"])` raises `SystemExit` with code `0`; stdout contains `load` and `search` |
-| EXTRA-2 | `--debug` (#46) | `main(["--debug", "--db", <B4 file>, "search"])` returns `1`; stderr contains `Traceback` and ends with a line containing `file is not a database` |
-| EXTRA-3 | no filters (#43) | `main(["--db", DB, "search"])` returns `0`; stdout is `format_results` of all four fixture paths |
-| EXTRA-4 | epic example (#43) | `main(["--db", DB, "search", "--cannot-pop", "lead", "--min-pierce", "3", "--sort", "projectile_pierce", "--limit", "5"])` returns `0`; stdout is `format_results` of `["1-1-0"]` |
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T23 | `--help` (#41) | `main(["--help"])` raises `SystemExit` with code `0`; stdout contains `load` and `search` | `test_main_help` |
+| T24 | `--debug` (#46) | `main(["--debug", "--db", <B4 file>, "search"])` returns `1`; stderr contains `Traceback` and ends with a line containing `file is not a database` | `test_main_search_debug_traceback` |
+| T25 | no filters (#43) | `main(["--db", DB, "search"])` returns `0`; stdout is `format_results` of all four fixture paths | `test_main_search_no_filters` |
+| T26 | epic example (#43) | `main(["--db", DB, "search", "--cannot-pop", "lead", "--min-pierce", "3", "--sort", "projectile_pierce", "--limit", "5"])` returns `0`; stdout is `format_results` of `["1-1-0"]` | `test_main_search_epic_example` |
 
 ---
 
-## Table 2: `load`
+## main: `load`
+
+```python
+def main(argv: list[str] | None = None) -> int
+```
+
+Parses `argv` for the `load` subcommand, fetches each requested Magic tower, writes its upgrades to the database and prints one `<Tower>: <n> upgrades` line per tower.
+
+Take the `load` path of `main(argv)`. First, we use interface-based modeling; we know that `load` takes an optional `--tower`, thus we model which towers were requested: all of them, one valid one, and one that is not a Magic tower, which argparse must reject before any fetch. To determine important characteristics, we first fixate on the function of the code: the user wants every requested tower in the database, and a failure must name what failed. We know that the wiki is the only external dependency, thus we model the fetch outcome: every tower succeeds, one tower returns bad data (the load continues and the exit code is 1), or the wiki is unreachable (the load stops at the first request). Finally, we model the state of the database file, since loading into a database that already holds the data must not duplicate rows. The `COUNT(*)` and the stdout lines follow from those choices, so they are checked in the oracle.
 
 Fixture: a fake fetch passed to the handler (or monkeypatched over `btd6.etl.pipeline.fetch_tower_module`) that returns the saved Super Monkey module for every tower, so each loads 64 upgrades. Never call the real wiki. Towers load in `MAGIC_TOWERS` order: Super Monkey, Wizard Monkey, Ninja Monkey, Alchemist, Druid. `COUNT(*)` means `SELECT COUNT(*) FROM upgrades` on `NEW_DB` after the call.
 
@@ -126,26 +139,28 @@ Base input: `main(["--db", NEW_DB, "load"])`, with `NEW_DB = tmp_path / "new.db"
 
 ### ISP
 
-| Variable | Characteristic | Partition/Block | Representative Value |
+|Parameter|Characteristic|Partition|Value|
 |---|---|---|---|
-| V1: `--tower` | K: Towers requested | K1 (Base): not given (all magic towers) | — |
-| V1: `--tower` | K: Towers requested | K2: one magic tower | `"--tower", "Wizard Monkey"` |
-| V1: `--tower` | K: Towers requested | K3: not a magic tower | `"--tower", "Dart Monkey"` |
-| V2: fetch | L: Fetch outcome | L1 (Base): every tower succeeds | fake returns the Super Monkey module |
-| V2: fetch | L: Fetch outcome | L2: one tower has bad data | fake raises `ValueError("no upgrade data")` for `Alchemist` |
-| V2: fetch | L: Fetch outcome | L3: wiki unreachable | fake raises `requests.ConnectionError("connection refused")` on the first call |
-| V3: database file | M: State before the call | M1 (Base): missing | `NEW_DB` not created |
-| V3: database file | M: State before the call | M2: already loaded | `NEW_DB` after one successful base `load` |
+|`--tower`|A) Towers requested|A1: Not given (all Magic towers)|none|
+|||A2: One Magic tower|`"--tower", "Wizard Monkey"`|
+|||A3: Not a Magic tower|`"--tower", "Dart Monkey"`|
+|fetch|B) Fetch outcome|B1: Every tower succeeds|fake returns the Super Monkey module|
+|||B2: One tower has bad data|fake raises `ValueError("no upgrade data")` for `Alchemist`|
+|||B3: Wiki unreachable|fake raises `requests.ConnectionError("connection refused")` on the first call|
+|`--db` (state: file)|C) State before the call|C1: Missing|`NEW_DB` not created|
+|||C2: Already loaded|`NEW_DB` after one successful base `load`|
 
-L3 stops the load at the first failed request.
+Base case: A1, B1, C1
+
+Feasibility notes: B3 stops the load at the first failed request, so the tower list does not matter for it.
 
 ### Base Choice Coverage
 
-| Case ID | K | L | M | Changed characteristic | Expected result |
+| BCC Test | A | B | C | Oracle | Test Name |
 |---|---|---|---|---|---|
-| LOAD-1 | K1 | L1 | M1 | None — All Base | returns `0`; stdout is five lines: `Super Monkey: 64 upgrades`, `Wizard Monkey: 64 upgrades`, `Ninja Monkey: 64 upgrades`, `Alchemist: 64 upgrades`, `Druid: 64 upgrades`; `NEW_DB` exists; `COUNT(*)` is `320` |
-| LOAD-2 | K2 | L1 | M1 | K | returns `0`; stdout is `Wizard Monkey: 64 upgrades`; `COUNT(*)` is `64` |
-| LOAD-3 | K3 | L1 | M1 | K | `SystemExit.code == 2`; last stderr line starts with `btd6 load: error: argument --tower: invalid choice: 'Dart Monkey'`; `NEW_DB` is not created |
-| LOAD-4 | K1 | L2 | M1 | L | returns `1`; stdout is the four success lines without Alchemist; stderr `Alchemist: failed: no upgrade data`; `COUNT(*)` is `256` |
-| LOAD-5 | K1 | L3 | M1 | L | returns `1`; stderr `Could not reach the wiki: connection refused`; stdout is empty |
-| LOAD-6 | K1 | L1 | M2 | M | returns `0`; stdout is the same five lines as LOAD-1; `COUNT(*)` is still `320` |
+| T1 | A1 | B1 | C1 | returns `0`; stdout is five lines: `Super Monkey: 64 upgrades`, `Wizard Monkey: 64 upgrades`, `Ninja Monkey: 64 upgrades`, `Alchemist: 64 upgrades`, `Druid: 64 upgrades`; `NEW_DB` exists; `COUNT(*)` is `320` | `test_main_load_all_base` |
+| T2 | A2 | B1 | C1 | returns `0`; stdout is `Wizard Monkey: 64 upgrades`; `COUNT(*)` is `64` | `test_main_load_one_tower` |
+| T3 | A3 | B1 | C1 | `SystemExit.code == 2`; last stderr line starts with `btd6 load: error: argument --tower: invalid choice: 'Dart Monkey'`; `NEW_DB` is not created | `test_main_load_not_a_magic_tower` |
+| T4 | A1 | B2 | C1 | returns `1`; stdout is the four success lines without Alchemist; stderr `Alchemist: failed: no upgrade data`; `COUNT(*)` is `256` | `test_main_load_one_tower_bad_data` |
+| T5 | A1 | B3 | C1 | returns `1`; stderr `Could not reach the wiki: connection refused`; stdout is empty | `test_main_load_wiki_unreachable` |
+| T6 | A1 | B1 | C2 | returns `0`; stdout is the same five lines as T1; `COUNT(*)` is still `320` | `test_main_load_already_loaded` |
