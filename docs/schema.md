@@ -1,0 +1,135 @@
+# Schema (1.0)
+
+Design for the SQLite database that the loader (Iain) fills and the query layer (Nicole) reads. DDL is in `btd6/db/migrations/001_initial.sql`; this file records the decisions behind it. `btd6.db.connect(path)` enables `PRAGMA foreign_keys = ON` and `sqlite3.Row`; `btd6.db.apply_migrations(connection)` applies unapplied migrations in numeric order, tracked by `PRAGMA user_version`. Never edit an applied migration.
+
+## ER diagram
+
+```mermaid
+erDiagram
+    towers ||--o{ upgrades : "has"
+    damage_types ||--o{ upgrades : "classifies"
+
+    towers {
+        INTEGER id PK
+        TEXT name UK "NOT NULL"
+        TEXT category "NOT NULL"
+    }
+    damage_types {
+        INTEGER id PK
+        TEXT name UK "NOT NULL"
+        INTEGER can_pop_lead "0/1, NULL for Unknown"
+        INTEGER can_pop_black "0/1, NULL for Unknown"
+        INTEGER can_pop_white "0/1, NULL for Unknown"
+        INTEGER can_pop_purple "0/1, NULL for Unknown"
+        INTEGER can_pop_glass "0/1, NULL for Unknown"
+        INTEGER can_pop_frozen "0/1, NULL for Unknown"
+    }
+    upgrades {
+        INTEGER id PK
+        INTEGER tower_id FK "NOT NULL"
+        TEXT path "NOT NULL, UK with tower_id"
+        INTEGER damage_type_id FK "NOT NULL"
+        REAL range
+        REAL footprint_radius
+        REAL attack_rate
+        INTEGER projectile_count
+        REAL projectile_damage
+        REAL projectile_pierce
+        REAL projectile_speed
+        REAL projectile_radius
+        REAL projectile_lifespan
+        INTEGER can_hit_camo "NOT NULL, 0/1"
+        REAL ability_cooldown
+    }
+```
+
+## Table definitions
+
+### `towers`
+
+| Column | Type | Null | Constraints |
+|---|---|---|---|
+| `id` | INTEGER | no | `PRIMARY KEY` |
+| `name` | TEXT | no | `UNIQUE` (e.g. `Super Monkey`) |
+| `category` | TEXT | no | (e.g. `Magic`) |
+
+### `damage_types`
+
+| Column | Type | Null | Constraints |
+|---|---|---|---|
+| `id` | INTEGER | no | `PRIMARY KEY` |
+| `name` | TEXT | no | `UNIQUE` |
+| `can_pop_lead`, `can_pop_black`, `can_pop_white`, `can_pop_purple`, `can_pop_glass`, `can_pop_frozen` | INTEGER | yes, only for `Unknown` | `CHECK (x IS NULL OR x IN (0, 1))` |
+
+Seeded in the migration from `DAMAGE_TYPES`: ids 1 to 11 follow bitmask order (Normal, Shatter, Explosion, Glacier, Cold, Fire, Frigid, Sharp, Acid, Plasma, Energy), plus `Unknown` as id 12. The ids are stable, so the loader looks a type up by `name`, never by bitmask.
+
+### `upgrades`
+
+| Column | Type | Null | Constraints |
+|---|---|---|---|
+| `id` | INTEGER | no | `PRIMARY KEY` |
+| `tower_id` | INTEGER | no | `REFERENCES towers (id) ON DELETE CASCADE` |
+| `path` | TEXT | no | `CHECK (path GLOB '[0-5]-[0-5]-[0-5]')`; `UNIQUE (tower_id, path)` |
+| `damage_type_id` | INTEGER | no | `REFERENCES damage_types (id)` |
+| `range`, `footprint_radius`, `attack_rate`, `projectile_damage`, `projectile_pierce`, `projectile_speed`, `projectile_radius`, `projectile_lifespan`, `ability_cooldown` | REAL | yes | `CHECK (x IS NULL OR x >= 0)` |
+| `projectile_count` | INTEGER | yes | `CHECK (projectile_count IS NULL OR projectile_count >= 0)` |
+| `can_hit_camo` | INTEGER | no | `CHECK (can_hit_camo IN (0, 1))` |
+
+Indexes: `upgrades.damage_type_id` (foreign key, SQLite does not index it automatically), `range`, `projectile_pierce`, `projectile_damage`. None on `can_hit_camo`, since a 0/1 column is not selective enough for SQLite to use an index.
+
+## `extract_row` mapping
+
+Every one of the 19 columns of `extract_row`'s output has a destination.
+
+| `extract_row` column | Destination |
+|---|---|
+| `path` | `upgrades.path` |
+| `range`, `footprint_radius`, `attack_rate`, `projectile_count`, `projectile_damage`, `projectile_pierce`, `projectile_speed`, `projectile_radius`, `projectile_lifespan`, `ability_cooldown` | the `upgrades` column of the same name |
+| `can_hit_camo` | `upgrades.can_hit_camo` (bool stored as 0/1) |
+| `damage_type` | looked up by name in `damage_types`, stored as `upgrades.damage_type_id` |
+| `can_pop_lead`, `can_pop_black`, `can_pop_white`, `can_pop_purple`, `can_pop_glass`, `can_pop_frozen` | deliberately not stored on `upgrades`: they are columns of `damage_types`, reached through `damage_type_id` (see the `can_pop_*` decision) |
+
+`extract_row` returns no tower or category, so the loader supplies `towers.name` and `towers.category` from its own input.
+
+## Decisions
+
+### Key: surrogate `id` plus `UNIQUE (tower_id, path)`
+
+`upgrades.id INTEGER PRIMARY KEY` is the primary key, and `(tower_id, path)` is the natural key, enforced `UNIQUE` and used as the loader's upsert target. A composite primary key would also work. We chose the surrogate because later child tables (2.0 cost and round data) can then reference one integer instead of a pair. The natural key is still enforced, so nothing is lost. The primary keys are named `id` rather than `tower_id` and `damage_type_id`, which matches `docs/queries.md`; foreign key columns carry the table prefix.
+
+### `can_pop_*`: derived through `damage_types`
+
+Each flag is a function of the damage type, so storing it per upgrade would be a transitive dependency (not 3NF), would repeat the same six values on hundreds of rows, and could drift from `damage_type_id`. The flags live in `damage_types`, seeded once, and `search_upgrades` reaches them through the join it already needs for `damage_type`. The loader maps `extract_row`'s `damage_type` name to `damage_type_id` and ignores the row's `can_pop_*` values. The cost is one join on lead and similar filters, which is small because `damage_types` has 12 rows.
+
+### Boolean storage: `INTEGER` 0/1 with `CHECK`
+
+SQLite has no boolean type. Every boolean column is `INTEGER` with `CHECK (x IN (0, 1))` (nullable variant for the `Unknown` flags). The loader converts pandas `numpy.bool_` to `int` before binding, because `sqlite3` cannot bind `numpy.bool_`.
+
+### NULL: "no value for this upgrade"
+
+- Stat columns (`range`, `footprint_radius`, `attack_rate`, `projectile_*`) are `NULL` when the wiki data has no value, such as a tower with no attack or no projectile. Never store `0` as a stand-in, because `0` is a real value and a valid filter threshold.
+- `ability_cooldown` is `NULL` for an upgrade with no ability.
+- `can_pop_*` on `damage_types` is `NULL` only for `Unknown`: an unmapped bitmask says nothing about what can be popped. A comparison against `NULL` matches neither `True` nor `False`.
+- `can_hit_camo`, `tower_id`, `path` and `damage_type_id` are never `NULL`.
+- A filter on a nullable column never matches `NULL`, so `min_pierce=0` excludes upgrades with no pierce (`docs/queries.md`).
+
+### Normalization
+
+Tower name and category are stored once in `towers`, and damage type name and flags once in `damage_types`, so no string is repeated per upgrade. There is no deliberate duplication: `can_hit_camo` is a fact about the upgrade's projectile and cannot be derived from another column.
+
+### Cost in 2.0
+
+`cost` is not in 1.0. It arrives as `002_add_upgrade_cost.sql`: `ALTER TABLE upgrades ADD COLUMN cost REAL CHECK (cost IS NULL OR cost >= 0)`, nullable so existing rows stay valid until reloaded. It is one value per upgrade, so it stays a column of `upgrades`, not a separate table.
+
+## Queries this must support
+
+Taken from `docs/queries.md`. Pending sign-off from Nicole.
+
+1. Upgrades of one tower (`towers.name`) or one category (`towers.category`).
+2. Upgrades that can or cannot pop a bloon property (lead, black, white, purple, glass, frozen), through `damage_types`.
+3. Upgrades with at least a given range, pierce, projectile damage or projectile speed; `NULL` never matches.
+4. Upgrades with a given damage type (`damage_types.name`), exact and case-sensitive, and the list of valid names for the error message.
+5. Upgrades that can or cannot hit camo.
+6. Any combination of the above, ANDed.
+7. Sorting by `range`, `attack_rate`, `projectile_damage`, `projectile_pierce`, `projectile_speed`, `projectile_count` or `ability_cooldown`, `NULL` last, ties by tower name then path.
+8. Limiting the number of rows returned.
