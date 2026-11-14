@@ -40,7 +40,7 @@ A filter set to `None` adds no restriction. Given filters combine with AND.
 |---|---|---|
 | `tower_name` | `towers.name` | exact match; unknown name returns `[]` |
 | `category` | `towers.category` | exact match; unknown category returns `[]` |
-| `can_pop_lead` ... `can_pop_frozen` | `upgrades.can_pop_<property>` | exact match |
+| `can_pop_lead` ... `can_pop_frozen` | `damage_types.can_pop_<property>` | exact match; `NULL` (the `Unknown` damage type) never matches, for `True` or `False` |
 | `min_range` | `upgrades.range` | `>=`; `NULL` never matches |
 | `min_pierce` | `upgrades.projectile_pierce` | `>=`; `NULL` never matches |
 | `min_damage` | `upgrades.projectile_damage` | `>=`; `NULL` never matches |
@@ -77,9 +77,14 @@ The CLI prints these unchanged (`tests/isp-tables/cli.md`).
 ## Assumed schema (for #16)
 
 - `towers(id, name UNIQUE, category)`
-- `upgrades(tower_id -> towers.id, path, <stat columns>, damage_type_id -> damage_types.id, can_pop_* columns)`, unique on `(tower_id, path)`
-- `damage_types(id, name UNIQUE)` seeded from `DAMAGE_TYPES`, plus `Unknown`
-- `can_pop_*` and `can_hit_camo` stored as `INTEGER` 0/1
+- `upgrades(tower_id -> towers.id, path, <stat columns>, can_hit_camo, damage_type_id -> damage_types.id)`, unique on `(tower_id, path)`
+- `damage_types(id, name UNIQUE, can_pop_lead, can_pop_black, can_pop_white, can_pop_purple, can_pop_glass, can_pop_frozen)` seeded from `DAMAGE_TYPES`, plus `Unknown`
+- `can_hit_camo` and `can_pop_*` stored as `INTEGER` 0/1; `can_pop_*` is `NULL` for `Unknown`
 - indexes on the filter and sort columns
+- `cost` is not part of the 1.0 schema; it arrives in 2.0 as a nullable `upgrades.cost` column added by migration
+
+### Decision: `can_pop_*` live on `damage_types`
+
+Every `can_pop_*` value is a function of the damage type, so storing it per upgrade would be a transitive dependency (not 3NF) and could drift from `damage_type_id`. The flags are therefore seeded once in `damage_types`, and `search_upgrades` reads them through the `damage_types` join it already needs for `damage_type`. `extract_row` still returns the flags, but the loader uses only the damage type name to look up `damage_type_id`. `Unknown` is seeded with `NULL` flags, because an unmapped bitmask says nothing about what can be popped. The result row columns are unchanged.
 
 Until #16 lands, query tests build this schema in an in-memory fixture database.
