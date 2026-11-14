@@ -1,10 +1,13 @@
 # `search_upgrades(connection, filters: UpgradeFilters | None = None, sort_by: str | None = None, descending: bool = True, limit: int | None = None) -> list[sqlite3.Row]`
 
-Signature and rules from `docs/queries.md` (#31, #33). Filters left as `None` add no restriction; given filters combine with AND. `min_pierce` uses `>=` and never matches `NULL`. A negative threshold, a `sort_by` outside the whitelist, and `limit < 1` each raise `ValueError`. Results are always ordered: by `sort_by` when given (`NULL` last), with ties and unsorted results ordered by tower name, then path.
+## Rules for these tests
 
-This table covers the characteristics named in #32 (pierce threshold, lead flag, filter combination, empty table, `NULL` values) plus the `filters`, `sort_by` and `limit` parameters, since #33 and #37 build on the same signature. The other numeric thresholds (#35), the other `can_pop_*` flags (#34), `damage_type` and `can_hit_camo` (#36), and `tower_name` and `category` (#38) are not partitioned here; their characteristics get added to this file when those issues are worked on.
+- Behavior is defined in `docs/queries.md`.
+- `conn` is an in-memory SQLite connection with the schema from `docs/queries.md`. Never mock SQLite.
+- Compare `[row["path"] for row in result]` to the expected list, in order. Every path is Super Monkey unless marked Alchemist.
+- Expected `ValueError` cases use `pytest.raises(ValueError)`.
 
-Test fixture: in-memory SQLite DB with the schema from `docs/queries.md`, seeded with four real Super Monkey rows from `data.csv`. Expected results are written as lists of paths in the returned order; every listed path is a Super Monkey upgrade unless marked otherwise.
+Fixture rows (from `data.csv`):
 
 | tower | path | projectile_pierce | can_pop_lead | damage_type |
 |---|---|---|---|---|
@@ -13,7 +16,7 @@ Test fixture: in-memory SQLite DB with the schema from `docs/queries.md`, seeded
 | Super Monkey | `2-0-0` | 2 | True | Plasma |
 | Super Monkey | `2-1-0` | 3 | True | Plasma |
 
-`NULL` row (only in E2): Alchemist `0-0-1`, `projectile_pierce = NULL`, `can_pop_lead = False`, `damage_type = Sharp`. Alchemist data is not loaded yet, so this row is inserted by hand, modeled on the Alchemist upgrades that have `NULL` pierce.
+E2 only: add Alchemist `0-0-1`, `projectile_pierce = NULL`, `can_pop_lead = False`, `damage_type = Sharp` (inserted by hand).
 
 ## ISP
 
@@ -45,13 +48,11 @@ Test fixture: in-memory SQLite DB with the schema from `docs/queries.md`, seeded
 | V7: `descending` | I: Sort direction | I1 (Base): descending (the default) | `True` |
 | V7: `descending` | I: Sort direction | I2: ascending | `False` |
 
-Feasibility notes: use an in-memory SQLite DB, never a mock. D2 makes A, B, H and E irrelevant, so it is tested once. `data.csv` has no `NULL` pierce, so E2 needs the row inserted by hand. "Rows exist but none match" is not a separate block: it is the result of A3 against this fixture. C2 makes A, B and H irrelevant, since there is no filters object to read.
+C2 takes no filters, so A and B do not apply to it.
 
 ## Base Choice Coverage
 
-H is not varied independently: it is decided by which of A and B is `None`. H1 (Base) is the all-base case, H2 is covered by A4 and B3, and H3 needs two changes at once, so it is an extra non-BCC test. I only matters when F is F2: changing I alone from the F1 base would not change the result, so I1 (Base) holds in every BCC case and I2 is covered by an extra test. BCC is therefore taken over A, B, C, D, E, F and G.
-
-The base for A is `0` rather than `3` so that E2 is meaningful: with `min_pierce=0`, an implementation that treats `NULL` as `0` would wrongly include the Alchemist row. The base for B is `False` so that the base result has two rows in a known order, which makes the G2 and F2 cases show a real change.
+Excluded from BCC: H is decided by which of A and B is `None` (H2 in BCC-4 and BCC-7, H3 in EXTRA-1). I has no effect unless F is F2 (I2 in EXTRA-3).
 
 | Case ID | A | B | C | D | E | F | G | Changed characteristic | Expected result |
 |---|---|---|---|---|---|---|---|---|---|
@@ -69,8 +70,6 @@ The base for A is `0` rather than `3` so that E2 is meaningful: with `min_pierce
 | BCC-12 | A1 | B2 | C1 | D1 | E1 | F3 | G1 | F | base filters with `sort_by="; DROP TABLE upgrades"` raises `ValueError`; afterward `SELECT COUNT(*) FROM upgrades` returns `4` |
 | BCC-13 | A1 | B2 | C1 | D1 | E1 | F1 | G2 | G | base filters with `limit=1` returns `["0-0-0"]` |
 | BCC-14 | A1 | B2 | C1 | D1 | E1 | F1 | G3 | G | base filters with `limit=0` raises `ValueError` |
-
-BCC-4 returns the same list as BCC-1 because every stored pierce is at least 1. It is still required, since it proves that `None` adds no restriction where `0` would.
 
 ## Extra non-BCC tests
 
