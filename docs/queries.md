@@ -1,10 +1,8 @@
-# Query layer contract (proposal)
+# Query layer contract
 
-Status: **proposal** from the query layer (#31), written before the schema (#16) exists.
-This lists what `btd6/query.py` needs from the database. If the final schema differs,
-the query layer will adapt through one small mapping, so nothing here blocks #16.
+Proposal from the query layer (#31), written before the schema (#16). `btd6/query.py` must match this file.
 
-## Public interface
+## Interface
 
 ```python
 @dataclass(frozen=True)
@@ -34,67 +32,54 @@ def search_upgrades(
 ) -> list[sqlite3.Row]: ...
 ```
 
-The `can_pop` filter is one field per bloon property rather than a mapping, so the frozen
-dataclass stays hashable and each field matches one column name.
-
 ## Filters
 
-Every filter left as `None` adds no restriction. Filters that are given combine with AND.
+A filter set to `None` adds no restriction. Given filters combine with AND.
 
-| Filter | Table.column it reads | Rule |
+| Filter | Table.column | Rule |
 |---|---|---|
 | `tower_name` | `towers.name` | exact match; unknown name returns `[]` |
 | `category` | `towers.category` | exact match; unknown category returns `[]` |
-| `can_pop_lead` ... `can_pop_frozen` | `upgrades.can_pop_<property>` | `True` / `False` exact match |
+| `can_pop_lead` ... `can_pop_frozen` | `upgrades.can_pop_<property>` | exact match |
 | `min_range` | `upgrades.range` | `>=`; `NULL` never matches |
 | `min_pierce` | `upgrades.projectile_pierce` | `>=`; `NULL` never matches |
 | `min_damage` | `upgrades.projectile_damage` | `>=`; `NULL` never matches |
 | `min_projectile_speed` | `upgrades.projectile_speed` | `>=`; `NULL` never matches |
-| `damage_type` | `damage_types.name` | exact, case-sensitive; unknown name raises `ValueError` listing valid names |
-| `can_hit_camo` | `upgrades.can_hit_camo` | `True` / `False` exact match |
+| `damage_type` | `damage_types.name` | exact, case-sensitive; unknown name raises `ValueError` |
+| `can_hit_camo` | `upgrades.can_hit_camo` | exact match |
 
-Decisions:
-- A negative numeric threshold raises `ValueError`. `0` is valid and excludes `NULL` rows.
-- `search_upgrades` with no filters searches every loaded tower. The CLI passes
-  `category="Magic"` by default, so the 1.0 "magic monkeys only" scope is a CLI default,
-  not hardcoded in the query layer.
+- `0` is a valid threshold and excludes `NULL` rows. A negative threshold raises `ValueError`.
+- No filters searches every loaded tower. The CLI passes `category="Magic"` by default.
 
 ## Sorting and limit
 
-- `sort_by` must be one of: `range`, `attack_rate`, `projectile_damage`, `projectile_pierce`,
-  `projectile_speed`, `projectile_count`, `ability_cooldown`. Anything else raises `ValueError`
-  listing the allowed values. The column name is taken from this whitelist, never from the
-  caller's string.
-- `NULL` values sort last in both directions.
-- `attack_rate` is seconds between attacks, so lower is faster. With the default
-  `descending=True` it lists the slowest upgrades first; the CLI should sort it ascending
-  when the user asks for the fastest.
-- Ties, and unsorted results, are ordered by `towers.name`, then `upgrades.path`, so output is
-  always deterministic.
-- `limit=None` means no limit; `limit < 1` raises `ValueError`; the value is passed as a `?`
-  parameter.
+- `sort_by` must be one of `range`, `attack_rate`, `projectile_damage`, `projectile_pierce`, `projectile_speed`, `projectile_count`, `ability_cooldown`; anything else raises `ValueError`. Build `ORDER BY` from this whitelist, never from the caller's string.
+- `NULL` sorts last in both directions.
+- Ties, and unsorted results, are ordered by `towers.name`, then `upgrades.path`.
+- `attack_rate` is seconds between attacks (lower is faster); with `descending=True` the slowest come first.
+- `limit=None` means no limit; `limit < 1` raises `ValueError`; pass the limit as a `?` parameter.
+
+## `ValueError` messages
+
+The CLI prints these unchanged (`tests/isp-tables/cli.md`).
+
+| Cause | Message |
+|---|---|
+| negative threshold | `<field> must be 0 or more, got <value>` (e.g. `min_pierce must be 0 or more, got -1.0`) |
+| unknown damage type | `Unknown damage type "<name>". Valid types: <names from damage_types, sorted, comma-separated>` |
+| `sort_by` not whitelisted | `Cannot sort by "<value>". Allowed: <whitelist, comma-separated>` |
+| limit below 1 | `limit must be at least 1, got <value>` |
 
 ## Result row columns
 
-`tower_name`, `category`, `path`, `range`, `footprint_radius`, `attack_rate`,
-`projectile_count`, `projectile_damage`, `projectile_pierce`, `projectile_speed`,
-`projectile_radius`, `projectile_lifespan`, `can_hit_camo`, `ability_cooldown`, `damage_type`
-(the name, not the id), `can_pop_lead`, `can_pop_black`, `can_pop_white`, `can_pop_purple`,
-`can_pop_glass`, `can_pop_frozen`.
+`tower_name`, `category`, `path`, `range`, `footprint_radius`, `attack_rate`, `projectile_count`, `projectile_damage`, `projectile_pierce`, `projectile_speed`, `projectile_radius`, `projectile_lifespan`, `can_hit_camo`, `ability_cooldown`, `damage_type` (name, not id), `can_pop_lead`, `can_pop_black`, `can_pop_white`, `can_pop_purple`, `can_pop_glass`, `can_pop_frozen`.
 
-These are the `extract_row` columns plus `tower_name` and `category`.
-
-## What this assumes about the schema (for #16)
+## Assumed schema (for #16)
 
 - `towers(id, name UNIQUE, category)`
-- `upgrades(tower_id -> towers.id, path, <stat columns>, damage_type_id -> damage_types.id,
-  can_pop_* columns)`, unique on `(tower_id, path)`
+- `upgrades(tower_id -> towers.id, path, <stat columns>, damage_type_id -> damage_types.id, can_pop_* columns)`, unique on `(tower_id, path)`
 - `damage_types(id, name UNIQUE)` seeded from `DAMAGE_TYPES`, plus `Unknown`
 - `can_pop_*` and `can_hit_camo` stored as `INTEGER` 0/1
-- Indexes on the filter and sort columns above
+- indexes on the filter and sort columns
 
-If `can_pop_*` ends up derived through a join on `damage_types` instead of stored on
-`upgrades`, only the SQL builder changes; the interface above stays the same.
-
-Until #16 lands, query tests run against an in-memory fixture database built with the
-schema above (`tests/fixtures/`).
+Until #16 lands, query tests build this schema in an in-memory fixture database.
