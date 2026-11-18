@@ -87,15 +87,12 @@ def test_format_help_texts(expected):
     assert re.search(pattern, build_parser().format_help())
 
 
-@pytest.mark.parametrize("command", ["load", "search"])
-def test_main_stub_command_not_implemented_retire_when_43_45_land(
-    command, capsys: pytest.CaptureFixture[str]
-):
-    exit_code = main([command])
+def test_main_load_stub_not_implemented(capsys: pytest.CaptureFixture[str]):
+    exit_code = main(["load"])
 
     captured = capsys.readouterr()
     assert exit_code == 1
-    assert captured.err == f"{command}: not implemented\n"
+    assert captured.err == "load: not implemented\n"
     assert captured.out == ""
 
 

@@ -71,9 +71,12 @@ def insert_upgrade(
 
 
 def build_database(
-    csv_path: Path, with_rows: bool = True, all_rows: bool = False
+    csv_path: Path,
+    with_rows: bool = True,
+    all_rows: bool = False,
+    path: str = ":memory:",
 ) -> sqlite3.Connection:
-    conn = connect(":memory:")
+    conn = connect(path)
     apply_migrations(conn)
     if with_rows:
         tower_id = insert_tower(conn, "Super Monkey", "Magic")

@@ -7,7 +7,9 @@ from collections.abc import Callable
 
 import pandas as pd
 
+from btd6.db import connect
 from btd6.etl.fetch import PROJECT_ROOT
+from btd6.query import POP_PROPERTIES, SORT_COLUMNS, UpgradeFilters, search_upgrades
 
 RESULT_COLUMNS: dict[str, str] = {
     "tower_name": "tower",
@@ -61,8 +63,35 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--db", default=str(PROJECT_ROOT / "btd6.db"), help="SQLite database path")
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("load", help="load resolved tower data into the database")
-    subparsers.add_parser("search", help="search towers and upgrades by stats")
+    search_parser = subparsers.add_parser("search", help="search towers and upgrades by stats")
+    add_search_options(search_parser)
     return parser
+
+
+def add_search_options(subparser: argparse.ArgumentParser) -> None:
+    for flag in ("--can-pop", "--cannot-pop"):
+        subparser.add_argument(flag, action="append", choices=POP_PROPERTIES, metavar="PROP")
+    for flag in ("--min-pierce", "--min-damage", "--min-range", "--min-speed"):
+        subparser.add_argument(flag, type=float)
+    subparser.add_argument("--damage-type")
+    subparser.add_argument("--camo", action=argparse.BooleanOptionalAction, default=None)
+    subparser.add_argument("--sort", choices=SORT_COLUMNS)
+    subparser.add_argument("--limit", type=int)
+
+
+def build_filters(args: argparse.Namespace) -> UpgradeFilters:
+    pop_flags = {f"can_pop_{prop}": True for prop in args.can_pop or []}
+    pop_flags.update({f"can_pop_{prop}": False for prop in args.cannot_pop or []})
+    return UpgradeFilters(
+        category="Magic",
+        min_pierce=args.min_pierce,
+        min_damage=args.min_damage,
+        min_range=args.min_range,
+        min_projectile_speed=args.min_speed,
+        damage_type=args.damage_type,
+        can_hit_camo=args.camo,
+        **pop_flags,
+    )
 
 
 def run_load(args: argparse.Namespace) -> int:
@@ -71,8 +100,18 @@ def run_load(args: argparse.Namespace) -> int:
 
 
 def run_search(args: argparse.Namespace) -> int:
-    print("search: not implemented", file=sys.stderr)
-    return 1
+    conflicts = set(args.can_pop or []) & set(args.cannot_pop or [])
+    if conflicts:
+        conflict = next(prop for prop in POP_PROPERTIES if prop in conflicts)
+        print(f"--can-pop and --cannot-pop both list {conflict}", file=sys.stderr)
+        return 2
+    connection = connect(args.db)
+    try:
+        rows = search_upgrades(connection, build_filters(args), sort_by=args.sort, limit=args.limit)
+        print(format_results(rows))
+    finally:
+        connection.close()
+    return 0
 
 
 HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
