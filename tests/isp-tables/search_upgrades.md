@@ -202,6 +202,21 @@ Feasibility notes: the base for B is `0` so that C2 is meaningful: an implementa
 | T9 | A2 with B3 (column mapping) | `UpgradeFilters(min_damage=2)` returns `[]` | `test_search_upgrades_min_damage_above_highest` |
 | T10 | A3 with B2 (column mapping: range and damage would return `[]`) | `UpgradeFilters(min_projectile_speed=200)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_min_projectile_speed_inclusive_boundary` |
 
+## search_upgrades: sorting and limit (#37)
+
+The first section's BCC and extra tests already cover #37's acceptance criteria: sort by pierce with limit 2 (T18), `NULL` last in both directions (T16, T17), a hostile `sort_by` leaving the table untouched (T12) and `limit=0` (T14). These extra tests cover the remaining rules in #37. They are not BCC.
+
+- Camo fixture: the four-row fixture plus Alchemist `0-0-1` (stats copied from Super Monkey `0-0-0`, so `range = 50`), as in the section below.
+- `attack_rate` in the fixture: `0-0-0` and `1-1-0` are `0.045`; `2-0-0` and `2-1-0` are `0.03`.
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T1 | every whitelisted column is accepted | for each of `range`, `attack_rate`, `projectile_damage`, `projectile_pierce`, `projectile_speed`, `projectile_count`, `ability_cooldown`, `search_upgrades(conn, sort_by=<column>)` returns 4 rows without raising | `test_search_upgrades_sort_every_whitelisted_column` |
+| T2 | a second sort column, ascending, ties by path | `search_upgrades(conn, sort_by="attack_rate", descending=False)` returns `["2-0-0", "2-1-0", "0-0-0", "1-1-0"]` | `test_search_upgrades_sort_attack_rate_ascending` |
+| T3 | ties broken by tower name before path | with the camo fixture, `search_upgrades(conn, sort_by="range")` returns `["1-1-0", "2-1-0", Alchemist "0-0-1", "0-0-0", "2-0-0"]` | `test_search_upgrades_sort_tie_by_tower_name` |
+| T4 | limit larger than the number of rows | `search_upgrades(conn, limit=10)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_limit_above_row_count` |
+| T5 | negative limit | `search_upgrades(conn, limit=-1)` raises `ValueError` matching `limit must be at least 1, got -1` | `test_search_upgrades_limit_negative` |
+
 ## search_upgrades: `damage_type`, `can_hit_camo`, sort and SQL-builder messages
 
 Fixture: the four-row Super Monkey fixture (`0-0-0` Sharp, `1-1-0` Energy, `2-0-0` Plasma, `2-1-0` Plasma, all `can_hit_camo = False`). Camo tests add Alchemist `0-0-1`, Sharp, `can_hit_camo = True`.
