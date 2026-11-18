@@ -80,3 +80,65 @@ Feasibility notes: C2 takes no filters, so A and B do not apply to it. H has no 
 | T16 | H1 with F2, tie-break, `NULL` last | with E2, `search_upgrades(conn, sort_by="projectile_pierce")` returns `["1-1-0", "2-1-0", "2-0-0", "0-0-0", Alchemist "0-0-1"]` | `test_search_upgrades_sort_descending_null_last` |
 | T17 | H2 with F2, `NULL` last | with E2, `search_upgrades(conn, sort_by="projectile_pierce", descending=False)` returns `["0-0-0", "2-0-0", "1-1-0", "2-1-0", Alchemist "0-0-1"]` | `test_search_upgrades_sort_ascending_null_last` |
 | T18 | #37 acceptance (F2 with G2-style limit) | `search_upgrades(conn, sort_by="projectile_pierce", limit=2)` returns `["1-1-0", "2-1-0"]` | `test_search_upgrades_sort_with_limit` |
+
+## search_upgrades: `can_pop_*` filters (#34)
+
+```python
+def search_upgrades(connection, filters: UpgradeFilters | None = None, sort_by: str | None = None, descending: bool = True, limit: int | None = None) -> list[sqlite3.Row]
+```
+
+Keeps only upgrades whose damage type has each given `can_pop_<property>` flag equal to the given value. Same rules and fixture as the first section.
+
+Flags of the fixture's damage types (from the `001_initial.sql` seed):
+
+| damage_type | paths | lead | black | white | purple | glass | frozen |
+|---|---|---|---|---|---|---|---|
+| Sharp | `0-0-0` | 0 | 1 | 1 | 1 | 1 | 0 |
+| Energy | `1-1-0` | 0 | 1 | 1 | 0 | 0 | 1 |
+| Plasma | `2-0-0`, `2-1-0` | 1 | 1 | 1 | 0 | 0 | 1 |
+| Unknown | D2 row only | `NULL` | `NULL` | `NULL` | `NULL` | `NULL` | `NULL` |
+
+D2 only: add Alchemist `0-0-2`, `damage_type = Unknown`, other stats copied from Super Monkey `0-0-0` (inserted by hand). Alchemist sorts before Super Monkey, so if it were wrongly included it would appear first.
+
+Take the `can_pop_*` fields of `UpgradeFilters`. The caller wants only upgrades whose damage type can (or cannot) pop a bloon property. There are six such fields, and each reads a different column, so we model which property is filtered, since a bug can map a field to the wrong column. We model the required value as `True` or `False`, since `False` means "cannot pop" and is a real restriction. A second flag must combine with the first by AND, so we model whether one is given. For the receiver state, the `Unknown` damage type stores `NULL` flags, which must match neither `True` nor `False`, so we model whether such a row exists.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`filters.can_pop_<property>`|A) Property filtered|A1: Lead|`can_pop_lead`|
+|||A2: Black|`can_pop_black`|
+|||A3: White|`can_pop_white`|
+|||A4: Purple|`can_pop_purple`|
+|||A5: Glass|`can_pop_glass`|
+|||A6: Frozen|`can_pop_frozen`|
+|`filters.can_pop_<property>` (value)|B) Required value|B1: Can pop|`True`|
+|||B2: Cannot pop|`False`|
+|`filters` (other `can_pop_*` fields)|C) Second flag|C1: None|other `can_pop_*` fields are `None`|
+|||C2: A different property is also given|`can_pop_purple=True`|
+|`connection` (state: damage types)|D) `Unknown` damage type stored|D1: No|the four-row fixture|
+|||D2: Yes|fixture plus Alchemist `0-0-2`|
+
+Base case: A1, B2, C1, D1
+
+Feasibility notes: C2 names `can_pop_purple`, so it is infeasible with A4 (same property); the BCC pairs it only with A1.
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | D | Oracle | Test Name |
+|---|---|---|---|---|---|---|
+| T1 | A1 | B2 | C1 | D1 | `search_upgrades(conn, UpgradeFilters(can_pop_lead=False))` returns `["0-0-0", "1-1-0"]` | `test_search_upgrades_can_pop_lead_false` |
+| T2 | A2 | B2 | C1 | D1 | `UpgradeFilters(can_pop_black=False)` returns `[]` | `test_search_upgrades_can_pop_black_false` |
+| T3 | A3 | B2 | C1 | D1 | `UpgradeFilters(can_pop_white=False)` returns `[]` | `test_search_upgrades_can_pop_white_false` |
+| T4 | A4 | B2 | C1 | D1 | `UpgradeFilters(can_pop_purple=False)` returns `["1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_can_pop_purple_false` |
+| T5 | A5 | B2 | C1 | D1 | `UpgradeFilters(can_pop_glass=False)` returns `["1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_can_pop_glass_false` |
+| T6 | A6 | B2 | C1 | D1 | `UpgradeFilters(can_pop_frozen=False)` returns `["0-0-0"]` | `test_search_upgrades_can_pop_frozen_false` |
+| T7 | A1 | B1 | C1 | D1 | `UpgradeFilters(can_pop_lead=True)` returns `["2-0-0", "2-1-0"]` | `test_search_upgrades_can_pop_lead_true` |
+| T8 | A1 | B2 | C2 | D1 | `UpgradeFilters(can_pop_lead=False, can_pop_purple=True)` returns `["0-0-0"]` | `test_search_upgrades_can_pop_two_flags` |
+| T9 | A1 | B2 | C1 | D2 | with Alchemist `0-0-2` inserted, `UpgradeFilters(can_pop_lead=False)` returns `["0-0-0", "1-1-0"]`; Alchemist `0-0-2` is absent | `test_search_upgrades_can_pop_unknown_false` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T10 | B1 with D2 (`NULL` never matches `True` either) | with Alchemist `0-0-2` inserted, `UpgradeFilters(can_pop_lead=True)` returns `["2-0-0", "2-1-0"]`; Alchemist `0-0-2` is absent | `test_search_upgrades_can_pop_unknown_true` |
