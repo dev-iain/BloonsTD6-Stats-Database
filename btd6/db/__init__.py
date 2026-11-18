@@ -3,14 +3,21 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
+from btd6.db.connection import connect
+
+__all__ = ["MIGRATIONS_DIR", "apply_migrations", "connect"]
+
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
 
-def connect(path: str | Path) -> sqlite3.Connection:
-    connection = sqlite3.connect(path)
-    connection.execute("PRAGMA foreign_keys = ON")
-    connection.row_factory = sqlite3.Row
-    return connection
+def run_script_atomically(connection: sqlite3.Connection, body: str, version: int) -> None:
+    """Run a migration and its version bump in one transaction, or not at all."""
+    try:
+        connection.executescript(f"BEGIN;\n{body}\nPRAGMA user_version = {version};\nCOMMIT;")
+    except sqlite3.Error:
+        if connection.in_transaction:
+            connection.rollback()
+        raise
 
 
 def apply_migrations(connection: sqlite3.Connection) -> list[str]:
@@ -21,7 +28,6 @@ def apply_migrations(connection: sqlite3.Connection) -> list[str]:
         version = int(script.name.split("_", 1)[0])
         if version <= current:
             continue
-        connection.executescript(script.read_text())
-        connection.execute(f"PRAGMA user_version = {version}")
+        run_script_atomically(connection, script.read_text(), version)
         applied.append(script.name)
     return applied

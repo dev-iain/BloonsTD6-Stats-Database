@@ -61,7 +61,7 @@ erDiagram
 | `name` | TEXT | no | `UNIQUE` |
 | `can_pop_lead`, `can_pop_black`, `can_pop_white`, `can_pop_purple`, `can_pop_glass`, `can_pop_frozen` | INTEGER | yes, only for `Unknown` | `CHECK (x IS NULL OR x IN (0, 1))` |
 
-Seeded in the migration from `DAMAGE_TYPES`: ids 1 to 11 follow bitmask order (Normal, Shatter, Explosion, Glacier, Cold, Fire, Frigid, Sharp, Acid, Plasma, Energy), plus `Unknown` as id 12. The ids are stable, so the loader looks a type up by `name`, never by bitmask.
+Seeded in the migration from `DAMAGE_TYPES`: ids 1 to 11 follow `DAMAGE_TYPES` order (not the mask values; Normal, Shatter, Explosion, Glacier, Cold, Fire, Frigid, Sharp, Acid, Plasma, Energy), plus `Unknown` as id 12. Ids are stable but not ordered (a type added later gets id 13 or more), so the loader looks a type up by `name`, never by bitmask.
 
 ### `upgrades`
 
@@ -75,7 +75,36 @@ Seeded in the migration from `DAMAGE_TYPES`: ids 1 to 11 follow bitmask order (N
 | `projectile_count` | INTEGER | yes | `CHECK (projectile_count IS NULL OR projectile_count >= 0)` |
 | `can_hit_camo` | INTEGER | no | `CHECK (can_hit_camo IN (0, 1))` |
 
-Indexes: `upgrades.damage_type_id` (foreign key, SQLite does not index it automatically), `range`, `projectile_pierce`, `projectile_damage`. None on `can_hit_camo`, since a 0/1 column is not selective enough for SQLite to use an index.
+### Indexes
+
+| Index | Justification |
+|---|---|
+| `UNIQUE (tower_id, path)` (automatic) | Natural key and loader upsert target; also serves "upgrades of one tower" |
+| `idx_upgrades_damage_type_id` | Foreign key (SQLite does not index it) and the `damage_type` filter |
+| `idx_upgrades_range` | `min_range` filter |
+| `idx_upgrades_projectile_pierce` | `min_pierce` filter |
+| `idx_upgrades_projectile_damage` | `min_damage` filter |
+
+None on `can_hit_camo` (0/1 is not selective enough), on `projectile_speed` (a threshold filter, but no index was justified at about 320 rows) or on the sort columns (`NULLS LAST` with a tiebreak needs a sort regardless).
+
+`EXPLAIN QUERY PLAN` output (36 sample rows; the real data is a few hundred, after `ANALYZE`; enforced by `tests/test_db_indexes.py`):
+
+```
+WHERE projectile_pierce >= 5   SEARCH upgrades USING COVERING INDEX idx_upgrades_projectile_pierce (projectile_pierce>?)
+WHERE projectile_damage >= 5   SEARCH upgrades USING COVERING INDEX idx_upgrades_projectile_damage (projectile_damage>?)
+WHERE range >= 50              SEARCH upgrades USING COVERING INDEX idx_upgrades_range (range>?)
+WHERE damage_type_id = 3       SEARCH upgrades USING COVERING INDEX idx_upgrades_damage_type_id (damage_type_id=?)
+WHERE tower_id = 1 AND path=.. SEARCH upgrades USING COVERING INDEX sqlite_autoindex_upgrades_1 (tower_id=? AND path=?)
+WHERE can_hit_camo = 1         SCAN upgrades   (deliberate: two values, an index would not help)
+```
+
+Indexes live in `001_initial.sql` rather than a separate `002_indexes.sql` because the schema had not shipped yet; later changes use new numbered migrations.
+
+### Seeding
+
+`001_initial.sql` seeds `damage_types` so a migrated database is usable. `btd6.db.seed.seed_lookup_tables` re-derives the same rows from `DAMAGE_TYPES` (an upsert on `name`), so a type added in code appears without editing SQL; existing ids never change, and a new type gets the next free id. `initialize_database` migrates then seeds. `tests/test_db_seed.py` checks the code-derived flags for every entry, which guards against the migration drifting from `DAMAGE_TYPES`.
+
+`btd6.db.connect(database_path=None)` lives in `btd6/db/connection.py`; `None` means the file `btd6.db` in the project root.
 
 ## `extract_row` mapping
 
@@ -116,6 +145,16 @@ SQLite has no boolean type. Every boolean column is `INTEGER` with `CHECK (x IN 
 ### Normalization
 
 Tower name and category are stored once in `towers`, and damage type name and flags once in `damage_types`, so no string is repeated per upgrade. There is no deliberate duplication: `can_hit_camo` is a fact about the upgrade's projectile and cannot be derived from another column.
+
+### Known limitations
+
+- `extract_row` keeps only the first attack, first projectile and first ability of each upgrade. The Super Monkey data has no upgrade with more than one attack, so nothing is lost today. Towers with several attacks need an `attacks` table (2.0, "stats per attack"); splitting later means a data migration.
+- `can_pop_*` are six columns on `damage_types` rather than a `bloon_properties` plus junction table. A junction table is the fully normal form, but it needs a join per flag; with six fixed properties the single join was preferred.
+- Migrations run inside one transaction, so they must not contain `BEGIN`/`COMMIT` or toggle `PRAGMA foreign_keys` (a no-op in a transaction); table rebuilds need another approach. `apply_migrations` also assumes one process at a time.
+- Seed rows for a removed `DAMAGE_TYPES` entry are not deleted, and a wrong flag in the migration is overwritten silently by the seed (the drift test guards this).
+- `projectile_count` is `INTEGER` (a count); the other projectile stats are `REAL`.
+- `projectile_speed` has no index and neither do the sort columns: at a few hundred rows SQLite scans anyway, and `NULLS LAST` with a tiebreak needs a sort regardless.
+- The `path` check allows `5-5-5`; real upgrades have at most two non-zero tiers and the loader is the place to validate that.
 
 ### Cost in 2.0
 
