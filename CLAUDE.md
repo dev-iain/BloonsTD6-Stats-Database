@@ -19,6 +19,7 @@ Database for compiling tower stats from Bloons Tower Defense 6, as well as an ag
 - No mutable default arguments. Use `None` with `if arg is None: arg = []`
 - Use human-understandable variable names. Most variable names should not be less than 4 characters. 
 - Organize code by functionality. 
+- Whenever a NULL appears in the database or extracted rows, check the original JSON for that tower (fetch the wiki module or read the tower's resolved JSON) to find out why, and record the cause in `docs/data-notes.md`. A NULL may come from `extract_row` reading a first `_order` entry that is not the main attack, not from missing data.
 - Do not use comments to organize code. If you have numerous methods for one specific feature, which in total sums to 100+ lines of code, use regions.
 
 ## Commands
