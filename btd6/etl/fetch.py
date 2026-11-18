@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,19 @@ import requests
 API_URL = "https://www.bloonswiki.com/api.php"
 CODE_PATTERN = re.compile(r"^_\d{3}$")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+STAT_FIELDS = ("range", "footprintRadius")
+ATTACK_FIELDS = ("rate",)
+PROJECTILE_FIELDS = (
+    "count",
+    "damage",
+    "pierce",
+    "speed",
+    "radius",
+    "lifespan",
+    "immuneBloonProperties",
+    "filterInvisible",
+)
+ABILITY_FIELDS = ("cooldown",)
 
 
 def wiki_api(**params: str | int) -> dict[str, Any]:
@@ -75,10 +89,54 @@ def resolve_all_codes(tower_data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return resolved
 
 
+def pick_fields(source: dict[str, Any], fields: tuple[str, ...]) -> dict[str, Any]:
+    return {name: copy.deepcopy(source[name]) for name in fields if name in source}
+
+
+def trim_container(
+    container: dict[str, Any], trim_entry: Callable[[dict[str, Any]], dict[str, Any]]
+) -> dict[str, Any]:
+    trimmed: dict[str, Any] = {}
+    if "_order" in container:
+        trimmed["_order"] = list(container["_order"])
+        for name in container["_order"]:
+            if name in container:
+                trimmed[name] = trim_entry(container[name])
+    return trimmed
+
+
+def trim_projectile(projectile: dict[str, Any]) -> dict[str, Any]:
+    return pick_fields(projectile, PROJECTILE_FIELDS)
+
+
+def trim_ability(ability: dict[str, Any]) -> dict[str, Any]:
+    return pick_fields(ability, ABILITY_FIELDS)
+
+
+def trim_attack(attack: dict[str, Any]) -> dict[str, Any]:
+    trimmed = pick_fields(attack, ATTACK_FIELDS)
+    if "projectiles" in attack:
+        trimmed["projectiles"] = trim_container(attack["projectiles"], trim_projectile)
+    return trimmed
+
+
+def trim_stats(stats: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of stats reduced to the fields the extractor and database use."""
+    trimmed = pick_fields(stats, STAT_FIELDS)
+    if "attacks" in stats:
+        trimmed["attacks"] = trim_container(stats["attacks"], trim_attack)
+    if "abilities" in stats:
+        trimmed["abilities"] = trim_container(stats["abilities"], trim_ability)
+    return trimmed
+
+
 def write_resolved_json(tower_name: str, json_path: Path | None = None) -> Path:
     if json_path is None:
         json_path = PROJECT_ROOT / "data.json"
-    resolved = resolve_all_codes(fetch_tower_module(tower_name))
+    resolved = {
+        code: trim_stats(stats)
+        for code, stats in resolve_all_codes(fetch_tower_module(tower_name)).items()
+    }
     with open(json_path, "w") as handle:
         json.dump(resolved, handle, indent=4)
     return json_path
