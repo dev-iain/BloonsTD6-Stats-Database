@@ -1,0 +1,195 @@
+from __future__ import annotations
+
+import csv
+import re
+import sqlite3
+from pathlib import Path
+
+import pytest
+
+from btd6.db import apply_migrations, connect
+from btd6.query import UpgradeFilters, search_upgrades
+
+FIXTURE_PATHS = ["0-0-0", "1-1-0", "2-0-0", "2-1-0"]
+STAT_COLUMNS = [
+    "range",
+    "footprint_radius",
+    "attack_rate",
+    "projectile_count",
+    "projectile_damage",
+    "projectile_pierce",
+    "projectile_speed",
+    "projectile_radius",
+    "projectile_lifespan",
+    "ability_cooldown",
+]
+
+
+def parse_csv_value(text: str) -> float | None:
+    return float(text) if text != "" else None
+
+
+def load_fixture_rows(csv_path: Path) -> dict[str, dict]:
+    with csv_path.open(newline="") as handle:
+        rows = {row["path"]: row for row in csv.DictReader(handle)}
+    return {path: rows[path] for path in FIXTURE_PATHS}
+
+
+def insert_tower(conn: sqlite3.Connection, name: str, category: str) -> int:
+    cursor = conn.execute("INSERT INTO towers (name, category) VALUES (?, ?)", (name, category))
+    return cursor.lastrowid
+
+
+def insert_upgrade(
+    conn: sqlite3.Connection,
+    tower_id: int,
+    row: dict,
+    path: str | None = None,
+    damage_type: str | None = None,
+    can_hit_camo: bool | None = None,
+    stat_overrides: dict | None = None,
+) -> None:
+    stats = {column: parse_csv_value(row[column]) for column in STAT_COLUMNS}
+    stats.update(stat_overrides or {})
+    path = path if path is not None else row["path"]
+    damage_type = damage_type if damage_type is not None else row["damage_type"]
+    if can_hit_camo is None:
+        can_hit_camo = row["can_hit_camo"] == "True"
+    type_id = conn.execute("SELECT id FROM damage_types WHERE name = ?", (damage_type,)).fetchone()[
+        "id"
+    ]
+    columns = ["tower_id", "path", "damage_type_id", "can_hit_camo", *stats]
+    placeholders = ", ".join("?" for _ in columns)
+    conn.execute(
+        f"INSERT INTO upgrades ({', '.join(columns)}) VALUES ({placeholders})",
+        [tower_id, path, type_id, int(can_hit_camo), *stats.values()],
+    )
+
+
+def build_database(csv_path: Path, with_rows: bool = True) -> sqlite3.Connection:
+    conn = connect(":memory:")
+    apply_migrations(conn)
+    if with_rows:
+        tower_id = insert_tower(conn, "Super Monkey", "Magic")
+        for row in load_fixture_rows(csv_path).values():
+            insert_upgrade(conn, tower_id, row)
+        conn.commit()
+    return conn
+
+
+def paths_of(result: list[sqlite3.Row]) -> list[str]:
+    return [row["path"] for row in result]
+
+
+def close_after(connection: sqlite3.Connection):
+    yield connection
+    connection.close()
+
+
+@pytest.fixture
+def conn(golden_csv_path: Path):
+    yield from close_after(build_database(golden_csv_path))
+
+
+@pytest.fixture
+def empty_conn(golden_csv_path: Path):
+    yield from close_after(build_database(golden_csv_path, with_rows=False))
+
+
+@pytest.fixture
+def conn_with_null_pierce(conn: sqlite3.Connection, golden_csv_path: Path):
+    alchemist_id = insert_tower(conn, "Alchemist", "Magic")
+    base_row = load_fixture_rows(golden_csv_path)["0-0-0"]
+    insert_upgrade(
+        conn,
+        alchemist_id,
+        base_row,
+        path="0-0-1",
+        damage_type="Sharp",
+        can_hit_camo=False,
+        stat_overrides={"projectile_pierce": None},
+    )
+    conn.commit()
+    return conn
+
+
+FILTER_CASES = [
+    pytest.param(0, False, ["0-0-0", "1-1-0"], id="test_search_upgrades_all_base"),
+    pytest.param(3, False, ["1-1-0"], id="test_search_upgrades_pierce_inclusive_boundary"),
+    pytest.param(4, False, [], id="test_search_upgrades_pierce_above_highest"),
+    pytest.param(None, False, ["0-0-0", "1-1-0"], id="test_search_upgrades_pierce_none"),
+    pytest.param(0, True, ["2-0-0", "2-1-0"], id="test_search_upgrades_lead_true"),
+    pytest.param(0, None, FIXTURE_PATHS, id="test_search_upgrades_lead_none"),
+]
+
+
+@pytest.mark.parametrize(("min_pierce", "can_pop_lead", "expected"), FILTER_CASES)
+def test_search_upgrades_filter_cases(conn, min_pierce, can_pop_lead, expected):
+    filters = UpgradeFilters(min_pierce=min_pierce, can_pop_lead=can_pop_lead)
+    assert paths_of(search_upgrades(conn, filters)) == expected
+
+
+def test_search_upgrades_pierce_negative(conn):
+    filters = UpgradeFilters(min_pierce=-1, can_pop_lead=False)
+    with pytest.raises(ValueError, match="min_pierce must be 0 or more, got -1"):
+        search_upgrades(conn, filters)
+
+
+def test_search_upgrades_filters_omitted(conn):
+    assert paths_of(search_upgrades(conn)) == FIXTURE_PATHS
+
+
+def test_search_upgrades_no_filters(conn):
+    assert paths_of(search_upgrades(conn, UpgradeFilters())) == FIXTURE_PATHS
+
+
+def test_search_upgrades_empty_table(empty_conn):
+    filters = UpgradeFilters(min_pierce=0, can_pop_lead=False)
+    assert paths_of(search_upgrades(empty_conn, filters)) == []
+
+
+def test_search_upgrades_null_pierce(conn_with_null_pierce):
+    filters = UpgradeFilters(min_pierce=0, can_pop_lead=False)
+    result = paths_of(search_upgrades(conn_with_null_pierce, filters))
+    assert result == ["0-0-0", "1-1-0"]
+    assert "0-0-1" not in result
+
+
+def test_search_upgrades_sort_whitelisted(conn):
+    filters = UpgradeFilters(min_pierce=0, can_pop_lead=False)
+    result = search_upgrades(conn, filters, sort_by="projectile_pierce")
+    assert paths_of(result) == ["1-1-0", "0-0-0"]
+
+
+def test_search_upgrades_sort_not_whitelisted(conn):
+    filters = UpgradeFilters(min_pierce=0, can_pop_lead=False)
+    message = re.escape('Cannot sort by "; DROP TABLE upgrades". Allowed: ')
+    with pytest.raises(ValueError, match=message):
+        search_upgrades(conn, filters, sort_by="; DROP TABLE upgrades")
+    assert conn.execute("SELECT COUNT(*) FROM upgrades").fetchone()[0] == 4
+
+
+def test_search_upgrades_limit_one(conn):
+    filters = UpgradeFilters(min_pierce=0, can_pop_lead=False)
+    assert paths_of(search_upgrades(conn, filters, limit=1)) == ["0-0-0"]
+
+
+def test_search_upgrades_limit_zero(conn):
+    filters = UpgradeFilters(min_pierce=0, can_pop_lead=False)
+    with pytest.raises(ValueError, match="limit must be at least 1, got 0"):
+        search_upgrades(conn, filters, limit=0)
+
+
+def test_search_upgrades_sort_descending_null_last(conn_with_null_pierce):
+    result = search_upgrades(conn_with_null_pierce, sort_by="projectile_pierce")
+    assert paths_of(result) == ["1-1-0", "2-1-0", "2-0-0", "0-0-0", "0-0-1"]
+
+
+def test_search_upgrades_sort_ascending_null_last(conn_with_null_pierce):
+    result = search_upgrades(conn_with_null_pierce, sort_by="projectile_pierce", descending=False)
+    assert paths_of(result) == ["0-0-0", "2-0-0", "1-1-0", "2-1-0", "0-0-1"]
+
+
+def test_search_upgrades_sort_with_limit(conn):
+    result = search_upgrades(conn, sort_by="projectile_pierce", limit=2)
+    assert paths_of(result) == ["1-1-0", "2-1-0"]
