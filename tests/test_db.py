@@ -204,6 +204,37 @@ def test_apply_migrations_failing_script(memory_connection, fake_migrations):
     assert scalar(memory_connection, "PRAGMA user_version") == 1
 
 
+BAD_SCRIPT = "create table c(z); insert into missing values (1);"
+
+
+def test_apply_migrations_failure_leaves_no_partial_ddl(memory_connection, fake_migrations):
+    write_migrations(fake_migrations, {"001_bad.sql": BAD_SCRIPT})
+    with pytest.raises(sqlite3.OperationalError):
+        apply_migrations(memory_connection)
+    assert "c" not in table_names(memory_connection)
+    assert scalar(memory_connection, "PRAGMA user_version") == 0
+
+
+def test_apply_migrations_rerun_after_fixing_script(memory_connection, fake_migrations):
+    write_migrations(fake_migrations, {"001_bad.sql": BAD_SCRIPT})
+    with pytest.raises(sqlite3.OperationalError):
+        apply_migrations(memory_connection)
+    write_migrations(fake_migrations, {"001_bad.sql": "create table c(z);"})
+    assert apply_migrations(memory_connection) == ["001_bad.sql"]
+    assert "c" in table_names(memory_connection)
+    assert scalar(memory_connection, "PRAGMA user_version") == 1
+
+
+def test_apply_migrations_second_script_fails_keeps_first(memory_connection, fake_migrations):
+    write_migrations(
+        fake_migrations, {"001_a.sql": "create table a(x);", "002_bad.sql": BAD_SCRIPT}
+    )
+    with pytest.raises(sqlite3.OperationalError):
+        apply_migrations(memory_connection)
+    assert table_names(memory_connection) == ["a"]
+    assert scalar(memory_connection, "PRAGMA user_version") == 1
+
+
 @given(calls=st.integers(min_value=1, max_value=5))
 def test_apply_migrations_idempotent_property(calls):
     connection = connect(":memory:")
