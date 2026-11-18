@@ -4,6 +4,7 @@ import copy
 from typing import Any
 
 from btd6.etl.extract import extract_row
+from tests.factories import StatsFactory, UpgradeRowFactory
 
 BASE_CODE = "_100"
 BASE_STATS: dict[str, Any] = {
@@ -199,3 +200,12 @@ def test_extract_row_ability_without_attacks() -> None:
     row = extract_row(BASE_CODE, build_stats(attacks=None, abilities=abilities))
     assert row["ability_cooldown"] == 30
     assert row["attack_rate"] is None
+
+
+def test_extract_row_matches_factory_row() -> None:
+    expected = UpgradeRowFactory(path="1-0-0", range=50, projectile_pierce=2, damage_type="Normal")
+    row = extract_row("_100", StatsFactory(mask=0, invisible=False, pierce=2))
+    assert row["projectile_pierce"] == expected["projectile_pierce"]
+    assert row["can_hit_camo"] is True
+    assert row["damage_type"] == expected["damage_type"]
+    assert set(row) == set(expected)

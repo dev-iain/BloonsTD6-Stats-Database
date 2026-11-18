@@ -34,3 +34,4 @@ testpaths = ["tests"]
 
 [tool.mutmut]
 paths_to_mutate = ["btd6/"]
+also_copy = ["data.csv"]

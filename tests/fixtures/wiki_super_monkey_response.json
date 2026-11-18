@@ -1,0 +1,23 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "pages": [
+      {
+        "pageid": 1,
+        "ns": 828,
+        "title": "Module:BTD6 stats/Super Monkey/new",
+        "revisions": [
+          {
+            "slots": {
+              "main": {
+                "contentmodel": "json",
+                "contentformat": "application/json",
+                "content": "{\"_000\": {\"range\": 50, \"footprintRadius\": 11, \"attacks\": {\"_order\": [\"Attack\"], \"Attack\": {\"rate\": 0.045, \"projectiles\": {\"_order\": [\"Projectile\"], \"Projectile\": {\"count\": 1, \"damage\": 1, \"pierce\": 1, \"speed\": 200, \"radius\": 2, \"lifespan\": 0.6, \"immuneBloonProperties\": 17, \"filterInvisible\": true}}}}}, \"_100\": {\"range\": 50, \"footprintRadius\": 11, \"attacks\": {\"_order\": [\"Attack\"], \"Attack\": {\"rate\": 0.045, \"projectiles\": {\"_order\": [\"Projectile\"], \"Projectile\": {\"count\": 1, \"damage\": 1, \"pierce\": 2, \"speed\": 200, \"radius\": 5, \"lifespan\": 0.6, \"immuneBloonProperties\": 73, \"filterInvisible\": true}}}}, \"_110\": {\"range\": 60, \"footprintRadius\": 11, \"attacks\": {\"_order\": [\"Attack\"], \"Attack\": {\"rate\": 0.045, \"projectiles\": {\"_order\": [\"Projectile\"], \"Projectile\": {\"count\": 1, \"damage\": 1, \"pierce\": 3, \"speed\": 200, \"radius\": 5, \"lifespan\": 0.6, \"immuneBloonProperties\": 73, \"filterInvisible\": true}}}}}}, \"_200\": {\"range\": 50, \"footprintRadius\": 11, \"attacks\": {\"_order\": [\"Attack\"], \"Attack\": {\"rate\": 0.03, \"projectiles\": {\"_order\": [\"Projectile\"], \"Projectile\": {\"count\": 1, \"damage\": 1, \"pierce\": 2, \"speed\": 200, \"radius\": 6, \"lifespan\": 0.6, \"immuneBloonProperties\": 72, \"filterInvisible\": true}}}}}}"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
