@@ -96,21 +96,39 @@ def empty_conn(golden_csv_path: Path):
     yield from close_after(build_database(golden_csv_path, with_rows=False))
 
 
-@pytest.fixture
-def conn_with_null_pierce(conn: sqlite3.Connection, golden_csv_path: Path):
-    alchemist_id = insert_tower(conn, "Alchemist", "Magic")
-    base_row = load_fixture_rows(golden_csv_path)["0-0-0"]
+def add_alchemist_upgrade(
+    connection: sqlite3.Connection,
+    csv_path: Path,
+    path: str,
+    damage_type: str,
+    can_hit_camo: bool | None = None,
+    stat_overrides: dict | None = None,
+) -> sqlite3.Connection:
+    alchemist_id = insert_tower(connection, "Alchemist", "Magic")
+    base_row = load_fixture_rows(csv_path)["0-0-0"]
     insert_upgrade(
-        conn,
+        connection,
         alchemist_id,
         base_row,
-        path="0-0-1",
-        damage_type="Sharp",
+        path=path,
+        damage_type=damage_type,
+        can_hit_camo=can_hit_camo,
+        stat_overrides=stat_overrides,
+    )
+    connection.commit()
+    return connection
+
+
+@pytest.fixture
+def conn_with_null_pierce(conn: sqlite3.Connection, golden_csv_path: Path):
+    return add_alchemist_upgrade(
+        conn,
+        golden_csv_path,
+        "0-0-1",
+        "Sharp",
         can_hit_camo=False,
         stat_overrides={"projectile_pierce": None},
     )
-    conn.commit()
-    return conn
 
 
 FILTER_CASES = [
@@ -193,3 +211,59 @@ def test_search_upgrades_sort_ascending_null_last(conn_with_null_pierce):
 def test_search_upgrades_sort_with_limit(conn):
     result = search_upgrades(conn, sort_by="projectile_pierce", limit=2)
     assert paths_of(result) == ["1-1-0", "2-1-0"]
+
+
+@pytest.fixture
+def conn_with_unknown_damage_type(conn: sqlite3.Connection, golden_csv_path: Path):
+    return add_alchemist_upgrade(conn, golden_csv_path, "0-0-2", "Unknown")
+
+
+CAN_POP_CASES = [
+    pytest.param(
+        {"can_pop_lead": False}, ["0-0-0", "1-1-0"], id="test_search_upgrades_can_pop_lead_false"
+    ),
+    pytest.param({"can_pop_black": False}, [], id="test_search_upgrades_can_pop_black_false"),
+    pytest.param({"can_pop_white": False}, [], id="test_search_upgrades_can_pop_white_false"),
+    pytest.param(
+        {"can_pop_purple": False},
+        ["1-1-0", "2-0-0", "2-1-0"],
+        id="test_search_upgrades_can_pop_purple_false",
+    ),
+    pytest.param(
+        {"can_pop_glass": False},
+        ["1-1-0", "2-0-0", "2-1-0"],
+        id="test_search_upgrades_can_pop_glass_false",
+    ),
+    pytest.param(
+        {"can_pop_frozen": False}, ["0-0-0"], id="test_search_upgrades_can_pop_frozen_false"
+    ),
+    pytest.param(
+        {"can_pop_lead": True}, ["2-0-0", "2-1-0"], id="test_search_upgrades_can_pop_lead_true"
+    ),
+    pytest.param(
+        {"can_pop_lead": False, "can_pop_purple": True},
+        ["0-0-0"],
+        id="test_search_upgrades_can_pop_two_flags",
+    ),
+]
+
+
+@pytest.mark.parametrize(("flags", "expected"), CAN_POP_CASES)
+def test_search_upgrades_can_pop_filters(conn, flags, expected):
+    assert paths_of(search_upgrades(conn, UpgradeFilters(**flags))) == expected
+
+
+def test_search_upgrades_can_pop_unknown_false(conn_with_unknown_damage_type):
+    result = paths_of(
+        search_upgrades(conn_with_unknown_damage_type, UpgradeFilters(can_pop_lead=False))
+    )
+    assert result == ["0-0-0", "1-1-0"]
+    assert "0-0-2" not in result
+
+
+def test_search_upgrades_can_pop_unknown_true(conn_with_unknown_damage_type):
+    result = paths_of(
+        search_upgrades(conn_with_unknown_damage_type, UpgradeFilters(can_pop_lead=True))
+    )
+    assert result == ["2-0-0", "2-1-0"]
+    assert "0-0-2" not in result
