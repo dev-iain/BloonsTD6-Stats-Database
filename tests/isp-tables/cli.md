@@ -14,7 +14,7 @@
 |---|---|---|
 | database file missing | 1 | `Database not found at <path>. Run "python -m btd6 load" first.` |
 | negative threshold (query layer `ValueError`) | 2 | `min_pierce must be 0 or more, got -1.0` |
-| unknown damage type (query layer `ValueError`) | 2 | `Unknown damage type "Bogus". Valid types: Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Shatter, Sharp, Unknown` |
+| unknown damage type (query layer `ValueError`) | 2 | `Unknown damage type "Bogus". Valid types: Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Sharp, Shatter, Unknown` |
 | limit below 1 (query layer `ValueError`) | 2 | `limit must be at least 1, got 0` |
 | same property in `--can-pop` and `--cannot-pop` | 2 | `--can-pop and --cannot-pop both list lead` |
 | wiki unreachable during `load` | 1 | `Could not reach the wiki: <reason>` |
@@ -100,7 +100,7 @@ Feasibility notes: A3 and A4 take only `--db`, since search options belong to th
 | T9 | A1 | B1 | C3 | D1 | E1 | F1 | G1 | H1 | I1 | returns `2`; stderr `min_pierce must be 0 or more, got -1.0` | `test_main_search_min_pierce_negative` |
 | T10 | A1 | B1 | C4 | D1 | E1 | F1 | G1 | H1 | I1 | returns `0`; stdout is `No upgrades match these filters.` | `test_main_search_min_pierce_above_all` |
 | T11 | A1 | B1 | C1 | D2 | E1 | F1 | G1 | H1 | I1 | returns `0`; stdout is `format_results` of `["0-0-0"]` | `test_main_search_damage_type_known` |
-| T12 | A1 | B1 | C1 | D3 | E1 | F1 | G1 | H1 | I1 | returns `2`; stderr `Unknown damage type "Bogus". Valid types: Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Shatter, Sharp, Unknown` | `test_main_search_damage_type_unknown` |
+| T12 | A1 | B1 | C1 | D3 | E1 | F1 | G1 | H1 | I1 | returns `2`; stderr `Unknown damage type "Bogus". Valid types: Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Sharp, Shatter, Unknown` | `test_main_search_damage_type_unknown` |
 | T13 | A1 | B1 | C1 | D1 | E2 | F1 | G1 | H1 | I1 | returns `0`; stdout is `format_results` of `["1-1-0", "0-0-0"]` | `test_main_search_sort_whitelisted` |
 | T14 | A1 | B1 | C1 | D1 | E3 | F1 | G1 | H1 | I1 | `SystemExit.code == 2`; last stderr line starts with `btd6 search: error: argument --sort: invalid choice: 'bogus'` | `test_main_search_sort_not_whitelisted` |
 | T15 | A1 | B1 | C1 | D1 | E1 | F2 | G1 | H1 | I1 | returns `0`; stdout is `format_results` of `["0-0-0"]` | `test_main_search_limit_one` |
