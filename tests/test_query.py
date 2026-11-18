@@ -29,9 +29,13 @@ def parse_csv_value(text: str) -> float | None:
     return float(text) if text != "" else None
 
 
-def load_fixture_rows(csv_path: Path) -> dict[str, dict]:
+def load_all_rows(csv_path: Path) -> dict[str, dict]:
     with csv_path.open(newline="") as handle:
-        rows = {row["path"]: row for row in csv.DictReader(handle)}
+        return {row["path"]: row for row in csv.DictReader(handle)}
+
+
+def load_fixture_rows(csv_path: Path) -> dict[str, dict]:
+    rows = load_all_rows(csv_path)
     return {path: rows[path] for path in FIXTURE_PATHS}
 
 
@@ -66,12 +70,15 @@ def insert_upgrade(
     )
 
 
-def build_database(csv_path: Path, with_rows: bool = True) -> sqlite3.Connection:
+def build_database(
+    csv_path: Path, with_rows: bool = True, all_rows: bool = False
+) -> sqlite3.Connection:
     conn = connect(":memory:")
     apply_migrations(conn)
     if with_rows:
         tower_id = insert_tower(conn, "Super Monkey", "Magic")
-        for row in load_fixture_rows(csv_path).values():
+        loader = load_all_rows if all_rows else load_fixture_rows
+        for row in loader(csv_path).values():
             insert_upgrade(conn, tower_id, row)
         conn.commit()
     return conn
@@ -89,6 +96,19 @@ def close_after(connection: sqlite3.Connection):
 @pytest.fixture
 def conn(golden_csv_path: Path):
     yield from close_after(build_database(golden_csv_path))
+
+
+@pytest.fixture
+def full_conn(golden_csv_path: Path):
+    yield from close_after(build_database(golden_csv_path, all_rows=True))
+
+
+@pytest.fixture
+def conn_with_camo_plasma(conn: sqlite3.Connection, golden_csv_path: Path):
+    tower_id = conn.execute("SELECT id FROM towers WHERE name = 'Super Monkey'").fetchone()["id"]
+    insert_upgrade(conn, tower_id, load_all_rows(golden_csv_path)["2-0-2"])
+    conn.commit()
+    return conn
 
 
 @pytest.fixture
@@ -420,3 +440,19 @@ def test_build_where_two_filters_exact_sql(conn):
 
 def test_build_where_no_filters(conn):
     assert build_where(conn, UpgradeFilters()) == ("", [])
+
+
+def test_search_upgrades_damage_type_plasma_full_data(full_conn):
+    result = search_upgrades(full_conn, UpgradeFilters(damage_type="Plasma"))
+    assert len(result) == 17
+    assert all(row["damage_type"] == "Plasma" for row in result)
+
+
+def test_search_upgrades_damage_type_and_camo(conn_with_camo_plasma):
+    filters = UpgradeFilters(damage_type="Plasma", can_hit_camo=True)
+    assert paths_of(search_upgrades(conn_with_camo_plasma, filters)) == ["2-0-2"]
+
+
+def test_search_upgrades_damage_type_and_no_camo(conn_with_camo_plasma):
+    filters = UpgradeFilters(damage_type="Plasma", can_hit_camo=False)
+    assert paths_of(search_upgrades(conn_with_camo_plasma, filters)) == ["2-0-0", "2-1-0"]

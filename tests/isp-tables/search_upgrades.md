@@ -230,3 +230,16 @@ Fixture: the four-row Super Monkey fixture (`0-0-0` Sharp, `1-1-0` Energy, `2-0-
 | `test_search_upgrades_sort_invalid_exact_message` | `Cannot sort by "bogus". Allowed: range, attack_rate, projectile_damage, projectile_pierce, projectile_speed, projectile_count, ability_cooldown` |
 | `test_build_order_by_descending` / `_ascending` | exact ORDER BY strings |
 | `test_build_where_two_filters_exact_sql` | `" WHERE towers.name = ? AND upgrades.range >= ?"`, params `["Super Monkey", 60]` |
+
+### #36 acceptance tests (not BCC)
+
+Three tests for #36 acceptance criteria that the tests above do not cover. G and H refer to the blocks of the section above (`damage_type` name, camo flag).
+
+- Full data: every row of `data.csv` (64 Super Monkey upgrades), loaded with the same helpers as the fixture.
+- Camo Plasma row: add Super Monkey `2-0-2` from `data.csv` (Plasma, `can_hit_camo = True`) to the four-row fixture.
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T1 | #36: `damage_type="Plasma"` on real data | with the full data, `search_upgrades(conn, UpgradeFilters(damage_type="Plasma"))` returns 17 rows, every one with `damage_type == "Plasma"` | `test_search_upgrades_damage_type_plasma_full_data` |
+| T2 | `damage_type` (G1) AND `can_hit_camo=True` (H1) | with `2-0-2` added, `UpgradeFilters(damage_type="Plasma", can_hit_camo=True)` returns `["2-0-2"]` | `test_search_upgrades_damage_type_and_camo` |
+| T3 | `damage_type` (G1) AND `can_hit_camo=False` (H2) | with `2-0-2` added, `UpgradeFilters(damage_type="Plasma", can_hit_camo=False)` returns `["2-0-0", "2-1-0"]` | `test_search_upgrades_damage_type_and_no_camo` |
