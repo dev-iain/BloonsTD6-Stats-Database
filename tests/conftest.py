@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import json
+import sqlite3
+from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import pytest
 import requests
 
+from btd6.db import connect
+from btd6.db.seed import initialize_database
 from btd6.etl.fetch import PROJECT_ROOT
 
 
@@ -24,3 +30,17 @@ def block_network(monkeypatch: pytest.MonkeyPatch) -> None:
         raise RuntimeError("Network access is blocked in tests; mock requests.get")
 
     monkeypatch.setattr(requests, "get", refuse_request)
+
+
+@pytest.fixture
+def database() -> Iterator[sqlite3.Connection]:
+    connection = connect(":memory:")
+    initialize_database(connection)
+    yield connection
+    connection.close()
+
+
+@pytest.fixture
+def super_monkey_resolved(repo_root: Path) -> dict[str, Any]:
+    with open(repo_root / "tests" / "fixtures" / "super_monkey_resolved.json") as handle:
+        return json.load(handle)
