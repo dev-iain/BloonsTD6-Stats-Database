@@ -233,6 +233,41 @@ def test_search_upgrades_sort_with_limit(conn):
     assert paths_of(result) == ["1-1-0", "2-1-0"]
 
 
+@pytest.mark.parametrize(
+    "column",
+    [
+        "range",
+        "attack_rate",
+        "projectile_damage",
+        "projectile_pierce",
+        "projectile_speed",
+        "projectile_count",
+        "ability_cooldown",
+    ],
+)
+def test_search_upgrades_sort_every_whitelisted_column(conn, column):
+    assert len(search_upgrades(conn, sort_by=column)) == 4
+
+
+def test_search_upgrades_sort_attack_rate_ascending(conn):
+    result = search_upgrades(conn, sort_by="attack_rate", descending=False)
+    assert paths_of(result) == ["2-0-0", "2-1-0", "0-0-0", "1-1-0"]
+
+
+def test_search_upgrades_sort_tie_by_tower_name(conn_with_camo_upgrade):
+    result = search_upgrades(conn_with_camo_upgrade, sort_by="range")
+    assert paths_of(result) == ["1-1-0", "2-1-0", "0-0-1", "0-0-0", "2-0-0"]
+
+
+def test_search_upgrades_limit_above_row_count(conn):
+    assert paths_of(search_upgrades(conn, limit=10)) == FIXTURE_PATHS
+
+
+def test_search_upgrades_limit_negative(conn):
+    with pytest.raises(ValueError, match="limit must be at least 1, got -1"):
+        search_upgrades(conn, limit=-1)
+
+
 @pytest.fixture
 def conn_with_unknown_damage_type(conn: sqlite3.Connection, golden_csv_path: Path):
     return add_alchemist_upgrade(conn, golden_csv_path, "0-0-2", "Unknown")
