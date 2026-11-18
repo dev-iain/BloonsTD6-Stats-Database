@@ -33,5 +33,5 @@ max-statements = 30
 testpaths = ["tests"]
 
 [tool.mutmut]
-paths_to_mutate = ["btd6/"]
+source_paths = ["btd6/"]
 also_copy = ["data.csv"]

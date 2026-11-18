@@ -201,3 +201,32 @@ Feasibility notes: the base for B is `0` so that C2 is meaningful: an implementa
 | T8 | A2 with B2 | `UpgradeFilters(min_damage=1)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_min_damage_inclusive_boundary` |
 | T9 | A2 with B3 (column mapping) | `UpgradeFilters(min_damage=2)` returns `[]` | `test_search_upgrades_min_damage_above_highest` |
 | T10 | A3 with B2 (column mapping: range and damage would return `[]`) | `UpgradeFilters(min_projectile_speed=200)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_min_projectile_speed_inclusive_boundary` |
+
+## search_upgrades: `damage_type`, `can_hit_camo`, sort and SQL-builder messages
+
+Fixture: the four-row Super Monkey fixture (`0-0-0` Sharp, `1-1-0` Energy, `2-0-0` Plasma, `2-1-0` Plasma, all `can_hit_camo = False`). Camo tests add Alchemist `0-0-1`, Sharp, `can_hit_camo = True`.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`filters.damage_type`|G) Name|G1: Valid, has rows|`Sharp`, `Energy`, `Plasma`|
+|||G2: Valid, no rows|`Normal`|
+|||G3: Unknown|`Bogus`|
+|||G4: Wrong case or whitespace|`sharp`, `SHARP`, `Sharp `, empty string|
+|`filters.can_hit_camo`|H) Camo flag|H1: `True`|only Alchemist `0-0-1`|
+|||H2: `False`|the four fixture rows|
+|`sort_by`|I) Sort column|I1: Not whitelisted|`bogus`|
+
+### Tests
+
+| Test Name | Oracle |
+|---|---|
+| `test_search_upgrades_damage_type_filter` | G1/G2 return only rows of that type |
+| `test_search_upgrades_damage_type_unknown_name_exact_message` | `Unknown damage type "Bogus". Valid types: Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Sharp, Shatter, Unknown` |
+| `test_search_upgrades_damage_type_is_case_and_space_sensitive` | G4 raises `ValueError` |
+| `test_search_upgrades_damage_type_combined_with_threshold` | `Plasma` AND `min_range=60` gives `["2-1-0"]` |
+| `test_search_upgrades_can_hit_camo_true` / `_false` | H1 / H2 |
+| `test_search_upgrades_sort_invalid_exact_message` | `Cannot sort by "bogus". Allowed: range, attack_rate, projectile_damage, projectile_pierce, projectile_speed, projectile_count, ability_cooldown` |
+| `test_build_order_by_descending` / `_ascending` | exact ORDER BY strings |
+| `test_build_where_two_filters_exact_sql` | `" WHERE towers.name = ? AND upgrades.range >= ?"`, params `["Super Monkey", 60]` |

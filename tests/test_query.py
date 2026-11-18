@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from btd6.db import apply_migrations, connect
-from btd6.query import UpgradeFilters, search_upgrades
+from btd6.query import UpgradeFilters, build_order_by, build_where, search_upgrades
 
 FIXTURE_PATHS = ["0-0-0", "1-1-0", "2-0-0", "2-1-0"]
 STAT_COLUMNS = [
@@ -322,3 +322,101 @@ def test_search_upgrades_min_range_null(conn_with_null_range):
     result = paths_of(search_upgrades(conn_with_null_range, UpgradeFilters(min_range=0)))
     assert result == FIXTURE_PATHS
     assert "0-0-3" not in result
+
+
+VALID_DAMAGE_TYPES = (
+    "Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Sharp, Shatter, Unknown"
+)
+SORT_ALLOWED = (
+    "range, attack_rate, projectile_damage, projectile_pierce, projectile_speed, "
+    "projectile_count, ability_cooldown"
+)
+
+
+@pytest.fixture
+def conn_with_camo_upgrade(conn: sqlite3.Connection, golden_csv_path: Path):
+    return add_alchemist_upgrade(conn, golden_csv_path, "0-0-1", "Sharp", can_hit_camo=True)
+
+
+DAMAGE_TYPE_CASES = [
+    pytest.param("Sharp", ["0-0-0"], id="test_search_upgrades_damage_type_sharp"),
+    pytest.param("Energy", ["1-1-0"], id="test_search_upgrades_damage_type_energy"),
+    pytest.param("Plasma", ["2-0-0", "2-1-0"], id="test_search_upgrades_damage_type_plasma"),
+    pytest.param("Normal", [], id="test_search_upgrades_damage_type_valid_no_rows"),
+]
+
+
+@pytest.mark.parametrize(("name", "expected"), DAMAGE_TYPE_CASES)
+def test_search_upgrades_damage_type_filter(conn, name, expected):
+    assert paths_of(search_upgrades(conn, UpgradeFilters(damage_type=name))) == expected
+
+
+def test_search_upgrades_damage_type_unknown_name_exact_message(conn):
+    expected = f'Unknown damage type "Bogus". Valid types: {VALID_DAMAGE_TYPES}'
+    with pytest.raises(ValueError) as excinfo:
+        search_upgrades(conn, UpgradeFilters(damage_type="Bogus"))
+    assert str(excinfo.value) == expected
+
+
+@pytest.mark.parametrize("name", ["sharp", "SHARP", "Sharp ", ""])
+def test_search_upgrades_damage_type_is_case_and_space_sensitive(conn, name):
+    with pytest.raises(ValueError, match="Unknown damage type"):
+        search_upgrades(conn, UpgradeFilters(damage_type=name))
+
+
+def test_search_upgrades_damage_type_combined_with_threshold(conn):
+    filters = UpgradeFilters(damage_type="Plasma", min_range=60)
+    assert paths_of(search_upgrades(conn, filters)) == ["2-1-0"]
+
+
+def test_search_upgrades_damage_type_combined_with_can_pop_is_and(conn):
+    filters = UpgradeFilters(damage_type="Plasma", can_pop_lead=False)
+    assert paths_of(search_upgrades(conn, filters)) == []
+
+
+def test_search_upgrades_can_hit_camo_true(conn_with_camo_upgrade):
+    result = search_upgrades(conn_with_camo_upgrade, UpgradeFilters(can_hit_camo=True))
+    assert paths_of(result) == ["0-0-1"]
+
+
+def test_search_upgrades_can_hit_camo_false(conn_with_camo_upgrade):
+    result = search_upgrades(conn_with_camo_upgrade, UpgradeFilters(can_hit_camo=False))
+    assert paths_of(result) == FIXTURE_PATHS
+
+
+def test_search_upgrades_can_hit_camo_combined_with_damage_type(conn_with_camo_upgrade):
+    filters = UpgradeFilters(can_hit_camo=True, damage_type="Plasma")
+    assert paths_of(search_upgrades(conn_with_camo_upgrade, filters)) == []
+
+
+def test_search_upgrades_sort_invalid_exact_message(conn):
+    with pytest.raises(ValueError) as excinfo:
+        search_upgrades(conn, sort_by="bogus")
+    assert str(excinfo.value) == f'Cannot sort by "bogus". Allowed: {SORT_ALLOWED}'
+
+
+def test_build_order_by_descending():
+    assert build_order_by("range", True) == (
+        " ORDER BY upgrades.range DESC NULLS LAST, towers.name, upgrades.path"
+    )
+
+
+def test_build_order_by_ascending():
+    assert build_order_by("range", False) == (
+        " ORDER BY upgrades.range ASC NULLS LAST, towers.name, upgrades.path"
+    )
+
+
+def test_build_order_by_no_sort():
+    assert build_order_by(None, True) == " ORDER BY towers.name, upgrades.path"
+
+
+def test_build_where_two_filters_exact_sql(conn):
+    filters = UpgradeFilters(tower_name="Super Monkey", min_range=60)
+    sql, params = build_where(conn, filters)
+    assert sql == " WHERE towers.name = ? AND upgrades.range >= ?"
+    assert params == ["Super Monkey", 60]
+
+
+def test_build_where_no_filters(conn):
+    assert build_where(conn, UpgradeFilters()) == ("", [])

@@ -34,7 +34,10 @@ Database for compiling tower stats from Bloons Tower Defense 6, as well as an ag
 - `btd6/etl/fetch.py`: wiki API fetch, crosspath resolution (`resolve_all_codes`) -> `data.json` (gitignored)
 - `btd6/etl/extract.py`: flattens a resolved upgrade into a stats row (`extract_row`), `DAMAGE_TYPES` bitmask table
 - `data.csv`: current extractor output (64 upgrades), used as a regression fixture
-- Planned: `btd6/db` (SQLite), `btd6/query`, `btd6/cli`; `tests/` mirrors the package
+- `btd6/db/__init__.py`: `connect` (foreign keys on, `sqlite3.Row`) and `apply_migrations` (numbered scripts in `btd6/db/migrations/`, tracked by `PRAGMA user_version`); schema decisions in `docs/schema.md`
+- `btd6/query.py`: `UpgradeFilters` and `search_upgrades` (contract in `docs/queries.md`)
+- `btd6/cli.py`: argparse entry point (`python -m btd6`); `search` and `load` are stubs until #43 and #45
+- Planned: `btd6/db/loader.py`, `btd6/db/seed.py`, refresh pipeline; `tests/` mirrors the package
 - Data currently covers Super Monkey only. 1.0 scope is magic monkeys; add towers by re-running the fetch with another tower name.
 - Upgrade paths are written `X-Y-Z` (e.g. `0-2-3`); the wiki's `_023` codes are converted by `path_from_code`.
 

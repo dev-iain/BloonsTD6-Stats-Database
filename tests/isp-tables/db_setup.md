@@ -86,7 +86,7 @@ Excluded or reduced combinations:
 | T3 | D3 | E1 | F1 | returns `["002_b.sql"]`; `user_version` returns `2`; table `b` exists and `001_a.sql` is not run again | `test_apply_migrations_older_version` |
 | T4 | D4 | E1 | F1 | returns `[]`; `user_version` stays `9` | `test_apply_migrations_newer_version` |
 | T5 | D1 | E2 | F1 | first call returns `["001_initial.sql"]`, second returns `[]`; `user_version` is `1` after both; `SELECT COUNT(*) FROM damage_types` returns `12` | `test_apply_migrations_twice` |
-| T6 | D1 | E1 | F2 | raises `sqlite3.OperationalError` with message `no such table: missing`; `user_version` is `1`, so the next call retries only `002_bad.sql`; table `a` exists | `test_apply_migrations_failing_script` |
+| T6 | D1 | E1 | F2 | raises `sqlite3.OperationalError` with message `no such table: missing`; `user_version` is `1`; table `a` exists; a retry raises `sqlite3.OperationalError` again (see the known defect below) | `test_apply_migrations_failing_script` |
 
 Known defect to decide on (T6): `executescript` is not atomic, so the observed result also has table `c` left behind from the failed script, and a retry would then fail with `table c already exists`. The oracle above asserts only the parts that hold today. If the migration runner is changed to roll back a failed script (for example, by running each script in a transaction), add `"c" not in tables` to T6.
 
