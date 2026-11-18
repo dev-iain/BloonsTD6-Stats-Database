@@ -1,0 +1,4760 @@
+{
+    "_000": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 50,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_100": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "0, 9.05, 18.48",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 73,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 50,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_110": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 60,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "0, 9.05, 18.48",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 3,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 73,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 60,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_101": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "0, 9.05, 18.48",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 73,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 50,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_200": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "0, 9.05, 18.48",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 50,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_210": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 60,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "0, 9.05, 18.48",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 3,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 60,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_220": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 4,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_201": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "0, 9.05, 18.48",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        }
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 50,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_202": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 53,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForCamo": 1,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 53,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_300": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "0, 8.4, 22.5",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 6,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 30,
+                        "randomAngle": 8,
+                        "count": 3,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 50,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_310": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 60,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "0, 8.4, 22.5",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 7,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 30,
+                        "randomAngle": 8,
+                        "count": 3,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 60,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_320": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "0, 8.4, 22.5",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 9,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 30,
+                        "randomAngle": 8,
+                        "count": 3,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 700,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_301": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "0, 8.4, 22.5",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 6,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 30,
+                        "randomAngle": 8,
+                        "count": 3,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        }
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 50,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_302": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 53,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "0, 8.4, 22.5",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 6,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 30,
+                        "randomAngle": 8,
+                        "count": 3,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6,
+                        "damageModifierForCamo": 1
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 53,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_400": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 65,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0.4, 17.5, 21.58",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 20,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 65,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_410": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 75,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0.4, 17.5, 21.58",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 21,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 75,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_420": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 87,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0.4, 17.5, 21.58",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 23,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 700,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 87,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_401": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 65,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0.4, 17.5, 21.58",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 20,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        }
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 65,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_402": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 68,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0.4, 17.5, 21.58",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 20,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6,
+                        "damageModifierForCamo": 1
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 68,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_500": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 65,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0, 14, 53",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 20,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 15,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 65,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_510": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 75,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0, 14, 53",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 21,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 15,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 75,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_520": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 87,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0, 14, 53",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 23,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 15,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 700,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 87,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_501": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 65,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0, 14, 53",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 20,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 15,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        }
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 65,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_502": {
+        "placeableOnLand": true,
+        "placeableOnWater": true,
+        "placeableOnTrack": false,
+        "range": 68,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.05,
+                "eject": "0, 14, 53",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 20,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 15,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 400,
+                        "lifespan": 0.6,
+                        "damageModifierForCamo": 1
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 68,
+                "attackThroughWalls": true,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintX": 37,
+        "footprintY": 40,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_010": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 60,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 60,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_011": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 60,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 60,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_020": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 4,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_120": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "0, 9.05, 18.48",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 5,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 73,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_021": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 4,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        }
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_022": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 75,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 4,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForCamo": 1,
+                        "speed": 350,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 75,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_030": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-5, 24, 12 (1)<br>5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 5,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_130": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-5, 20, 12 (1)<br>5, 20, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 6,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 73,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_230": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "-5, 24, 12 (1)<br>5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 5,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 6,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_031": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-5, 24, 12 (1)<br>5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 5,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        }
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_032": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 75,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-5, 24, 12 (1)<br>5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 5,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15,
+                        "damageModifierForCamo": 1
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 75,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_040": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.5, 18.25, 9.5 (1)<br>4.5, 18.25, 9.5 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 7,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 7,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 70,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 2600,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 3900,
+                        "critUpper": 3,
+                        "critLower": 3
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_140": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.5, 18.25, 9.5 (1)<br>4.5, 18.25, 9.5 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 8,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 10,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 70,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 2600,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 3900,
+                        "critUpper": 3,
+                        "critLower": 3
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_240": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "-4.5, 18.25, 9.5 (1)<br>4.5, 18.25, 9.5 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 7,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 11,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 70,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 2600,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 3900,
+                        "critUpper": 3,
+                        "critLower": 3
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_041": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 72,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.5, 18.25, 9.5 (1)<br>4.5, 18.25, 9.5 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 7,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 7,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        }
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 72,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 70,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 2600,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 3900,
+                        "critUpper": 3,
+                        "critLower": 3,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -24,
+                                "multiplierForLead": -24,
+                                "multiplierForCeramic": -24,
+                                "multiplierForMoabs": -24,
+                                "mutationId": "AbilityKnockback",
+                                "lifespan": 0.2
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_042": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 75,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.5, 18.25, 9.5 (1)<br>4.5, 18.25, 9.5 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 7,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 7,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 10,
+                        "critUpper": 20,
+                        "critLower": 15,
+                        "damageModifierForCamo": 1
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 75,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 70,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 2600,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 3900,
+                        "critUpper": 3,
+                        "critLower": 3
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_050": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 82,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-9.5, 24, 12 (1)<br>9.5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 12,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 7,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 50,
+                        "critUpper": 17,
+                        "critLower": 13
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 82,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 30,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 120,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 10400,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 15600,
+                        "critUpper": 3,
+                        "critLower": 3
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_150": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 82,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-9.5, 24, 12 (1)<br>9.5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 13,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 10,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 50,
+                        "critUpper": 17,
+                        "critLower": 13
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 82,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 30,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 120,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 10400,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 15600,
+                        "critUpper": 3,
+                        "critLower": 3
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_250": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 82,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "-9.5, 24, 12 (1)<br>9.5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 12,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 11,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 50,
+                        "critUpper": 17,
+                        "critLower": 13
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 82,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 30,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 120,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 10400,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 15600,
+                        "critUpper": 3,
+                        "critLower": 3
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_051": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 82,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-9.5, 24, 12 (1)<br>9.5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 12,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 7,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 50,
+                        "critUpper": 17,
+                        "critLower": 13,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        }
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 82,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 30,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 120,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 10400,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 15600,
+                        "critUpper": 3,
+                        "critLower": 3,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -24,
+                                "multiplierForLead": -24,
+                                "multiplierForCeramic": -24,
+                                "multiplierForMoabs": -24,
+                                "mutationId": "AbilityKnockback",
+                                "lifespan": 0.2
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_052": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 85,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-9.5, 24, 12 (1)<br>9.5, 24, 12 (2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 12,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 7,
+                        "vsBlockerRadius": 0,
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 5,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 350,
+                        "lifespan": 0.6,
+                        "critDamage": 50,
+                        "critUpper": 17,
+                        "critLower": 13,
+                        "damageModifierForCamo": 1
+                    }
+                },
+                "count": 2,
+                "targetTypes": "Depends on targeting option",
+                "range": 85,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 30,
+                "maxActivationsPerRound": 0,
+                "canActivateBetweenRounds": false,
+                "restrictAbilityAfterMaxRoundTimer": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2000,
+                        "maxPierce": 0,
+                        "ignoreBlockers": true,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 120,
+                        "vsBlockerRadius": 0,
+                        "filterInvisible": false,
+                        "damage": 10400,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": true,
+                        "ignoreImmunityDestroy": false,
+                        "rounds": 0,
+                        "lifespan": 0.05,
+                        "critDamage": 15600,
+                        "critUpper": 3,
+                        "critLower": 3
+                    }
+                }
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_001": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": true,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 50,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": true
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_002": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 53,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForCamo": 1,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 53,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_102": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 53,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "0, 9.05, 18.48",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 73,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForCamo": 1,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 53,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_012": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 63,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-4.27, 19.11, 8.7",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 2,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 2,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.4,
+                                "multiplierForCeramic": 0.4,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForCamo": 1,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 63,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_003": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 53,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-1.25, 8.2, 10.6",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 4,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 4,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.1,
+                                "multiplierForCeramic": 0.1,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 2,
+                        "damageModifierForCamo": 1,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 53,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_103": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 53,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-1.25, 8.2, 10.6",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 5,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 7,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.1,
+                                "multiplierForCeramic": 0.1,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 73,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 2,
+                        "damageModifierForCamo": 1,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 53,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_203": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 53,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.03,
+                "eject": "-1.25, 8.2, 10.6",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 4,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 8,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.1,
+                                "multiplierForCeramic": 0.1,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 72,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 2,
+                        "damageModifierForCamo": 1,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 53,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_013": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 63,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-1.25, 8.2, 10.6",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 5,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 4,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.1,
+                                "multiplierForCeramic": 0.1,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 2,
+                        "damageModifierForCamo": 1,
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 63,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_023": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 75,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.045,
+                "eject": "-1.25, 8.2, 10.6",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 7,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 4,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0.1,
+                                "multiplierForCeramic": 0.1,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "angle": 0,
+                        "randomAngle": 8,
+                        "count": 1,
+                        "filterInvisible": false,
+                        "damage": 1,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 17,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 2,
+                        "damageModifierForCamo": 1,
+                        "speed": 350,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 75,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_004": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 57,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.0225,
+                "eject": "-6, 5, 10 (side 1)<br>6, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 8,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 2,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 3,
+                        "damageModifierForCeramic": 2,
+                        "damageModifierForCamo": 2,
+                        "bounceDistance": 57,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 8,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 57,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_104": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 57,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.0225,
+                "eject": "-4.5, 5.4, 10 (side 1)<br>6.5, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 9,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 8,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 2,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 3,
+                        "damageModifierForCeramic": 2,
+                        "damageModifierForCamo": 2,
+                        "bounceDistance": 57,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 9,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 57,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_204": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 57,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.015,
+                "eject": "-6, 5, 10 (side 1)<br>6, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 8,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 2,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 3,
+                        "damageModifierForCeramic": 2,
+                        "damageModifierForCamo": 2,
+                        "bounceDistance": 57,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 8,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 57,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_014": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 67,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.0225,
+                "eject": "-4.5, 5.4, 10 (side 1)<br>6.5, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 9,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 2,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 3,
+                        "damageModifierForCeramic": 2,
+                        "damageModifierForCamo": 2,
+                        "bounceDistance": 67,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 9,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 67,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_024": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 79,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.0225,
+                "eject": "-6, 5, 10 (side 1)<br>6, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 11,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 2,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 3,
+                        "damageModifierForCeramic": 2,
+                        "damageModifierForCamo": 2,
+                        "bounceDistance": 79,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 11,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 350,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 79,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_005": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 57,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.0225,
+                "eject": "-4.5, 5.4, 10 (side 1)<br>6.5, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 16,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 10,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 25,
+                        "damageModifierForCeramic": 4,
+                        "damageModifierForCamo": 4,
+                        "bounceDistance": 57,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 16,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 57,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_105": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 57,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.0225,
+                "eject": "-4.5, 5.4, 10 (side 1)<br>6.5, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 17,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 8,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 10,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 25,
+                        "damageModifierForCeramic": 4,
+                        "damageModifierForCamo": 4,
+                        "bounceDistance": 57,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 17,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 57,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_205": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 57,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.015,
+                "eject": "-4.5, 5.4, 10 (side 1)<br>6.5, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 16,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 9,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 10,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 25,
+                        "damageModifierForCeramic": 4,
+                        "damageModifierForCamo": 4,
+                        "bounceDistance": 57,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 16,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 57,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_015": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 67,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.0225,
+                "eject": "-4.5, 5.4, 10 (side 1)<br>6.5, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 17,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 10,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 25,
+                        "damageModifierForCeramic": 4,
+                        "damageModifierForCamo": 4,
+                        "bounceDistance": 67,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 17,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 200,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 67,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    },
+    "_025": {
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 79,
+        "towerSelectionMenuThemeId": "SuperMonkey",
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.0225,
+                "eject": "-4.5, 5.4, 10 (side 1)<br>6.5, 5, 10 (side 2)",
+                "fireWithoutTarget": false,
+                "fireBetweenRounds": false,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 19,
+                        "maxPierce": 0,
+                        "ignoreBlockers": false,
+                        "usePointCollisionWithBloons": false,
+                        "canCollisionBeBlockedByMapLos": false,
+                        "radius": 5,
+                        "vsBlockerRadius": 0,
+                        "effects": {
+                            "_order": [
+                                "Knockback"
+                            ],
+                            "Knockback": {
+                                "multiplier": -0.25,
+                                "multiplierForLead": 0,
+                                "multiplierForCeramic": 0,
+                                "multiplierForMoabs": 0.7,
+                                "mutationId": "Knockback",
+                                "lifespan": 0.5
+                            }
+                        },
+                        "count": 1,
+                        "angle": 0,
+                        "filterInvisible": false,
+                        "damage": 10,
+                        "maxDamage": 0,
+                        "immuneBloonProperties": 0,
+                        "distributeToChildren": true,
+                        "overrideDistributeBlocker": false,
+                        "ignoreImmunityDestroy": false,
+                        "damageModifierForMoabs": 25,
+                        "damageModifierForCeramic": 4,
+                        "damageModifierForCamo": 4,
+                        "bounceDistance": 79,
+                        "bounceMinDistance": 0,
+                        "maxBounces": 19,
+                        "bounceDelay": 0.1,
+                        "bounceTargeting": "Close",
+                        "speed": 350,
+                        "lifespan": 0.6
+                    }
+                },
+                "count": 1,
+                "targetTypes": "Depends on targeting option",
+                "range": 79,
+                "attackThroughWalls": false,
+                "framesBeforeRetarget": 0,
+                "sharedGridRange": 0,
+                "filterInvisible": false
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 20,
+                "maxActivationsPerRound": -1,
+                "canActivateBetweenRounds": true,
+                "restrictAbilityAfterMaxRoundTimer": false
+            }
+        },
+        "footprintRadius": 11,
+        "doesntBlockTowerPlacement": false,
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+    }
+}
