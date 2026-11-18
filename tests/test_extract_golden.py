@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import io
 import json
 from pathlib import Path
@@ -41,12 +40,13 @@ def test_matches_golden_csv(built_frame: pd.DataFrame, golden_frame: pd.DataFram
     pd.testing.assert_frame_equal(roundtrip(built_frame), golden_frame, check_dtype=False)
 
 
-def test_detects_changed_value(golden_frame: pd.DataFrame) -> None:
-    resolved = copy.deepcopy(load_resolved())
-    mutated = build_dataframe(resolved)
-    mutated.loc["0-0-0", "range"] = mutated.loc["0-0-0", "range"] + 1
+def test_detects_changed_fixture_value(golden_frame: pd.DataFrame) -> None:
+    resolved = load_resolved()
+    resolved["_000"]["range"] += 1
     with pytest.raises(AssertionError):
-        pd.testing.assert_frame_equal(roundtrip(mutated), golden_frame, check_dtype=False)
+        pd.testing.assert_frame_equal(
+            roundtrip(build_dataframe(resolved)), golden_frame, check_dtype=False
+        )
 
 
 def test_row_count(built_frame: pd.DataFrame) -> None:
