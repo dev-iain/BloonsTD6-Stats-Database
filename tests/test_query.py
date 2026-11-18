@@ -267,3 +267,58 @@ def test_search_upgrades_can_pop_unknown_true(conn_with_unknown_damage_type):
     )
     assert result == ["2-0-0", "2-1-0"]
     assert "0-0-2" not in result
+
+
+@pytest.fixture
+def conn_with_null_range(conn: sqlite3.Connection, golden_csv_path: Path):
+    return add_alchemist_upgrade(
+        conn,
+        golden_csv_path,
+        "0-0-3",
+        "Sharp",
+        stat_overrides={"range": None},
+    )
+
+
+THRESHOLD_CASES = [
+    pytest.param({"min_range": 0}, FIXTURE_PATHS, id="test_search_upgrades_min_range_zero"),
+    pytest.param({"min_damage": 0}, FIXTURE_PATHS, id="test_search_upgrades_min_damage_zero"),
+    pytest.param(
+        {"min_projectile_speed": 0},
+        FIXTURE_PATHS,
+        id="test_search_upgrades_min_projectile_speed_zero",
+    ),
+    pytest.param(
+        {"min_range": 60},
+        ["1-1-0", "2-1-0"],
+        id="test_search_upgrades_min_range_inclusive_boundary",
+    ),
+    pytest.param({"min_range": 61}, [], id="test_search_upgrades_min_range_above_highest"),
+    pytest.param(
+        {"min_damage": 1},
+        FIXTURE_PATHS,
+        id="test_search_upgrades_min_damage_inclusive_boundary",
+    ),
+    pytest.param({"min_damage": 2}, [], id="test_search_upgrades_min_damage_above_highest"),
+    pytest.param(
+        {"min_projectile_speed": 200},
+        FIXTURE_PATHS,
+        id="test_search_upgrades_min_projectile_speed_inclusive_boundary",
+    ),
+]
+
+
+@pytest.mark.parametrize(("thresholds", "expected"), THRESHOLD_CASES)
+def test_search_upgrades_threshold_filters(conn, thresholds, expected):
+    assert paths_of(search_upgrades(conn, UpgradeFilters(**thresholds))) == expected
+
+
+def test_search_upgrades_min_range_negative(conn):
+    with pytest.raises(ValueError, match="min_range must be 0 or more, got -1"):
+        search_upgrades(conn, UpgradeFilters(min_range=-1))
+
+
+def test_search_upgrades_min_range_null(conn_with_null_range):
+    result = paths_of(search_upgrades(conn_with_null_range, UpgradeFilters(min_range=0)))
+    assert result == FIXTURE_PATHS
+    assert "0-0-3" not in result

@@ -142,3 +142,62 @@ Feasibility notes: C2 names `can_pop_purple`, so it is infeasible with A4 (same 
 | Test | Covers | Oracle | Test Name |
 |---|---|---|---|
 | T10 | B1 with D2 (`NULL` never matches `True` either) | with Alchemist `0-0-2` inserted, `UpgradeFilters(can_pop_lead=True)` returns `["2-0-0", "2-1-0"]`; Alchemist `0-0-2` is absent | `test_search_upgrades_can_pop_unknown_true` |
+
+## search_upgrades: numeric threshold filters (#35)
+
+```python
+def search_upgrades(connection, filters: UpgradeFilters | None = None, sort_by: str | None = None, descending: bool = True, limit: int | None = None) -> list[sqlite3.Row]
+```
+
+Keeps only upgrades whose column is at least the given `min_range`, `min_damage` or `min_projectile_speed` (`>=`); `NULL` never matches. Same rules and fixture as the first section (`min_pierce` is covered there).
+
+Stored values in the fixture:
+
+| path | range | projectile_damage | projectile_speed |
+|---|---|---|---|
+| `0-0-0` | 50 | 1 | 200 |
+| `1-1-0` | 60 | 1 | 200 |
+| `2-0-0` | 50 | 1 | 200 |
+| `2-1-0` | 60 | 1 | 200 |
+
+C2 only: add Alchemist `0-0-3`, `damage_type = Sharp`, `range = NULL`, other stats copied from Super Monkey `0-0-0` (inserted by hand).
+
+Take the `min_range`, `min_damage` and `min_projectile_speed` fields of `UpgradeFilters`. The caller wants only upgrades that reach a minimum value. Each field reads a different column, so we model which field is given, since a bug can map a field to the wrong column. We model the threshold's position relative to the stored values, with the inclusive boundary (`>` versus `>=` is the likely bug), a value above every stored one, and a negative value, which is invalid. For the receiver state, a `NULL` in the filtered column must never match, even for a threshold of `0`, so we model whether one is stored.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`filters.min_<stat>`|A) Field given|A1: Range|`min_range`|
+|||A2: Damage|`min_damage`|
+|||A3: Projectile speed|`min_projectile_speed`|
+|`filters.min_<stat>` (value)|B) Threshold vs stored values of that column|B1: Zero, below every value|`0`|
+|||B2: Equal to the highest stored value (inclusive boundary)|`60` range, `1` damage, `200` speed|
+|||B3: One above the highest stored value|`61` range, `2` damage, `201` speed|
+|||B4: Negative (invalid)|`-1`|
+|`connection` (state: filtered column)|C) `NULL` stored|C1: No|the four-row fixture|
+|||C2: Yes|fixture plus Alchemist `0-0-3` with `range = NULL`|
+
+Base case: A1, B1, C1
+
+Feasibility notes: the base for B is `0` so that C2 is meaningful: an implementation that treats `NULL` as `0` would wrongly include the Alchemist row. Varying A alone from B1 cannot tell the columns apart (every row passes `0`), so T9 and T10 check the column mapping for damage and speed: each uses a value that the correct column and the other two columns answer differently. C2 is paired only with A1; a `NULL` damage or speed is not tested separately, since all three fields share the same `>=` comparison.
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | `search_upgrades(conn, UpgradeFilters(min_range=0))` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_min_range_zero` |
+| T2 | A2 | B1 | C1 | `UpgradeFilters(min_damage=0)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_min_damage_zero` |
+| T3 | A3 | B1 | C1 | `UpgradeFilters(min_projectile_speed=0)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_min_projectile_speed_zero` |
+| T4 | A1 | B2 | C1 | `UpgradeFilters(min_range=60)` returns `["1-1-0", "2-1-0"]` | `test_search_upgrades_min_range_inclusive_boundary` |
+| T5 | A1 | B3 | C1 | `UpgradeFilters(min_range=61)` returns `[]` | `test_search_upgrades_min_range_above_highest` |
+| T6 | A1 | B4 | C1 | `UpgradeFilters(min_range=-1)` raises `ValueError` matching `min_range must be 0 or more, got -1` | `test_search_upgrades_min_range_negative` |
+| T7 | A1 | B1 | C2 | with Alchemist `0-0-3` inserted, `UpgradeFilters(min_range=0)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]`; Alchemist `0-0-3` is absent | `test_search_upgrades_min_range_null` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T8 | A2 with B2 | `UpgradeFilters(min_damage=1)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_min_damage_inclusive_boundary` |
+| T9 | A2 with B3 (column mapping) | `UpgradeFilters(min_damage=2)` returns `[]` | `test_search_upgrades_min_damage_above_highest` |
+| T10 | A3 with B2 (column mapping: range and damage would return `[]`) | `UpgradeFilters(min_projectile_speed=200)` returns `["0-0-0", "1-1-0", "2-0-0", "2-1-0"]` | `test_search_upgrades_min_projectile_speed_inclusive_boundary` |
