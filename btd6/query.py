@@ -51,6 +51,10 @@ JOIN damage_types ON damage_types.id = upgrades.damage_type_id
 """
 
 
+class QueryError(ValueError):
+    """Invalid search input."""
+
+
 @dataclass(frozen=True)
 class UpgradeFilters:
     tower_name: str | None = None
@@ -77,7 +81,7 @@ def exact_clause(column: str, value: object) -> tuple[str, list[object]]:
 
 def threshold_clause(field: str, column: str, value: float) -> tuple[str, list[object]]:
     if value < 0:
-        raise ValueError(f"{field} must be 0 or more, got {value}")
+        raise QueryError(f"{field} must be 0 or more, got {value}")
     return f"{column} >= ?", [value]
 
 
@@ -85,7 +89,7 @@ def damage_type_clause(connection: sqlite3.Connection, name: str) -> tuple[str, 
     rows = connection.execute("SELECT name FROM damage_types ORDER BY name").fetchall()
     valid = [row[0] for row in rows]
     if name not in valid:
-        raise ValueError(f'Unknown damage type "{name}". Valid types: {", ".join(valid)}')
+        raise QueryError(f'Unknown damage type "{name}". Valid types: {", ".join(valid)}')
     return "damage_types.name = ?", [name]
 
 
@@ -115,7 +119,7 @@ def build_order_by(sort_by: str | None, descending: bool) -> str:
         return f" ORDER BY {tiebreak}"
     if sort_by not in SORT_COLUMNS:
         allowed = ", ".join(SORT_COLUMNS)
-        raise ValueError(f'Cannot sort by "{sort_by}". Allowed: {allowed}')
+        raise QueryError(f'Cannot sort by "{sort_by}". Allowed: {allowed}')
     direction = "DESC" if descending else "ASC"
     return f" ORDER BY upgrades.{sort_by} {direction} NULLS LAST, {tiebreak}"
 
@@ -134,7 +138,7 @@ def search_upgrades(
     limit_sql = ""
     if limit is not None:
         if limit < 1:
-            raise ValueError(f"limit must be at least 1, got {limit}")
+            raise QueryError(f"limit must be at least 1, got {limit}")
         limit_sql = " LIMIT ?"
         params.append(limit)
     return connection.execute(SELECT_SQL + where_sql + order_sql + limit_sql, params).fetchall()

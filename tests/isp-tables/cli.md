@@ -123,6 +123,87 @@ Feasibility notes: A3 and A4 take only `--db`, since search options belong to th
 
 ---
 
+## format_results (#44)
+
+```python
+def format_results(rows: list[sqlite3.Row]) -> str
+```
+
+Renders `search_upgrades` result rows as an aligned text table, or a fixed message when there are none.
+
+Rules:
+- Build a `pandas.DataFrame` and render with `to_string(index=False)`, with pandas' row and column display limits turned off (`pd.option_context`).
+- Columns, in order, with these headers: `tower` (`tower_name`), `path`, `type` (`damage_type`), `damage` (`projectile_damage`), `pierce` (`projectile_pierce`), `range`, `speed` (`projectile_speed`), `rate` (`attack_rate`), `camo` (`can_hit_camo`), `lead`, `black`, `white`, `purple`, `glass`, `frozen` (the `can_pop_*` flags). Short headers keep the table at 99 characters; the full column names would be 199 and wrap on a 120-column terminal.
+- `NULL` prints as `-`. `can_hit_camo` and `can_pop_*` print as `yes` / `no`. A whole number prints without `.0` (`50`, not `50.0`); other numbers print as stored (`0.045`).
+- Zero rows return `No upgrades match these filters.`
+
+Fixtures (schema from the migration, built with the helpers in `tests/test_query.py`; rows come from `search_upgrades`):
+- Base (T1, T6): the four-row Super Monkey database, filtered with `can_pop_lead=False`, giving `0-0-0`, `1-1-0`.
+- T3: all 64 rows of `data.csv`.
+- T4, T5: a two-row database with Super Monkey `0-0-0` (changed as in the block's value) and `1-1-0`.
+
+Expected strings have no trailing spaces; lines are joined with `\n`.
+
+Take the function `format_results`. The caller wants a table a player can scan, so we model how many rows are given (none returns a message instead of a table, and more rows than pandas shows by default must not be cut with `...`). Stats can be `NULL`, which must print as `-`, so we model a `NULL` stat. The `Unknown` damage type stores `NULL` `can_pop_*` flags, which must print as `-` rather than `no`, so we model it separately from a `NULL` stat.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`rows`|A) Number of rows|A1: Two|`0-0-0`, `1-1-0`|
+|||A2: None|`[]`|
+|||A3: More than pandas' default display limit (60)|all 64 rows of `data.csv`|
+|`rows` (stat values)|B) `NULL` in a stat column|B1: No `NULL` stat|the base rows|
+|||B2: A stat is `NULL`|`0-0-0` with `projectile_pierce = NULL`, plus `1-1-0`|
+|`rows` (flag values)|C) `can_pop_*` flags|C1: Flags are set (known damage type)|the base rows|
+|||C2: Flags are `NULL` (`Unknown` damage type)|`0-0-0` with `damage_type = Unknown`, plus `1-1-0`|
+
+Base case: A1, B1, C1
+
+Feasibility notes: A2 has no rows, so B and C do not apply to it. B2 uses pierce as its representative: every stat cell goes through the same formatting, so other `NULL` stats are not tested separately.
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | returns the exact string in block T1 below | `test_format_results_two_rows` |
+| T2 | A2 | — | — | returns `No upgrades match these filters.` | `test_format_results_no_rows` |
+| T3 | A3 | B1 | C1 | returns 65 lines (header plus 64 rows); no line contains `...` | `test_format_results_no_truncation` |
+| T4 | A1 | B2 | C1 | returns the exact string in block T4 below | `test_format_results_null_stat` |
+| T5 | A1 | B1 | C2 | returns the exact string in block T5 below | `test_format_results_unknown_damage_type` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T6 | width (#44 acceptance) | for the T1 output, every line is at most 120 characters | `test_format_results_fits_120_columns` |
+
+Expected output T1:
+
+```text
+       tower  path   type damage pierce range speed  rate camo lead black white purple glass frozen
+Super Monkey 0-0-0  Sharp      1      1    50   200 0.045   no   no   yes   yes    yes   yes     no
+Super Monkey 1-1-0 Energy      1      3    60   200 0.045   no   no   yes   yes     no    no    yes
+```
+
+Expected output T4:
+
+```text
+       tower  path   type damage pierce range speed  rate camo lead black white purple glass frozen
+Super Monkey 0-0-0  Sharp      1      -    50   200 0.045   no   no   yes   yes    yes   yes     no
+Super Monkey 1-1-0 Energy      1      3    60   200 0.045   no   no   yes   yes     no    no    yes
+```
+
+Expected output T5:
+
+```text
+       tower  path    type damage pierce range speed  rate camo lead black white purple glass frozen
+Super Monkey 0-0-0 Unknown      1      1    50   200 0.045   no    -     -     -      -     -      -
+Super Monkey 1-1-0  Energy      1      3    60   200 0.045   no   no   yes   yes     no    no    yes
+```
+
+---
+
 ## main: `load`
 
 ```python
@@ -131,9 +212,9 @@ def main(argv: list[str] | None = None) -> int
 
 Parses `argv` for the `load` subcommand, fetches each requested Magic tower, writes its upgrades to the database and prints one `<Tower>: <n> upgrades` line per tower.
 
-Take the `load` path of `main(argv)`. First, we use interface-based modeling; we know that `load` takes an optional `--tower`, thus we model which towers were requested: all of them, one valid one, and one that is not a Magic tower, which argparse must reject before any fetch. To determine important characteristics, we first fixate on the function of the code: the user wants every requested tower in the database, and a failure must name what failed. We know that the wiki is the only external dependency, thus we model the fetch outcome: every tower succeeds, one tower returns bad data (the load continues and the exit code is 1), or the wiki is unreachable (the load stops at the first request). Finally, we model the state of the database file, since loading into a database that already holds the data must not duplicate rows. The `COUNT(*)` and the stdout lines follow from those choices, so they are checked in the oracle.
+Take the `load` path of `main(argv)`. First, we use interface-based modeling; we know that `load` takes an optional `--tower`, thus we model which towers were requested: all of them, one valid one, and one that is not a Magic tower, which argparse must reject before any fetch. To determine important characteristics, we first fixate on the function of the code: the user wants every requested tower in the database, and a failure must name what failed. We know that the wiki is the only external dependency, thus we model the fetch outcome: every tower succeeds, one tower returns bad data (the load continues and the exit code is 1), or the wiki is unreachable (every tower fails with the same connection error, and the CLI prints one wiki line). Finally, we model the state of the database file, since loading into a database that already holds the data must not duplicate rows. The `COUNT(*)` and the stdout lines follow from those choices, so they are checked in the oracle.
 
-Fixture: a fake fetch passed to the handler (or monkeypatched over `btd6.etl.pipeline.fetch_tower_module`) that returns the saved Super Monkey module for every tower, so each loads 64 upgrades. Never call the real wiki. Towers load in `MAGIC_TOWERS` order: Super Monkey, Wizard Monkey, Ninja Monkey, Alchemist, Druid. `COUNT(*)` means `SELECT COUNT(*) FROM upgrades` on `NEW_DB` after the call.
+Fixture: a fake fetch monkeypatched over `btd6.cli.fetch_tower_module` (the CLI passes it to `refresh_database` at call time) that returns the saved Super Monkey module for every tower, so each loads 64 upgrades. Never call the real wiki. Towers load in `MAGIC_TOWERS` order: Super Monkey, Wizard Monkey, Ninja Monkey, Alchemist, Druid. `COUNT(*)` means `SELECT COUNT(*) FROM upgrades` on `NEW_DB` after the call.
 
 Base input: `main(["--db", NEW_DB, "load"])`, with `NEW_DB = tmp_path / "new.db"` not yet created.
 
@@ -146,13 +227,13 @@ Base input: `main(["--db", NEW_DB, "load"])`, with `NEW_DB = tmp_path / "new.db"
 |||A3: Not a Magic tower|`"--tower", "Dart Monkey"`|
 |fetch|B) Fetch outcome|B1: Every tower succeeds|fake returns the Super Monkey module|
 |||B2: One tower has bad data|fake raises `ValueError("no upgrade data")` for `Alchemist`|
-|||B3: Wiki unreachable|fake raises `requests.ConnectionError("connection refused")` on the first call|
+|||B3: Wiki unreachable|fake raises `requests.ConnectionError("connection refused")` for every tower|
 |`--db` (state: file)|C) State before the call|C1: Missing|`NEW_DB` not created|
 |||C2: Already loaded|`NEW_DB` after one successful base `load`|
 
 Base case: A1, B1, C1
 
-Feasibility notes: B3 stops the load at the first failed request, so the tower list does not matter for it.
+Feasibility notes: `refresh_database` tries every tower and reports all failures together, so under B3 every tower fails; the CLI then prints one wiki line instead of one line per tower. The tower list does not change that outcome.
 
 ### Base Choice Coverage
 
