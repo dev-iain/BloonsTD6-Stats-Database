@@ -494,3 +494,58 @@ def test_search_upgrades_damage_type_and_camo(conn_with_camo_plasma):
 def test_search_upgrades_damage_type_and_no_camo(conn_with_camo_plasma):
     filters = UpgradeFilters(damage_type="Plasma", can_hit_camo=False)
     assert paths_of(search_upgrades(conn_with_camo_plasma, filters)) == ["2-0-0", "2-1-0"]
+
+
+MAGIC_TOWER_NAMES = ("Super Monkey", "Wizard Monkey", "Ninja Monkey", "Alchemist", "Druid")
+
+
+@pytest.fixture
+def conn_with_wizard(conn: sqlite3.Connection, golden_csv_path: Path):
+    wizard_id = insert_tower(conn, "Wizard Monkey", "Magic")
+    for row in load_fixture_rows(golden_csv_path).values():
+        insert_upgrade(conn, wizard_id, row, stat_overrides={"range": 999})
+    conn.commit()
+    return conn
+
+
+def test_search_upgrades_tower_name_wizard_only(conn_with_wizard):
+    result = search_upgrades(conn_with_wizard, UpgradeFilters(tower_name="Wizard Monkey"))
+    assert paths_of(result) == FIXTURE_PATHS
+    assert {row["tower_name"] for row in result} == {"Wizard Monkey"}
+    assert {row["range"] for row in result} == {999}
+
+
+def test_search_upgrades_tower_name_super_not_confused_with_wizard(conn_with_wizard):
+    result = search_upgrades(conn_with_wizard, UpgradeFilters(tower_name="Super Monkey"))
+    assert len(result) == 4
+    assert {row["tower_name"] for row in result} == {"Super Monkey"}
+    assert 999 not in {row["range"] for row in result}
+
+
+def test_search_upgrades_same_path_in_both_towers(conn_with_wizard):
+    result = search_upgrades(conn_with_wizard, UpgradeFilters(min_range=999))
+    assert [(row["tower_name"], row["path"]) for row in result] == [
+        ("Wizard Monkey", path) for path in FIXTURE_PATHS
+    ]
+    both = [row for row in search_upgrades(conn_with_wizard) if row["path"] == "0-0-0"]
+    assert [row["tower_name"] for row in both] == ["Super Monkey", "Wizard Monkey"]
+
+
+def test_search_upgrades_category_returns_all_towers(conn_with_wizard):
+    result = search_upgrades(conn_with_wizard, UpgradeFilters(category="Magic"))
+    assert len(result) == 8
+    assert {row["tower_name"] for row in result} == {"Super Monkey", "Wizard Monkey"}
+
+
+@pytest.mark.parametrize("name", ["Dart Monkey", "wizard monkey", "Wizard Monkey ", ""])
+def test_search_upgrades_unknown_tower_name_empty(conn_with_wizard, name):
+    assert search_upgrades(conn_with_wizard, UpgradeFilters(tower_name=name)) == []
+
+
+def test_search_upgrades_unknown_category_empty(conn_with_wizard):
+    assert search_upgrades(conn_with_wizard, UpgradeFilters(category="Military")) == []
+
+
+@pytest.mark.parametrize("name", MAGIC_TOWER_NAMES)
+def test_query_source_hardcodes_no_tower_names(name, repo_root):
+    assert name not in (repo_root / "btd6" / "query.py").read_text()
