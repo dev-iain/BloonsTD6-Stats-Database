@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import os
 import re
 import sqlite3
 from pathlib import Path
@@ -25,6 +26,10 @@ TABLES = ["upgrades", "towers", "damage_types"]
 ALLOWED_SQL_NAMES = {"SELECT_SQL", "where_sql", "order_sql", "limit_sql"}
 ALLOWED_SQL_FSTRING_NAMES = {"column", "tiebreak", "sort_by", "direction"}
 SQL_MARKERS = (" = ?", " >= ?", "ORDER BY")
+skip_under_mutmut = pytest.mark.skipif(
+    "MUTANT_UNDER_TEST" in os.environ,
+    reason="mutmut rewrites btd6/query.py, so source-text checks only apply to the real file",
+)
 
 
 @pytest.fixture
@@ -133,6 +138,7 @@ def is_safe_sql_argument(node: ast.expr) -> bool:
     return False
 
 
+@skip_under_mutmut
 def test_execute_calls_only_use_constants_and_known_fragments(repo_root):
     calls = [node for node in ast.walk(query_tree(repo_root)) if is_execute_call(node)]
     assert len(calls) >= 2
@@ -140,6 +146,7 @@ def test_execute_calls_only_use_constants_and_known_fragments(repo_root):
         assert is_safe_sql_argument(call.args[0]), ast.unparse(call)
 
 
+@skip_under_mutmut
 def test_sql_fstrings_interpolate_only_trusted_names(repo_root):
     checked = 0
     for node in ast.walk(query_tree(repo_root)):
@@ -154,6 +161,7 @@ def test_sql_fstrings_interpolate_only_trusted_names(repo_root):
     assert checked >= 3
 
 
+@skip_under_mutmut
 def test_no_format_or_percent_sql_building(repo_root):
     source = (repo_root / "btd6" / "query.py").read_text()
     assert ".format(" not in source

@@ -136,3 +136,19 @@ def test_never_uses_data_json(connection, monkeypatch, tmp_path) -> None:
 
     monkeypatch.setattr(Path, "read_text", guarded_read)
     refresh_database(connection, ("Druid",), fetch=make_fetch())
+
+
+@pytest.mark.parametrize(
+    ("failures", "expected"),
+    [
+        ({"Wizard Monkey": ValueError("x")}, "refresh failed for: Wizard Monkey"),
+        (
+            {"Wizard Monkey": ValueError("x"), "Super Monkey": KeyError("y")},
+            "refresh failed for: Wizard Monkey, Super Monkey",
+        ),
+    ],
+)
+def test_refresh_error_message_lists_failed_towers(
+    failures: dict[str, Exception], expected: str
+) -> None:
+    assert str(RefreshError({}, failures)) == expected

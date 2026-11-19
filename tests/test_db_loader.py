@@ -9,7 +9,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from btd6.db import connect
-from btd6.db.loader import ensure_tower, load_tower
+from btd6.db.loader import UPGRADE_COLUMNS, ensure_tower, load_tower, upgrade_params
 from btd6.db.seed import initialize_database
 from tests.factories import StatsFactory
 
@@ -236,3 +236,24 @@ def test_reload_is_idempotent_property(resolved: dict[str, Any]) -> None:
     assert first_count == second_count == len(resolved)
     assert snapshot(connection) == after_once
     connection.close()
+
+
+def test_upgrade_params_unmapped_damage_type_falls_back_to_unknown() -> None:
+    type_ids = {"Unknown": 901}
+    params = upgrade_params(7, type_ids, "_000", base_stats(mask=0))
+    assert params[:2] == (7, 901)
+
+
+def test_upgrade_params_uses_mapped_damage_type_id() -> None:
+    params = upgrade_params(7, {"Normal": 5, "Unknown": 901}, "_000", base_stats(mask=0))
+    assert params[1] == 5
+
+
+@pytest.mark.parametrize(("invisible", "expected"), [(True, 0), (False, 1)])
+def test_upgrade_params_passes_booleans_as_plain_ints(invisible: bool, expected: int) -> None:
+    params = upgrade_params(
+        1, {"Normal": 2, "Unknown": 3}, "_000", base_stats(mask=0, invisible=invisible)
+    )
+    camo_value = params[2 + UPGRADE_COLUMNS.index("can_hit_camo")]
+    assert type(camo_value) is int
+    assert camo_value == expected
