@@ -61,7 +61,7 @@ A filter set to `None` adds no restriction. Given filters combine with AND.
 
 ## `ValueError` messages
 
-The CLI prints these unchanged (`tests/isp-tables/cli.md`).
+These are raised as `QueryError`, a subclass of `ValueError` defined in `btd6/query.py`. The CLI catches `QueryError` only, prints the message unchanged and exits with `2` (`tests/isp-tables/cli.md`); any other exception is an unexpected error.
 
 | Cause | Message |
 |---|---|

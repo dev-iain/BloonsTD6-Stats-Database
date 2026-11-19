@@ -3,7 +3,9 @@ from __future__ import annotations
 import argparse
 import sqlite3
 import sys
+import traceback
 from collections.abc import Callable
+from pathlib import Path
 
 import pandas as pd
 import requests
@@ -12,7 +14,7 @@ from btd6.db import connect
 from btd6.etl.fetch import PROJECT_ROOT, fetch_tower_module
 from btd6.etl.pipeline import RefreshError, refresh_database
 from btd6.etl.towers import MAGIC_TOWERS
-from btd6.query import POP_PROPERTIES, SORT_COLUMNS, UpgradeFilters, search_upgrades
+from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
 
 RESULT_COLUMNS: dict[str, str] = {
     "tower_name": "tower",
@@ -64,6 +66,7 @@ def format_results(rows: list[sqlite3.Row]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="btd6")
     parser.add_argument("--db", default=str(PROJECT_ROOT / "btd6.db"), help="SQLite database path")
+    parser.add_argument("--debug", action="store_true", help="print tracebacks for errors")
     subparsers = parser.add_subparsers(dest="command")
     load_parser = subparsers.add_parser("load", help="load resolved tower data into the database")
     add_load_options(load_parser)
@@ -136,6 +139,9 @@ def run_search(args: argparse.Namespace) -> int:
         conflict = next(prop for prop in POP_PROPERTIES if prop in conflicts)
         print(f"--can-pop and --cannot-pop both list {conflict}", file=sys.stderr)
         return 2
+    if not Path(args.db).exists():
+        print(f'Database not found at {args.db}. Run "python -m btd6 load" first.', file=sys.stderr)
+        return 1
     connection = connect(args.db)
     try:
         rows = search_upgrades(connection, build_filters(args), sort_by=args.sort, limit=args.limit)
@@ -151,10 +157,23 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
 }
 
 
+def run_guarded(handler: Callable[[argparse.Namespace], int], args: argparse.Namespace) -> int:
+    try:
+        return handler(args)
+    except QueryError as error:
+        print(error, file=sys.stderr)
+        return 2
+    except Exception as error:
+        if args.debug:
+            traceback.print_exc()
+        print(f"Unexpected error: {error}", file=sys.stderr)
+        return 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command is None:
         parser.print_usage(sys.stderr)
         return 2
-    return HANDLERS[args.command](args)
+    return run_guarded(HANDLERS[args.command], args)
