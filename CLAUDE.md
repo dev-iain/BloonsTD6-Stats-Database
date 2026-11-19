@@ -48,23 +48,24 @@ Ownership: Iain = SQLite database, JSON -> database, software testing.
 Development is test-driven (ISP/boundary tables for filter inputs).
 
 ### 1.0: Filter monkeys based on stats
-- [x] Extract wiki JSON into flat stat rows (`extract_row`)
-- [ ] Test suite: ISP tables, factory_boy fixtures, hypothesis, mutmut
-- [ ] JSON -> SQLite loader with an efficient relational schema
-- [ ] Querying: search monkeys and stats (magic monkeys only)
-- [ ] CLI-based interaction
+- [X] Extract wiki JSON into flat stat rows (`extract_row`)
+- [X] Test suite: ISP tables, factory_boy fixtures, hypothesis, mutmut
+- [X] JSON -> SQLite loader with an efficient relational schema
+- [X] Querying: search monkeys and stats (magic monkeys only)
+- [X] CLI-based interaction
 
 ### 2.0: Round information and rankings
-- [ ] Round data in the database (up to round 40)
 - [ ] Expected income per round from pops (excludes monkeys that affect cash generation, positive or negative)
 - [ ] Suggested monkey for a round: highest rank in pierce, damage, etc. (pandas)
 - [ ] Best bang for buck: highest damage per dollar
 - [ ] Ranking based on filters
 - [ ] Mod to capture game data for an LLM/MCP (MelonLoader): round, current money, current towers
 - [ ] Stats per attack: damage, pierce, damage type (shatter, explosive, tack), projectile speed, range
+- [ ] Implement desktop UI with Electron
 
 ### 3.0: BTD6 Agent
 - [ ] Takes round and total money as input
 - [ ] Subagent determines round information, then recommends towers from the statistics
 - [ ] Round 63 (camo lead and ceramic heavy) should recommend pierce
 - [ ] Round 40 (has a MOAB) should recommend high-damage MOAB options
+- [ ] Round data in the database (up to round 40)
