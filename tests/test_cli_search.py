@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from btd6.cli import format_results, main
+from btd6.cli import build_filters, build_parser, format_results, main
 from btd6.db import connect
 from btd6.query import search_upgrades
 from tests.test_query import (
@@ -273,3 +273,31 @@ def test_main_search_unrelated_value_error_is_unexpected(
     assert exit_code == 1
     assert captured.err == "Unexpected error: boom\n"
     assert captured.out == ""
+
+
+def test_build_filters_maps_each_minimum_to_its_own_field() -> None:
+    args = build_parser().parse_args(
+        [
+            "search",
+            "--min-pierce",
+            "11",
+            "--min-damage",
+            "22",
+            "--min-range",
+            "33",
+            "--min-speed",
+            "44",
+        ]
+    )
+    filters = build_filters(args)
+    assert filters.min_pierce == 11
+    assert filters.min_damage == 22
+    assert filters.min_range == 33
+    assert filters.min_projectile_speed == 44
+
+
+@pytest.mark.parametrize("flag", ["--can-pop", "--cannot-pop"])
+def test_pop_flags_reject_unknown_property(flag: str) -> None:
+    with pytest.raises(SystemExit) as caught:
+        build_parser().parse_args(["search", flag, "rainbow"])
+    assert caught.value.code == 2
