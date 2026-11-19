@@ -87,15 +87,6 @@ def test_format_help_texts(expected):
     assert re.search(pattern, build_parser().format_help())
 
 
-def test_main_load_stub_not_implemented(capsys: pytest.CaptureFixture[str]):
-    exit_code = main(["load"])
-
-    captured = capsys.readouterr()
-    assert exit_code == 1
-    assert captured.err == "load: not implemented\n"
-    assert captured.out == ""
-
-
 def test_main_dispatches_parsed_namespace_to_handler(db_path: str, monkeypatch):
     received = []
 

@@ -6,9 +6,12 @@ import sys
 from collections.abc import Callable
 
 import pandas as pd
+import requests
 
 from btd6.db import connect
-from btd6.etl.fetch import PROJECT_ROOT
+from btd6.etl.fetch import PROJECT_ROOT, fetch_tower_module
+from btd6.etl.pipeline import RefreshError, refresh_database
+from btd6.etl.towers import MAGIC_TOWERS
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, UpgradeFilters, search_upgrades
 
 RESULT_COLUMNS: dict[str, str] = {
@@ -62,10 +65,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="btd6")
     parser.add_argument("--db", default=str(PROJECT_ROOT / "btd6.db"), help="SQLite database path")
     subparsers = parser.add_subparsers(dest="command")
-    subparsers.add_parser("load", help="load resolved tower data into the database")
+    load_parser = subparsers.add_parser("load", help="load resolved tower data into the database")
+    add_load_options(load_parser)
     search_parser = subparsers.add_parser("search", help="search towers and upgrades by stats")
     add_search_options(search_parser)
     return parser
+
+
+def add_load_options(subparser: argparse.ArgumentParser) -> None:
+    subparser.add_argument("--tower", action="append", choices=MAGIC_TOWERS, metavar="NAME")
 
 
 def add_search_options(subparser: argparse.ArgumentParser) -> None:
@@ -94,9 +102,32 @@ def build_filters(args: argparse.Namespace) -> UpgradeFilters:
     )
 
 
-def run_load(args: argparse.Namespace) -> int:
-    print("load: not implemented", file=sys.stderr)
+def print_loaded(loaded: dict[str, int]) -> None:
+    for tower_name, upgrade_count in loaded.items():
+        print(f"{tower_name}: {upgrade_count} upgrades")
+
+
+def report_refresh_error(error: RefreshError) -> int:
+    for failure in error.failures.values():
+        if isinstance(failure, requests.ConnectionError):
+            print(f"Could not reach the wiki: {failure}", file=sys.stderr)
+            return 1
+    print_loaded(error.loaded)
+    for tower_name, failure in error.failures.items():
+        print(f"{tower_name}: failed: {failure}", file=sys.stderr)
     return 1
+
+
+def run_load(args: argparse.Namespace) -> int:
+    connection = connect(args.db)
+    try:
+        loaded = refresh_database(connection, args.tower, fetch=fetch_tower_module)
+    except RefreshError as error:
+        return report_refresh_error(error)
+    finally:
+        connection.close()
+    print_loaded(loaded)
+    return 0
 
 
 def run_search(args: argparse.Namespace) -> int:

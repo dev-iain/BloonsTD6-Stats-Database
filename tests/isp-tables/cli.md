@@ -212,9 +212,9 @@ def main(argv: list[str] | None = None) -> int
 
 Parses `argv` for the `load` subcommand, fetches each requested Magic tower, writes its upgrades to the database and prints one `<Tower>: <n> upgrades` line per tower.
 
-Take the `load` path of `main(argv)`. First, we use interface-based modeling; we know that `load` takes an optional `--tower`, thus we model which towers were requested: all of them, one valid one, and one that is not a Magic tower, which argparse must reject before any fetch. To determine important characteristics, we first fixate on the function of the code: the user wants every requested tower in the database, and a failure must name what failed. We know that the wiki is the only external dependency, thus we model the fetch outcome: every tower succeeds, one tower returns bad data (the load continues and the exit code is 1), or the wiki is unreachable (the load stops at the first request). Finally, we model the state of the database file, since loading into a database that already holds the data must not duplicate rows. The `COUNT(*)` and the stdout lines follow from those choices, so they are checked in the oracle.
+Take the `load` path of `main(argv)`. First, we use interface-based modeling; we know that `load` takes an optional `--tower`, thus we model which towers were requested: all of them, one valid one, and one that is not a Magic tower, which argparse must reject before any fetch. To determine important characteristics, we first fixate on the function of the code: the user wants every requested tower in the database, and a failure must name what failed. We know that the wiki is the only external dependency, thus we model the fetch outcome: every tower succeeds, one tower returns bad data (the load continues and the exit code is 1), or the wiki is unreachable (every tower fails with the same connection error, and the CLI prints one wiki line). Finally, we model the state of the database file, since loading into a database that already holds the data must not duplicate rows. The `COUNT(*)` and the stdout lines follow from those choices, so they are checked in the oracle.
 
-Fixture: a fake fetch passed to the handler (or monkeypatched over `btd6.etl.pipeline.fetch_tower_module`) that returns the saved Super Monkey module for every tower, so each loads 64 upgrades. Never call the real wiki. Towers load in `MAGIC_TOWERS` order: Super Monkey, Wizard Monkey, Ninja Monkey, Alchemist, Druid. `COUNT(*)` means `SELECT COUNT(*) FROM upgrades` on `NEW_DB` after the call.
+Fixture: a fake fetch monkeypatched over `btd6.cli.fetch_tower_module` (the CLI passes it to `refresh_database` at call time) that returns the saved Super Monkey module for every tower, so each loads 64 upgrades. Never call the real wiki. Towers load in `MAGIC_TOWERS` order: Super Monkey, Wizard Monkey, Ninja Monkey, Alchemist, Druid. `COUNT(*)` means `SELECT COUNT(*) FROM upgrades` on `NEW_DB` after the call.
 
 Base input: `main(["--db", NEW_DB, "load"])`, with `NEW_DB = tmp_path / "new.db"` not yet created.
 
@@ -227,13 +227,13 @@ Base input: `main(["--db", NEW_DB, "load"])`, with `NEW_DB = tmp_path / "new.db"
 |||A3: Not a Magic tower|`"--tower", "Dart Monkey"`|
 |fetch|B) Fetch outcome|B1: Every tower succeeds|fake returns the Super Monkey module|
 |||B2: One tower has bad data|fake raises `ValueError("no upgrade data")` for `Alchemist`|
-|||B3: Wiki unreachable|fake raises `requests.ConnectionError("connection refused")` on the first call|
+|||B3: Wiki unreachable|fake raises `requests.ConnectionError("connection refused")` for every tower|
 |`--db` (state: file)|C) State before the call|C1: Missing|`NEW_DB` not created|
 |||C2: Already loaded|`NEW_DB` after one successful base `load`|
 
 Base case: A1, B1, C1
 
-Feasibility notes: B3 stops the load at the first failed request, so the tower list does not matter for it.
+Feasibility notes: `refresh_database` tries every tower and reports all failures together, so under B3 every tower fails; the CLI then prints one wiki line instead of one line per tower. The tower list does not change that outcome.
 
 ### Base Choice Coverage
 
