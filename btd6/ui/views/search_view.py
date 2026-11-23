@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tkinter as tk
+from collections.abc import Sequence
 from tkinter import ttk
 from typing import Protocol
 
@@ -23,15 +24,24 @@ class SearchPresenterPort(Protocol):
 
     def on_sort(self, column: str) -> None: ...
 
+    def on_sort_selected(self, column: str | None) -> None: ...
+
     def load_database(self) -> None: ...
 
 
 class SearchView(ttk.Frame):
     """Passive screen: renders presenter output and forwards user events to it."""
 
-    def __init__(self, parent: tk.Misc, fonts: Fonts, on_dark_mode: tk.BooleanVar) -> None:
+    def __init__(
+        self,
+        parent: tk.Misc,
+        fonts: Fonts,
+        on_dark_mode: tk.BooleanVar,
+        damage_types: Sequence[str] = (),
+    ) -> None:
         super().__init__(parent, padding=SPACE_MD)
         self._fonts = fonts
+        self._damage_types = damage_types
         self._presenter: SearchPresenterPort | None = None
         self.status_var = tk.StringVar()
         self.status_is_error = False
@@ -67,6 +77,8 @@ class SearchView(ttk.Frame):
             on_change=lambda inputs: self._presenter.on_filters_changed(inputs),
             on_submit=lambda inputs: self._presenter.on_submit(inputs),
             on_reset=lambda: self._presenter.reset(),
+            on_sort_selected=lambda column: self._presenter.on_sort_selected(column),
+            damage_types=self._damage_types,
         )
         self.results_table = ResultsTable(
             self,
@@ -137,6 +149,7 @@ class SearchView(ttk.Frame):
         self.filter_panel.set_errors(errors)
 
     def show_sort(self, column: str | None, descending: bool) -> None:
+        self.filter_panel.set_sort(column)
         self.results_table.set_sort_indicator(column, descending)
 
     def show_filters(self, inputs: FilterInputs) -> None:

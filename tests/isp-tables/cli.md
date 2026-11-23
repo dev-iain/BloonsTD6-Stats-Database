@@ -318,3 +318,84 @@ Base case: A1, B1, C1, D1, E1
 | T17 | rank column (#99) | ranks printed are `1..n` in order | `test_main_rank_ranks_are_sequential` |
 | T18 | `--help` | `main(["--help"])` stdout contains `rank` | `test_main_help_lists_rank` |
 | T19 | property | for any metric, difficulty, limit, printed rows equal `rank_upgrades` rows | `test_main_rank_matches_rank_upgrades_property` |
+
+---
+
+## main: `gui` (#77)
+
+```python
+def main(argv: list[str] | None = None) -> int
+```
+
+Parses `argv` for the `gui` subcommand (alias `ui`) and returns `btd6.ui.app.main(args.db)`. `btd6.ui.app.main` is monkeypatched with a spy in every test, so no window opens.
+
+Take the `gui` path of `main(argv)`. The user wants the same window from either spelling and the same `--db` handling as `search`, so we model which spelling was used, whether `--db` was given, and whether the subcommand received options it does not accept.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`argv` (subcommand)|A) Spelling|A1: `gui`|`"gui"`|
+|||A2: `ui` alias|`"ui"`|
+|`--db`|B) Database path|B1: Given before the subcommand|`"--db", DB`|
+|||B2: Not given|none|
+|`argv` (extra options)|C) Options after `gui`|C1: None|none|
+|||C2: Search option|`"--min-pierce", "1"`|
+
+Base case: A1, B1, C1
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | spy called once with `DB`; returns the spy's value (`7`) | `test_main_gui_dispatches_to_app_main` |
+| T2 | A2 | B1 | C1 | spy called once with `DB`; returns `7` | `test_main_gui_ui_alias` |
+| T3 | A1 | B2 | C1 | spy called once with `str(PROJECT_ROOT / "btd6.db")` | `test_main_gui_default_database` |
+| T4 | A1 | B1 | C2 | `SystemExit.code == 2`; last stderr line `btd6: error: unrecognized arguments: --min-pierce 1`; spy not called | `test_main_gui_rejects_search_options` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T5 | help | `build_parser().format_help()` lists `gui` | `test_build_parser_lists_gui` |
+| T6 | spy raises | `app.main` raising `RuntimeError("boom")` gives return `1` and stderr `Unexpected error: boom` | `test_main_gui_unexpected_error` |
+
+---
+
+## build_window, main, import safety (#77)
+
+```python
+def build_window(db_path: str) -> tk.Tk       # btd6/ui/app.py
+def main(db_path: str) -> int                  # btd6/ui/app.py
+```
+
+`build_window` returns a root holding a `ttk.Notebook` with tabs Search, Rounds, Rankings; Rounds and Rankings each show a "Coming soon" label. `main` builds the window, runs `mainloop`, returns `0`, and closes the SQLite connection (opened through `btd6.ui.app.connect`) when the window closes. Window tests skip on `tk.TclError`.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|window|A) Tab|A1: Search|index 0|
+|||A2: Rounds|index 1|
+|||A3: Rankings|index 2|
+|window|B) Window lifecycle|B1: Built, not closed|after `build_window`|
+|||B2: Closed through the window manager|`WM_DELETE_WINDOW` invoked during `mainloop`|
+
+Base case: A1, B1
+
+### Base Choice Coverage
+
+| BCC Test | A | B | Oracle | Test Name |
+|---|---|---|---|---|
+| T1 | A1 | B1 | notebook has exactly 3 tabs, texts `["Search", "Rounds", "Rankings"]` | `test_build_window_tab_titles` |
+| T2 | A2 | B1 | tab 1 contains a label with text `Coming soon` | `test_build_window_rounds_placeholder` |
+| T3 | A3 | B1 | tab 2 contains a label with text `Coming soon` | `test_build_window_rankings_placeholder` |
+| T4 | A1 | B2 | `main` returns `0`; the spy connection's `close` was called once | `test_main_closes_connection_on_window_close` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T5 | no display needed | `btd6.ui.app` has callable `build_window` and `main` | `test_app_exposes_build_window_and_main` |
+| T6 | import safety | in a subprocess with `tkinter.Tk` replaced by a function that raises, `import btd6.ui` and `import btd6.ui.app` succeed | `test_import_btd6_ui_creates_no_window` |
+| T7 | import safety | `import btd6.ui` alone leaves `tkinter` out of `sys.modules` | `test_import_btd6_ui_does_not_import_tkinter` |

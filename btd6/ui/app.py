@@ -2,21 +2,22 @@ from __future__ import annotations
 
 import tkinter as tk
 from collections.abc import Callable
-from functools import partial
+from tkinter import ttk
 
-from btd6.ui.constants import SPACE_SM
+from btd6.db import connect
+from btd6.ui.constants import SPACE_LG, SPACE_SM
 from btd6.ui.palettes import DARK, LIGHT, PALETTES, Palette
-from btd6.ui.presenters import SearchPresenter
-from btd6.ui.services import load_database, run_query
+from btd6.ui.search_tab import SearchTab
 from btd6.ui.theme import apply_theme, build_fonts
-from btd6.ui.views.search_view import SearchView
-from btd6.ui.worker import BackgroundRunner, StartThread, start_daemon_thread
+from btd6.ui.worker import StartThread, start_daemon_thread
 
 WINDOW_TITLE = "BTD6 Tower Stats"
+COMING_SOON_TEXT = "Coming soon"
+PLACEHOLDER_TABS = ("Rounds", "Rankings")
 
 
 class AppWindow:
-    """Composition root: builds theme, view, presenter and worker for one window."""
+    """Composition root: builds the theme and the notebook of tabs for one window."""
 
     def __init__(
         self,
@@ -31,23 +32,30 @@ class AppWindow:
         self.dark_mode_var = tk.BooleanVar(value=palette is DARK)
         root.title(WINDOW_TITLE)
         apply_theme(root, palette, self._fonts)
-        self.view = SearchView(root, self._fonts, self.dark_mode_var)
-        self.runner = BackgroundRunner(root, start_thread=start_thread)
-        self.presenter = SearchPresenter(
-            self.view,
-            self.runner,
-            root,
-            run_query=partial(run_query, database_path),
-            run_load=lambda report: load_database(database_path, report),
+        self.notebook = ttk.Notebook(root)
+        self.search_tab = SearchTab(
+            self.notebook, database_path, self._fonts, self.dark_mode_var, start_thread
         )
+        self.view = self.search_tab.view
+        self.presenter = self.search_tab.presenter
+        self.runner = self.search_tab.runner
+        self._add_tabs()
         self._finish_layout()
+
+    def _add_tabs(self) -> None:
+        self.notebook.add(self.search_tab, text="Search", underline=0)
+        for title in PLACEHOLDER_TABS:
+            page = ttk.Frame(self.notebook, padding=SPACE_LG)
+            ttk.Label(page, text=COMING_SOON_TEXT, style="Placeholder.TLabel").grid(row=0, column=0)
+            page.columnconfigure(0, weight=1)
+            page.rowconfigure(0, weight=1)
+            self.notebook.add(page, text=title)
 
     def _finish_layout(self) -> None:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        self.view.grid(row=0, column=0, sticky="nsew", padx=SPACE_SM, pady=SPACE_SM)
-        self.view.bind_presenter(self.presenter)
-        self.view.apply_palette(self._palette)
+        self.notebook.grid(row=0, column=0, sticky="nsew", padx=SPACE_SM, pady=SPACE_SM)
+        self.search_tab.apply_palette(self._palette)
         self.root.minsize(*self.view.minimum_size())
         self.dark_mode_var.trace_add("write", self._on_dark_mode_changed)
         self.root.bind("<Control-q>", lambda event: self.close())
@@ -55,7 +63,7 @@ class AppWindow:
         self.root.protocol("WM_DELETE_WINDOW", self.close)
 
     def start(self) -> None:
-        self.root.after(0, self.presenter.start)
+        self.search_tab.start()
 
     def _on_dark_mode_changed(self, *_: object) -> None:
         self.set_palette(DARK if self.dark_mode_var.get() else LIGHT)
@@ -63,11 +71,10 @@ class AppWindow:
     def set_palette(self, palette: Palette) -> None:
         self._palette = PALETTES[palette.name]
         apply_theme(self.root, self._palette, self._fonts)
-        self.view.apply_palette(self._palette)
+        self.search_tab.apply_palette(self._palette)
 
     def close(self) -> None:
-        self.presenter.close()
-        self.runner.close()
+        self.search_tab.close()
         self.root.destroy()
 
 
@@ -79,3 +86,25 @@ def create_app(
     if on_ready is not None:
         on_ready(window)
     return window
+
+
+def build_window(database_path: str) -> tk.Tk:
+    """Create the root window with every tab and start the first search."""
+    root = tk.Tk()
+    try:
+        AppWindow(root, database_path).start()
+    except Exception:
+        root.destroy()
+        raise
+    return root
+
+
+def main(database_path: str) -> int:
+    """Run the desktop app until its window closes; the connection closes with it."""
+    root = build_window(database_path)
+    connection = connect(database_path)
+    try:
+        root.mainloop()
+    finally:
+        connection.close()
+    return 0

@@ -136,7 +136,7 @@ class Harness:
         )
 
     def run_query(
-        self, filters: UpgradeFilters, sort_by: str | None, descending: bool
+        self, filters: UpgradeFilters, sort_by: str | None, descending: bool, limit: int | None
     ) -> list[tuple[str, ...]]:
         self.queries.append((filters, sort_by, descending))
         if isinstance(self.result, Exception):

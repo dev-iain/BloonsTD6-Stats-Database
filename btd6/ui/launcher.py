@@ -21,16 +21,13 @@ def launch(database_path: str | Path) -> int:
     from btd6.ui.theme import enable_dpi_awareness
 
     enable_dpi_awareness()
+    from btd6.ui import app
+
     try:
-        root = tk.Tk()
+        return app.main(str(database_path))
     except tk.TclError as error:
         print(f"Could not open a window (is a display available?): {error}", file=sys.stderr)
         return 1
-    from btd6.ui.app import create_app
-
-    create_app(root, str(database_path))
-    root.mainloop()
-    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

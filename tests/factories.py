@@ -119,3 +119,24 @@ class StatsFactory(factory.Factory):
             stats.mask, stats.invisible, stats.pierce, stats.damage, stats.rate
         )
     )
+
+
+class ResultRowFactory(factory.Factory):
+    """Mapping shaped like a `search_upgrades` result row (flags stored as 0/1)."""
+
+    class Meta:
+        model = dict
+
+    tower_name = "Super Monkey"
+    path = factory.Sequence(path_for_index)
+    attack_rate = 0.045
+    projectile_count = 1
+    projectile_damage = 2.0
+    projectile_pierce = 3.0
+    projectile_speed = 200.0
+    can_pop_lead = 1
+    can_pop_black = 1
+    can_pop_white = 1
+    can_pop_purple = 1
+    can_pop_glass = 1
+    can_pop_frozen = 1

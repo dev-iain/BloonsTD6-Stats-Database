@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -9,10 +8,10 @@ from typing import Any, Protocol
 from btd6.formatting import EMPTY_RESULTS_MESSAGE
 from btd6.query import POP_PROPERTIES, QueryError, UpgradeFilters
 from btd6.ui.scheduler import Scheduler
+from btd6.ui.search_viewmodel import MISSING_DATABASE_MESSAGE, parse_limit, parse_optional_float
 from btd6.ui.worker import BackgroundRunner
 
 DEBOUNCE_MS = 250
-MISSING_DATABASE_MESSAGE = "No database found. Load tower data from the wiki to get started."
 THRESHOLD_FIELDS = {
     "min_range": "Range",
     "min_pierce": "Pierce",
@@ -82,6 +81,8 @@ class FilterInputs:
     min_pierce: str = ""
     min_damage: str = ""
     min_projectile_speed: str = ""
+    damage_type: str = "Any"
+    limit: str = ""
 
 
 class InputError(ValueError):
@@ -89,16 +90,20 @@ class InputError(ValueError):
 
 
 def parse_threshold(label: str, text: str) -> float | None:
-    cleaned = text.strip()
-    if not cleaned:
-        return None
     try:
-        number = float(cleaned)
+        number = parse_optional_float(text)
     except ValueError:
         raise InputError(f"{label} must be a number") from None
-    if not math.isfinite(number) or number < 0:
+    if number is not None and number < 0:
         raise InputError(f"{label} must be 0 or more")
     return number
+
+
+def parse_result_limit(text: str) -> tuple[int | None, dict[str, str]]:
+    try:
+        return parse_limit(text), {}
+    except QueryError as error:
+        return None, {"limit": str(error)}
 
 
 def parse_filters(inputs: FilterInputs) -> tuple[UpgradeFilters | None, dict[str, str]]:
@@ -116,6 +121,7 @@ def parse_filters(inputs: FilterInputs) -> tuple[UpgradeFilters | None, dict[str
     values["can_hit_camo"] = choice_to_flag(inputs.camo)
     name_text = inputs.name_text.strip()
     values["tower_name_contains"] = name_text or None
+    values["damage_type"] = inputs.damage_type if inputs.damage_type not in ("", "Any") else None
     return UpgradeFilters(**values), {}
 
 
@@ -151,7 +157,7 @@ class DatabaseMissingError(Exception):
     """The database file or its tables do not exist yet."""
 
 
-QueryFunction = Callable[[UpgradeFilters, str | None, bool], list[tuple[str, ...]]]
+QueryFunction = Callable[[UpgradeFilters, str | None, bool, int | None], list[tuple[str, ...]]]
 LoadFunction = Callable[[Callable[[str], None]], str]
 
 
@@ -193,6 +199,11 @@ class SearchPresenter:
         self._view.show_filters(self._inputs)
         self.search_now()
 
+    def on_sort_selected(self, column: str | None) -> None:
+        self._sort_column, self._descending = column, False
+        self._view.show_sort(column, False)
+        self.search_now()
+
     def on_sort(self, column: str) -> None:
         if column not in SORTABLE_KEYS:
             return
@@ -211,23 +222,27 @@ class SearchPresenter:
 
     def search_now(self) -> None:
         self._cancel_debounce()
-        filters, errors = parse_filters(self._inputs)
+        filters, limit, errors = self._parse_request()
         self._view.show_field_errors(errors)
-        if filters is None:
-            self._request_id += 1
+        self._request_id += 1
+        if filters is None or errors:
             self._view.set_busy(False)
             self._view.show_status("Fix the highlighted filters to search", True)
             return
-        self._request_id += 1
         request_id = self._request_id
         self._view.set_busy(True)
         self._view.show_status("Searching...", False)
         sort_column, descending = self._sort_column, self._descending
         self._runner.submit(
-            lambda report: self._run_query(filters, sort_column, descending),
+            lambda report: self._run_query(filters, sort_column, descending, limit),
             lambda rows: self._on_rows(request_id, rows),
             lambda error: self._on_query_error(request_id, error),
         )
+
+    def _parse_request(self) -> tuple[UpgradeFilters | None, int | None, dict[str, str]]:
+        filters, errors = parse_filters(self._inputs)
+        limit, limit_errors = parse_result_limit(self._inputs.limit)
+        return filters, limit, {**errors, **limit_errors}
 
     def _on_rows(self, request_id: int, rows: list[tuple[str, ...]]) -> None:
         if request_id != self._request_id:
