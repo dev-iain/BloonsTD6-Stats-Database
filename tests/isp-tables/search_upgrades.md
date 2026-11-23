@@ -258,3 +258,91 @@ Three tests for #36 acceptance criteria that the tests above do not cover. G and
 | T1 | #36: `damage_type="Plasma"` on real data | with the full data, `search_upgrades(conn, UpgradeFilters(damage_type="Plasma"))` returns 17 rows, every one with `damage_type == "Plasma"` | `test_search_upgrades_damage_type_plasma_full_data` |
 | T2 | `damage_type` (G1) AND `can_hit_camo=True` (H1) | with `2-0-2` added, `UpgradeFilters(damage_type="Plasma", can_hit_camo=True)` returns `["2-0-2"]` | `test_search_upgrades_damage_type_and_camo` |
 | T3 | `damage_type` (G1) AND `can_hit_camo=False` (H2) | with `2-0-2` added, `UpgradeFilters(damage_type="Plasma", can_hit_camo=False)` returns `["2-0-0", "2-1-0"]` | `test_search_upgrades_damage_type_and_no_camo` |
+
+## search_upgrades: `tower_name_contains` filter and `path` sort
+
+```python
+def search_upgrades(connection, filters: UpgradeFilters | None = None, sort_by: str | None = None, descending: bool = True, limit: int | None = None) -> list[sqlite3.Row]
+```
+
+`filters.tower_name_contains` keeps upgrades whose `towers.name` contains the stripped value, case-insensitively, using `LIKE ? ESCAPE '\'` with `%`, `_` and `\` escaped so they match literally. `None`, empty and whitespace-only add no restriction. `tower_name` stays exact. `sort_by="path"` sorts in SQL like the other columns (plain text order, `NULL` last, ties by tower name then path); `path` is `NOT NULL` in the schema, so `NULL` last is vacuous for it.
+
+Fixtures: `conn_with_wizard` (Super Monkey and Wizard Monkey, both Magic, the four fixture paths each; Wizard `range = 999`); `conn_with_special_names` (adds one `0-0-0` upgrade to each of `Rate 100% Monkey`, `Snake_Case Monkey`, `Back\Slash Monkey`); `conn_with_primary` (adds Dart Monkey, category Primary).
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`filters.tower_name_contains`|A) Value shape|A1: Non-blank, matches a name|`"super"`|
+|||A2: `None`|`None`|
+|||A3: Empty|`""`|
+|||A4: Whitespace only|`"   "`|
+|||A5: Single character|`"s"`|
+|||A6: No tower matches|`"zzz"`|
+|`filters.tower_name_contains` (case)|B) Case of the value vs the name|B1: Same case as the name|`"Super"`|
+|||B2: Lower case|`"super"`|
+|||B3: Upper case|`"SUPER"`|
+|||B4: Mixed case|`"SuPeR MoNkEy"`|
+|`filters.tower_name_contains` (metacharacter)|C) LIKE metacharacter in the value|C1: None present|`"super"`|
+|||C2: `%`|`"%"`, `"100%"`, `"Sup%"`|
+|||C3: `_`|`"_"`, `"S_per"`|
+|||C4: `\`|`"\"`, `"\%"`|
+|`filters.tower_name_contains` (padding)|D) Surrounding whitespace|D1: None|`"super"`|
+|||D2: Padded|`"  super  "`|
+|`connection` (state: names)|E) Stored names contain the metacharacter|E1: No|`conn_with_wizard`|
+|||E2: Yes|`conn_with_special_names`|
+|`filters` (other fields)|F) Combined filter|F1: None|only `tower_name_contains`|
+|||F2: `category`|`category="Primary"`, `"Magic"`, `"Military"`|
+|||F3: Exact `tower_name`|`tower_name="Super Monkey"`|
+|||F4: Numeric filter|`min_range=999`|
+|`sort_by`|G) Sort column|G1: No sort|`None`|
+|||G2: `path`|`"path"`|
+|||G3: Other whitelisted|`"range"`|
+|||G4: Not whitelisted|`"bogus"`, `"Path"`, `"upgrades.path"`|
+|`descending` (with G2)|H) Direction|H1: Descending|`True`|
+|||H2: Ascending|`False`|
+|`connection` (state: path ties)|I) Same path in several towers|I1: No|`conn` (Super Monkey only)|
+|||I2: Yes|`conn_with_wizard`|
+
+Base case: A1, B2, C1, D1, E1, F1, G1, H1, I1
+
+Feasibility notes: B and D only apply to a non-blank value (A1, A5); C2-C4 against E1 tests that a metacharacter matches nothing, against E2 that it matches only the literal name. H has no effect unless G is G2, so H2 is covered by T-sort tests. F2 uses `conn_with_primary`, F3 and F4 use `conn_with_wizard`.
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | D | E | F | G | H | I | Oracle | Test Name |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| T1 | A1 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `tower_name_contains="super"` returns Super Monkey only | `test_search_upgrades_name_contains_substring` |
+| T2 | A2 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `None` returns all 8 rows | `test_search_upgrades_name_contains_no_filter` |
+| T3 | A3 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `""` returns all 8 rows | `test_search_upgrades_name_contains_no_filter` |
+| T4 | A4 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `"   "` returns all 8 rows | `test_search_upgrades_name_contains_no_filter` |
+| T5 | A5 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `"s"` returns Super Monkey; `"w"` returns Wizard Monkey | `test_search_upgrades_name_contains_substring` |
+| T6 | A6 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `"zzz"` returns `[]` | `test_search_upgrades_name_contains_substring` |
+| T7 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `"Super"` returns Super Monkey | `test_search_upgrades_name_contains_substring` |
+| T8 | A1 | B3 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `"SUPER"` returns Super Monkey | `test_search_upgrades_name_contains_substring` |
+| T9 | A1 | B4 | C1 | D1 | E1 | F1 | G1 | H1 | I1 | `"SuPeR MoNkEy"` returns Super Monkey | `test_search_upgrades_name_contains_substring` |
+| T10 | A1 | B2 | C2 | D1 | E1 | F1 | G1 | H1 | I1 | `"%"`, `"_"`, `"\"` return `[]` (no such names) | `test_search_upgrades_name_contains_metacharacter_absent_from_names` |
+| T11 | A1 | B2 | C2 | D1 | E2 | F1 | G1 | H1 | I1 | `"%"` returns only `Rate 100% Monkey`; `"Sup%"` returns `[]` | `test_search_upgrades_name_contains_metacharacters_are_literal` |
+| T12 | A1 | B2 | C3 | D1 | E2 | F1 | G1 | H1 | I1 | `"_"` returns only `Snake_Case Monkey`; `"S_per"` returns `[]` | `test_search_upgrades_name_contains_metacharacters_are_literal` |
+| T13 | A1 | B2 | C4 | D1 | E2 | F1 | G1 | H1 | I1 | `"\"` returns only `Back\Slash Monkey`; `"\%"` returns `[]` | `test_search_upgrades_name_contains_metacharacters_are_literal` |
+| T14 | A1 | B2 | C1 | D2 | E1 | F1 | G1 | H1 | I1 | `"  super  "` returns Super Monkey | `test_search_upgrades_name_contains_substring` |
+| T15 | A1 | B2 | C1 | D1 | E1 | F2 | G1 | H1 | I1 | `category="Magic"` with `"wizard"` returns Wizard Monkey; `"Primary"` with `"monkey"` returns Dart Monkey; `"Military"` returns `[]` | `test_search_upgrades_name_contains_with_category` |
+| T16 | A1 | B2 | C1 | D1 | E1 | F3 | G1 | H1 | I1 | `tower_name="Super Monkey"` with `"wizard"` returns `[]`; with `"SUPER"` returns Super Monkey | `test_search_upgrades_name_contains_with_exact_tower_name` |
+| T17 | A1 | B2 | C1 | D1 | E1 | F4 | G1 | H1 | I1 | `"MONKEY"` with `min_range=999` returns the four Wizard Monkey rows | `test_search_upgrades_name_contains_with_numeric_filter` |
+| T18 | A1 | B2 | C1 | D1 | E1 | F1 | G2 | H1 | I1 | on `conn`, `sort_by="path"` returns `["2-1-0", "2-0-0", "1-1-0", "0-0-0"]` | `test_search_upgrades_sort_path_descending` |
+| T19 | A1 | B2 | C1 | D1 | E1 | F1 | G3 | H1 | I1 | `sort_by="range"` still sorts as before | `test_search_upgrades_sort_every_whitelisted_column` |
+| T20 | A1 | B2 | C1 | D1 | E1 | F1 | G4 | H1 | I1 | `sort_by="bogus"` raises `ValueError` whose message ends `..., ability_cooldown, path` | `test_search_upgrades_sort_invalid_exact_message`, `test_search_upgrades_sort_path_message_lists_new_column`, `test_search_upgrades_sort_path_lookalikes_rejected` |
+| T21 | A1 | B2 | C1 | D1 | E1 | F1 | G2 | H2 | I1 | on `conn`, `sort_by="path", descending=False` returns the four paths ascending | `test_search_upgrades_sort_path_ascending` |
+| T22 | A1 | B2 | C1 | D1 | E1 | F1 | G2 | H1 | I2 | on `conn_with_wizard`, ties on path ordered Super Monkey then Wizard Monkey | `test_search_upgrades_sort_path_ties_broken_by_tower_name_descending` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T23 | H2 with I2 | ascending path with ties: tower name ascending within each path | `test_search_upgrades_sort_path_ties_broken_by_tower_name_ascending` |
+| T24 | G2 with limit | `sort_by="path", descending=False, limit=2` returns `["0-0-0", "1-1-0"]` | `test_search_upgrades_sort_path_with_limit` |
+| T25 | G2 with numeric filter | `min_range=60`, `sort_by="path"` returns `["2-1-0", "1-1-0"]` | `test_search_upgrades_sort_path_with_filters` |
+| T26 | exact SQL | `build_where` gives `" WHERE towers.name LIKE ? ESCAPE '\'"` with params `["%50\%\_\\%"]` for `"50%_\"`; blank values add no clause | `test_build_where_name_contains_uses_escaped_like`, `test_build_where_name_contains_blank_adds_no_clause` |
+| T27 | exact ORDER BY | `" ORDER BY upgrades.path DESC NULLS LAST, towers.name, upgrades.path"` (and ASC) | `test_build_order_by_path_descending`, `test_build_order_by_path_ascending` |
+| T28 | `tower_name` stays exact | `tower_name="Super"` returns `[]` | `test_search_upgrades_tower_name_stays_exact_with_contains_unset` |
+| T29 | invariants (hypothesis) | any printable-ASCII value matches exactly the rows where `value.strip().lower()` is a substring of the lower-cased name; path sort is ordered by path with tower name ascending within ties | `test_property_name_contains_matches_python_substring`, `test_property_sort_path_orders_by_path_then_tower_name` |
