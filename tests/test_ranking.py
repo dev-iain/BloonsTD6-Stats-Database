@@ -5,7 +5,6 @@ from typing import Any
 
 import pandas
 import pytest
-from btd6.ranking import add_metrics, rank_upgrades
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -14,6 +13,7 @@ from btd6.db.cost_loader import load_costs
 from btd6.db.loader import INSERT_UPGRADE_SQL, UPGRADE_COLUMNS, damage_type_ids, ensure_tower
 from btd6.db.seed import initialize_database
 from btd6.query import QueryError, UpgradeFilters, search_upgrades
+from btd6.ranking import add_metrics, rank_upgrades
 from tests.factories import CostsFactory, UpgradeCostRowFactory, UpgradeRowFactory
 
 SUPER_MONKEY_COSTS = {
@@ -272,6 +272,60 @@ def test_rank_upgrades_costs_not_loaded():
     assert paths_of(result) == ["0-0-0", "0-0-4", "1-0-0", "3-0-0"]
     assert result["total_cost"].isna().all()
     assert result["damage_per_dollar"].isna().all()
+
+
+@pytest.mark.parametrize("limit", [0, -1])
+def test_rank_upgrades_limit_below_one_raises(ranked_database, limit):
+    with pytest.raises(QueryError, match=rf"limit must be at least 1, got {limit}"):
+        rank_upgrades(ranked_database, limit=limit)
+
+
+def test_rank_upgrades_limit_one_returns_one_row(ranked_database):
+    assert len(rank_upgrades(ranked_database, limit=1)) == 1
+
+
+def test_rank_upgrades_unknown_metric_message(ranked_database):
+    with pytest.raises(QueryError, match=r'Cannot rank by "bogus"') as error:
+        rank_upgrades(ranked_database, metric="bogus")
+    for metric in METRICS:
+        assert metric in str(error.value)
+
+
+def test_rank_upgrades_unknown_difficulty_message(ranked_database):
+    with pytest.raises(QueryError, match=r"Unknown difficulty: 'nightmare'"):
+        rank_upgrades(ranked_database, difficulty="nightmare")
+
+
+@pytest.mark.parametrize("limit", [None, 1, 2, 10])
+def test_rank_upgrades_index_is_clean_range(ranked_database, limit):
+    result = rank_upgrades(ranked_database, metric="dps", limit=limit)
+    assert isinstance(result.index, pandas.RangeIndex)
+    assert list(result.index) == list(range(len(result)))
+    assert "index" not in result.columns
+
+
+EMPTY_RESULT_COLUMNS = {
+    "total_cost",
+    "dps",
+    "pierce_weighted_dps",
+    "damage_per_dollar",
+    "pierce_damage_per_dollar",
+    "tower_name",
+    "path",
+}
+
+
+@pytest.mark.parametrize("limit", [None, 1])
+def test_rank_upgrades_empty_result_keeps_columns(ranked_database, limit):
+    result = rank_upgrades(ranked_database, UpgradeFilters(min_damage=1000), limit=limit)
+    assert len(result) == 0
+    assert EMPTY_RESULT_COLUMNS <= set(result.columns)
+
+
+def test_add_metrics_non_numeric_damage_is_nan():
+    result = add_metrics(metric_frame(projectile_damage=["abc"]))
+    for name in ALL_METRICS:
+        assert pandas.isna(result[name].iloc[0]), name
 
 
 # endregion
