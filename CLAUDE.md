@@ -54,18 +54,18 @@ Development is test-driven (ISP/boundary tables for filter inputs).
 - [X] Querying: search monkeys and stats (magic monkeys only)
 - [X] CLI-based interaction
 
-### 2.0: Round information and rankings
+### 2.0: Round information and rankings, in order of priority
+- [ ] Implement desktop UI with Tkinter
+- [ ] Round data in the database (up to round 40)
+  - only stores count and bloon type; needs to have income data calculations (how much each round makes in total when popping all bloons)
 - [ ] Expected income per round from pops (excludes monkeys that affect cash generation, positive or negative)
-- [ ] Suggested monkey for a round: highest rank in pierce, damage, etc. (pandas)
 - [ ] Best bang for buck: highest damage per dollar
-- [ ] Ranking based on filters
-- [ ] Mod to capture game data for an LLM/MCP (MelonLoader): round, current money, current towers
-- [ ] Stats per attack: damage, pierce, damage type (shatter, explosive, tack), projectile speed, range
-- [ ] Implement desktop UI with Electron
+  - Must come up with formula to calculate damage per second based on attack rate, projectile speed, etc to do this.
+- [ ] Mod to capture game data for an LLM/MCP (MelonLoader): round, current money, current towers 
 
 ### 3.0: BTD6 Agent
 - [ ] Takes round and total money as input
 - [ ] Subagent determines round information, then recommends towers from the statistics
 - [ ] Round 63 (camo lead and ceramic heavy) should recommend pierce
 - [ ] Round 40 (has a MOAB) should recommend high-damage MOAB options
-- [ ] Round data in the database (up to round 40)
+- [ ] Suggested monkey for a round: highest rank in pierce, damage, etc. (pandas)
