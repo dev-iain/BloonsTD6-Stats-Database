@@ -37,7 +37,7 @@ Database for compiling tower stats from Bloons Tower Defense 6, as well as an ag
 - `data.csv`: current extractor output (64 upgrades), used as a regression fixture
 - `btd6/db/connection.py`: `connect` (default `btd6.db`, foreign keys on, `sqlite3.Row`); `btd6/db/seed.py`: `seed_lookup_tables` from `DAMAGE_TYPES`, `initialize_database`; `btd6/db/__init__.py`: `apply_migrations` (numbered scripts in `btd6/db/migrations/`, tracked by `PRAGMA user_version`); schema decisions in `docs/schema.md`
 - `btd6/query.py`: `UpgradeFilters` and `search_upgrades` (contract in `docs/queries.md`)
-- `btd6/formatting.py`: shared cell formatting; `btd6/ui/`: Tkinter desktop UI (`python -m btd6 ui`), see `docs/ui.md`
+- `btd6/formatting.py`: shared cell formatting; `btd6/ui/`: Tkinter desktop UI (`python -m btd6 gui`; `ui` is an alias), see `docs/ui.md`. `app.py` builds the Search/Rounds/Rankings notebook, `search_viewmodel.py` holds the pure `form_to_filters`/`rows_to_cells`, `presenters.py`/`worker.py` are tk-free, `theme.py`/`palettes.py` hold light and dark styling
 - `btd6/cli.py`: argparse entry point (`python -m btd6`); `search` and `load` are stubs until #43 and #45
 - Planned: `btd6/db/loader.py`, refresh pipeline; `tests/` mirrors the package
 - Data currently covers Super Monkey only. 1.0 scope is magic monkeys; add towers by re-running the fetch with another tower name.

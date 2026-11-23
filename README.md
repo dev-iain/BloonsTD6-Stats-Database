@@ -90,6 +90,31 @@ $ uv run python -m btd6 --db missing.db search
 Database not found at missing.db. Run "python -m btd6 load" first.
 ```
 
+## Desktop UI
+
+```bash
+uv run python -m btd6 gui
+uv run python -m btd6 --db path/to/btd6.db gui
+```
+
+`ui` is accepted as an alias for `gui`. `--db PATH` works the same as for `search`.
+
+![Search tab](docs/images/search-tab.png)
+
+- **Search**: the same filters as `search`, plus a name box (case-insensitive substring), a damage type dropdown, a sort dropdown and a limit. Click a column header to sort ascending, click again for descending. The Pops column abbreviates the bloon types an upgrade can pop. Alt+D toggles dark mode.
+- **Rounds** and **Rankings**: placeholders ("Coming soon") until the round-data, income and ranking work lands.
+- If the database is missing or empty, a banner offers a **Load data** button. It fetches from the wiki in the background, so the window stays responsive.
+
+Tkinter needs a system Tk install on some Linux distributions:
+
+```bash
+sudo pacman -S tk            # Arch
+sudo apt install python3-tk  # Debian / Ubuntu
+sudo dnf install python3-tkinter  # Fedora
+```
+
+Without Tk, or without a display, the command prints a short message and exits with status 1. More detail, the keyboard map and a manual Windows checklist are in [docs/ui.md](docs/ui.md).
+
 ## Tests, linting and mutation testing
 
 ```bash
@@ -111,9 +136,11 @@ uv run mutmut run
 | `btd6/etl/` | wiki fetch, crosspath resolution, stat extraction, refresh pipeline |
 | `btd6/db/` | SQLite connection, migrations, seeding and loader |
 | `btd6/query.py` | `search_upgrades` and `UpgradeFilters` |
-| `btd6/cli.py` | the `load` and `search` commands |
+| `btd6/cli.py` | the `load`, `search` and `gui` commands |
+| `btd6/formatting.py` | result columns and cell formatting shared by the CLI and the UI |
+| `btd6/ui/` | Tkinter desktop UI: view-models, presenters, worker, theme, widgets |
 | `tests/` | pytest suite; ISP/BCC tables in `tests/isp-tables/` |
-| `docs/` | [schema](docs/schema.md) and [query contract](docs/queries.md) |
+| `docs/` | [schema](docs/schema.md), [query contract](docs/queries.md) and [UI notes](docs/ui.md) |
 
 ## Contributing
 

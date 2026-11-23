@@ -2,14 +2,19 @@ from __future__ import annotations
 
 import re
 import tkinter as tk
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from tkinter import ttk
 
-from btd6.query import POP_PROPERTIES
+from btd6.query import POP_PROPERTIES, SORT_COLUMNS
 from btd6.ui.constants import SPACE_SM, SPACE_XS
 from btd6.ui.presenters import THRESHOLD_FIELDS, FilterInputs, PopChoice
 
 NUMBER_PATTERN = re.compile(r"^\d*\.?\d*$")
+WHOLE_NUMBER_PATTERN = re.compile(r"^\d*$")
+ANY_DAMAGE_TYPE = "Any"
+MAX_LIMIT = 9999
+CAMO_FORM_VALUES = {PopChoice.ANY: "either", PopChoice.CAN: "yes", PopChoice.CANNOT: "no"}
+FORM_KEYS = {"min_projectile_speed": "min_speed"}
 CHOICE_LABELS = ((PopChoice.ANY, "Any"), (PopChoice.CAN, "Can"), (PopChoice.CANNOT, "Cannot"))
 CAMO_ROW = "camo"
 ENTRY_WIDTH_CHARS = 10
@@ -18,6 +23,10 @@ NAME_ENTRY_WIDTH_CHARS = 24
 
 def is_partial_number(proposed: str) -> bool:
     return NUMBER_PATTERN.match(proposed) is not None
+
+
+def is_partial_whole_number(proposed: str) -> bool:
+    return WHOLE_NUMBER_PATTERN.match(proposed) is not None
 
 
 class FilterPanel(ttk.Frame):
@@ -29,14 +38,22 @@ class FilterPanel(ttk.Frame):
         on_change: Callable[[FilterInputs], None],
         on_submit: Callable[[FilterInputs], None],
         on_reset: Callable[[], None],
+        on_sort_selected: Callable[[str | None], None] | None = None,
+        damage_types: Sequence[str] = (),
     ) -> None:
         super().__init__(parent, padding=SPACE_SM)
         self._on_change = on_change
         self._on_submit = on_submit
         self._on_reset = on_reset
+        self._on_sort_selected = on_sort_selected
+        self._damage_types = (ANY_DAMAGE_TYPE, *damage_types)
         self._muted = False
         self._number_check = (self.register(is_partial_number), "%P")
+        self._whole_number_check = (self.register(is_partial_whole_number), "%P")
         self.name_var = tk.StringVar()
+        self.damage_type_var = tk.StringVar(value=ANY_DAMAGE_TYPE)
+        self.sort_var = tk.StringVar()
+        self.limit_var = tk.StringVar()
         self.choice_vars = {name: tk.StringVar(value=PopChoice.ANY) for name in POP_PROPERTIES}
         self.choice_vars[CAMO_ROW] = tk.StringVar(value=PopChoice.ANY)
         self.threshold_vars = {name: tk.StringVar() for name in THRESHOLD_FIELDS}
@@ -46,6 +63,7 @@ class FilterPanel(ttk.Frame):
         self._build_name_group()
         self._build_pop_group()
         self._build_threshold_group()
+        self._build_options_group()
         self._build_buttons()
         self._watch_variables()
 
@@ -60,6 +78,11 @@ class FilterPanel(ttk.Frame):
         self.name_entry.grid(row=1, column=0, sticky="ew", pady=(SPACE_XS, 0))
         self.name_entry.bind("<Escape>", lambda event: self.name_var.set(""))
         self.name_entry.bind("<Return>", self._submit)
+        ttk.Label(group, text="Damage type").grid(row=2, column=0, sticky="w", pady=(SPACE_SM, 0))
+        self.damage_type_combobox = ttk.Combobox(
+            group, textvariable=self.damage_type_var, values=self._damage_types, state="readonly"
+        )
+        self.damage_type_combobox.grid(row=3, column=0, sticky="ew", pady=(SPACE_XS, 0))
 
     def _build_pop_group(self) -> None:
         group = ttk.LabelFrame(self, text="Bloon types", style="Filter.TLabelframe")
@@ -101,9 +124,36 @@ class FilterPanel(ttk.Frame):
             self._entries[field_name] = entry
             self._error_labels[field_name] = error
 
+    def _build_options_group(self) -> None:
+        group = ttk.LabelFrame(self, text="Results", style="Filter.TLabelframe")
+        group.grid(row=3, column=0, sticky="ew", pady=(0, SPACE_SM))
+        group.columnconfigure(1, weight=1)
+        ttk.Label(group, text="Sort by").grid(row=0, column=0, sticky="w", padx=(0, SPACE_SM))
+        self.sort_combobox = ttk.Combobox(
+            group, textvariable=self.sort_var, values=("", *SORT_COLUMNS), state="readonly"
+        )
+        self.sort_combobox.grid(row=0, column=1, sticky="ew")
+        self.sort_combobox.bind("<<ComboboxSelected>>", self._sort_chosen)
+        ttk.Label(group, text="Limit").grid(row=1, column=0, sticky="w", padx=(0, SPACE_SM))
+        self.limit_spinbox = ttk.Spinbox(
+            group,
+            textvariable=self.limit_var,
+            from_=1,
+            to=MAX_LIMIT,
+            width=ENTRY_WIDTH_CHARS,
+            validate="key",
+            validatecommand=self._whole_number_check,
+        )
+        self.limit_spinbox.grid(row=1, column=1, sticky="ew")
+        self.limit_spinbox.bind("<Return>", self._submit)
+        error = ttk.Label(group, text="", style="Error.TLabel")
+        error.grid(row=2, column=0, columnspan=2, sticky="w")
+        self._entries["limit"] = self.limit_spinbox
+        self._error_labels["limit"] = error
+
     def _build_buttons(self) -> None:
         button_bar = ttk.Frame(self)
-        button_bar.grid(row=3, column=0, sticky="ew")
+        button_bar.grid(row=4, column=0, sticky="ew")
         button_bar.columnconfigure((0, 1), weight=1, uniform="buttons")
         self.reset_button = ttk.Button(
             button_bar, text="Reset", underline=0, style="Secondary.TButton", command=self._on_reset
@@ -115,7 +165,13 @@ class FilterPanel(ttk.Frame):
         self.search_button.grid(row=0, column=1, sticky="ew")
 
     def _watch_variables(self) -> None:
-        every_var = [self.name_var, *self.choice_vars.values(), *self.threshold_vars.values()]
+        every_var = [
+            self.name_var,
+            self.damage_type_var,
+            self.limit_var,
+            *self.choice_vars.values(),
+            *self.threshold_vars.values(),
+        ]
         for variable in every_var:
             variable.trace_add("write", self._notify_change)
 
@@ -124,13 +180,38 @@ class FilterPanel(ttk.Frame):
             name_text=self.name_var.get(),
             pops={name: PopChoice(self.choice_vars[name].get()) for name in POP_PROPERTIES},
             camo=PopChoice(self.choice_vars[CAMO_ROW].get()),
+            damage_type=self.damage_type_var.get(),
+            limit=self.limit_var.get(),
             **{name: variable.get() for name, variable in self.threshold_vars.items()},
         )
+
+    def get_form(self) -> dict[str, str | bool]:
+        inputs = self.get_inputs()
+        form: dict[str, str | bool] = {
+            "name": inputs.name_text,
+            "camo": CAMO_FORM_VALUES[inputs.camo],
+            "damage_type": inputs.damage_type,
+            "sort": self.sort_var.get(),
+            "limit": inputs.limit,
+            **{name: str(choice) for name, choice in inputs.pops.items()},
+        }
+        for name in self.threshold_vars:
+            form[FORM_KEYS.get(name, name)] = getattr(inputs, name)
+        return form
+
+    def set_sort(self, column: str | None) -> None:
+        self.sort_var.set(column or "")
+
+    def _sort_chosen(self, event: tk.Event | None = None) -> None:
+        if self._on_sort_selected is not None:
+            self._on_sort_selected(self.sort_var.get() or None)
 
     def set_inputs(self, inputs: FilterInputs) -> None:
         self._muted = True
         try:
             self.name_var.set(inputs.name_text)
+            self.damage_type_var.set(inputs.damage_type)
+            self.limit_var.set(inputs.limit)
             for name in POP_PROPERTIES:
                 self.choice_vars[name].set(inputs.pops.get(name, PopChoice.ANY))
             self.choice_vars[CAMO_ROW].set(inputs.camo)

@@ -41,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_load_options(load_parser)
     search_parser = subparsers.add_parser("search", help="search towers and upgrades by stats")
     add_search_options(search_parser)
-    subparsers.add_parser("ui", help="open the desktop interface")
+    subparsers.add_parser("gui", aliases=["ui"], help="open the desktop interface")
     return parser
 
 
@@ -121,7 +121,7 @@ def run_search(args: argparse.Namespace) -> int:
     return 0
 
 
-def run_ui(args: argparse.Namespace) -> int:
+def run_gui(args: argparse.Namespace) -> int:
     from btd6.ui.launcher import launch
 
     return launch(args.db)
@@ -130,7 +130,8 @@ def run_ui(args: argparse.Namespace) -> int:
 HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "load": run_load,
     "search": run_search,
-    "ui": run_ui,
+    "gui": run_gui,
+    "ui": run_gui,
 }
 
 
