@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from btd6.etl.extract import extract_income_thresholds
+from btd6.etl.extract import extract_final_multiplier, extract_income_thresholds
 from tests.factories import IncomeSetFactory
 
 FIXTURE = Path(__file__).parent / "fixtures" / "default_income_set.json"
@@ -55,3 +55,12 @@ def test_extract_income_thresholds_types() -> None:
 def test_extract_income_thresholds_missing_key(income_set) -> None:
     with pytest.raises(ValueError, match="thresholds.items"):
         extract_income_thresholds(income_set)
+
+
+def test_extract_final_multiplier_base() -> None:
+    assert extract_final_multiplier(IncomeSetFactory()) == 0.02
+
+
+def test_extract_final_multiplier_missing_key() -> None:
+    with pytest.raises(ValueError, match="finalMultiplier"):
+        extract_final_multiplier({"thresholds": {"items": []}})

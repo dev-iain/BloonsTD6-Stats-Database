@@ -26,7 +26,7 @@ def raw_bloons() -> list[dict[str, Any]]:
 def offline_wiki(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(wiki_fetch, "fetch_bloons", raw_bloons)
     monkeypatch.setattr(wiki_fetch, "fetch_roundset", fake_fetch_roundset)
-    monkeypatch.setattr(wiki_fetch, "fetch_income_set", IncomeSetFactory, raising=False)
+    monkeypatch.setattr(wiki_fetch, "fetch_income_set", IncomeSetFactory)
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ def test_bloons_get_pop_cash_in_refresh(connection) -> None:
 
 def test_income_failure_keeps_everything_else(connection, monkeypatch) -> None:
     error = ValueError('Income set "DefaultIncomeSet" not found on the wiki')
-    monkeypatch.setattr(wiki_fetch, "fetch_income_set", raising(error), raising=False)
+    monkeypatch.setattr(wiki_fetch, "fetch_income_set", raising(error))
     with pytest.raises(RefreshError) as caught:
         refresh_database(connection, ("Druid",), fetch=make_fetch())
     assert list(caught.value.failures) == ["Income"]
@@ -65,9 +65,7 @@ def test_income_failure_keeps_everything_else(connection, monkeypatch) -> None:
 
 
 def test_include_rounds_false_skips_income_fetch(connection, monkeypatch) -> None:
-    monkeypatch.setattr(
-        wiki_fetch, "fetch_income_set", raising(AssertionError("fetched")), raising=False
-    )
+    monkeypatch.setattr(wiki_fetch, "fetch_income_set", raising(AssertionError("fetched")))
     refresh_database(connection, ("Druid",), fetch=make_fetch(), include_rounds=False)
     assert count_rows(connection, "income_thresholds") == 0
 

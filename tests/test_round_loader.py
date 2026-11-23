@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import csv
 import sqlite3
 from pathlib import Path
 from typing import Any
@@ -13,6 +12,7 @@ from btd6.db.connection import connect
 from btd6.db.round_loader import load_bloons, load_rounds
 from btd6.db.seed import initialize_database
 from btd6.etl.extract import split_bloon_name
+from tests.income_fixture import read_round_rows
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -340,18 +340,7 @@ def read_back_names(connection: sqlite3.Connection) -> list[dict[str, Any]]:
 
 
 def test_load_rounds_round_trip_fixture(connection):
-    with open(FIXTURES / "default_roundset_first10_rows.csv", newline="") as handle:
-        expected = [
-            {
-                "round": int(r["round"]),
-                "group_index": int(r["group_index"]),
-                "bloon": r["bloon"],
-                "count": int(r["count"]),
-                "start": float(r["start"]),
-                "duration": float(r["duration"]),
-            }
-            for r in csv.DictReader(handle)
-        ]
+    expected = read_round_rows("default_roundset_first10_rows.csv")
     base_names = sorted({split_bloon_name(row["bloon"])[0] for row in expected})
     load_bloons(connection, [bloon(name, 1, 1, 1, False, 1.0) for name in base_names])
     load_rounds(connection, expected, bloon_ids(connection))

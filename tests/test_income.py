@@ -228,7 +228,9 @@ def test_cumulative_income_short_database(short_income_db) -> None:
 @given(up_to=st.integers(min_value=1, max_value=LAST_ROUND))
 def test_cumulative_income_properties(income_db, up_to) -> None:
     total = cumulative_income(income_db, up_to)
-    expected = sum(round_income(income_db, k).total for k in range(1, up_to + 1))
+    expected = sum(
+        round_income(income_db, round_number).total for round_number in range(1, up_to + 1)
+    )
     assert total == pytest.approx(expected)
     assert total >= 0
     if up_to > 1:

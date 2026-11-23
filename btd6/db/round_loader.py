@@ -3,7 +3,11 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 
-from btd6.etl.extract import extract_income_thresholds, split_bloon_name
+from btd6.etl.extract import (
+    extract_final_multiplier,
+    extract_income_thresholds,
+    split_bloon_name,
+)
 
 BLOON_COLUMNS = (
     "health",
@@ -98,6 +102,7 @@ def load_income(connection: sqlite3.Connection, income_set: dict[str, Any]) -> i
     Returns the number of thresholds written.
     """
     rows = extract_income_thresholds(income_set)
+    final_multiplier = extract_final_multiplier(income_set)
     with connection:
         connection.execute("DELETE FROM income_thresholds")
         connection.executemany(
@@ -107,6 +112,6 @@ def load_income(connection: sqlite3.Connection, income_set: dict[str, Any]) -> i
         connection.execute(
             "INSERT INTO income_settings (id, final_multiplier) VALUES (1, ?) "
             "ON CONFLICT (id) DO UPDATE SET final_multiplier = excluded.final_multiplier",
-            (income_set["finalMultiplier"],),
+            (final_multiplier,),
         )
     return len(rows)

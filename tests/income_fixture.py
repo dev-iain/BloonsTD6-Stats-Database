@@ -12,9 +12,9 @@ from btd6.db.round_loader import load_bloons, load_income, load_rounds
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def read_group_rows(max_round: int) -> list[dict[str, Any]]:
-    with (FIXTURES / "roundset_rows_1_100.csv").open(newline="") as handle:
-        rows = [
+def read_round_rows(file_name: str) -> list[dict[str, Any]]:
+    with (FIXTURES / file_name).open(newline="") as handle:
+        return [
             {
                 "round": int(row["round"]),
                 "group_index": int(row["group_index"]),
@@ -25,6 +25,10 @@ def read_group_rows(max_round: int) -> list[dict[str, Any]]:
             }
             for row in csv.DictReader(handle)
         ]
+
+
+def read_group_rows(max_round: int) -> list[dict[str, Any]]:
+    rows = read_round_rows("roundset_rows_1_100.csv")
     return [row for row in rows if row["round"] <= max_round]
 
 

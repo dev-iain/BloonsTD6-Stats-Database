@@ -3,7 +3,7 @@
 ## Rules for these tests
 
 - Spec: `docs/income.md`. Oracle for whole rounds: `tests/fixtures/wiki_round_cash.csv` (columns `round, pop_cash, end_bonus`, rounds 1-100). Sums over that CSV: rounds 1-5 = 735, rounds 1-40 = 16856, rounds 1-100 = 178994.4.
-- `bloon_pop_cash` and `round_multiplier` live in `btd6/income.py` (#92). `fetch_income_set` lives in `btd6/etl/fetch.py`, `extract_income_thresholds` in `btd6/etl/extract.py`, `load_income` in `btd6/db/` (#91).
+- `bloon_pop_cash` lives in `btd6/etl/pop_cash.py` and `round_multiplier` in `btd6/income.py` (#92). `fetch_income_set` lives in `btd6/etl/fetch.py`, `extract_income_thresholds` in `btd6/etl/extract.py`, `load_income` in `btd6/db/` (#91).
 - DB tests use SQLite `:memory:`. Two fixtures: `income_db` (full: income tables loaded from the DefaultIncomeSet thresholds plus rounds 1-100 and bloons loaded) and `short_income_db` (rounds 1-5 only, same thresholds). Both built with factory_boy factories; network is faked, never the wiki.
 - Children fixture for `bloon_pop_cash` (wiki `parent of`): `Red: []`, `Blue: [Red x1]`, `Green: [Blue x1]`, `Yellow: [Green x1]`, `Pink: [Yellow x1]`, `Black: [Pink x2]`, `White: [Pink x2]`, `Lead: [Black x2]`, `Zebra: [Black x1, White x1]`, `Rainbow: [Zebra x2]`, `Ceramic: [Rainbow x2]`, `MOAB: [Ceramic x4]`, `BFB: [MOAB x4]`, `ZOMG: [BFB x4]`, `DDT: [Ceramic x4]`, `BAD: [ZOMG x2, DDT x3]`.
 - Expected pop cash, normal / super: Red 1/1, Black 11/6, Lead 23/7, Zebra 23/7, Rainbow 47/8, Ceramic 95/95, MOAB 381/381, DDT 381/381, BFB 1525/1525, ZOMG 6101/6101, BAD 13346/13346.

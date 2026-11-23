@@ -28,6 +28,30 @@ class RefreshError(Exception):
         self.failures = failures
 
 
+def run_step(
+    key: str,
+    action: Callable[[], int],
+    loaded: dict[str, int],
+    failures: dict[str, Exception],
+) -> bool:
+    try:
+        loaded[key] = action()
+    except Exception as error:
+        failures[key] = error
+        return False
+    return True
+
+
+def load_one_tower(
+    connection: sqlite3.Connection, tower_name: str, fetch: Callable[[str], dict[str, Any]]
+) -> int:
+    resolved = wiki.resolve_all_codes(fetch(tower_name))
+    costs = wiki.fetch_costs(tower_name)
+    written = load_tower(connection, tower_name, resolved)
+    load_costs(connection, tower_name, costs)
+    return written
+
+
 def refresh_towers(
     connection: sqlite3.Connection,
     tower_names: Iterable[str],
@@ -36,18 +60,26 @@ def refresh_towers(
     failures: dict[str, Exception],
 ) -> None:
     for tower_name in tower_names:
-        try:
-            resolved = wiki.resolve_all_codes(fetch(tower_name))
-            costs = wiki.fetch_costs(tower_name)
-            written = load_tower(connection, tower_name, resolved)
-            load_costs(connection, tower_name, costs)
-            loaded[tower_name] = written
-        except Exception as error:
-            failures[tower_name] = error
+        run_step(
+            tower_name,
+            lambda name=tower_name: load_one_tower(connection, name, fetch),
+            loaded,
+            failures,
+        )
 
 
 def read_bloon_ids(connection: sqlite3.Connection) -> dict[str, int]:
     return {row[0]: row[1] for row in connection.execute("SELECT name, id FROM bloons")}
+
+
+def load_round_steps(
+    connection: sqlite3.Connection,
+    fetch_roundset: Callable[[], dict[str, Any]],
+    loaded: dict[str, int],
+) -> int:
+    rows = extract_round_rows(fetch_roundset())
+    loaded[ROUND_GROUPS_KEY] = load_rounds(connection, rows, read_bloon_ids(connection))
+    return len({row["round"] for row in rows})
 
 
 def refresh_rounds(
@@ -58,17 +90,19 @@ def refresh_rounds(
     failures: dict[str, Exception],
 ) -> None:
     """Load bloons, then rounds 1-100; a failed bloons step skips the rounds step."""
-    try:
-        loaded[BLOONS_KEY] = load_bloons(connection, extract_bloon_rows(fetch_bloon_rows()))
-    except Exception as error:
-        failures[BLOONS_KEY] = error
-        return
-    try:
-        rows = extract_round_rows(fetch_roundset())
-        loaded[ROUND_GROUPS_KEY] = load_rounds(connection, rows, read_bloon_ids(connection))
-        loaded[ROUNDS_KEY] = len({row["round"] for row in rows})
-    except Exception as error:
-        failures[ROUNDS_KEY] = error
+    bloons_loaded = run_step(
+        BLOONS_KEY,
+        lambda: load_bloons(connection, extract_bloon_rows(fetch_bloon_rows())),
+        loaded,
+        failures,
+    )
+    if bloons_loaded:
+        run_step(
+            ROUNDS_KEY,
+            lambda: load_round_steps(connection, fetch_roundset, loaded),
+            loaded,
+            failures,
+        )
 
 
 def refresh_income(
@@ -77,10 +111,7 @@ def refresh_income(
     loaded: dict[str, int],
     failures: dict[str, Exception],
 ) -> None:
-    try:
-        loaded[INCOME_KEY] = load_income(connection, fetch_income_set())
-    except Exception as error:
-        failures[INCOME_KEY] = error
+    run_step(INCOME_KEY, lambda: load_income(connection, fetch_income_set()), loaded, failures)
 
 
 def refresh_rounds_with_defaults(

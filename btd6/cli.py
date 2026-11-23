@@ -5,6 +5,7 @@ import sqlite3
 import sys
 import traceback
 from collections.abc import Callable
+from itertools import accumulate
 from pathlib import Path
 
 import pandas as pd
@@ -31,13 +32,14 @@ from btd6.etl.towers import MAGIC_TOWERS
 from btd6.formatting import (
     EMPTY_RESULTS_MESSAGE,
     RESULT_COLUMNS,
+    format_amount,
     format_cell,
     income_summary,
 )
-from btd6.income import NoIncomeDataError, round_income
+from btd6.income import NoIncomeDataError, round_income, round_incomes
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import METRICS, rank_upgrades
-from btd6.rounds import NoRoundDataError, RoundGroup, get_round, validate_round
+from btd6.rounds import NoRoundDataError, RoundGroup, get_round
 
 RANK_METRICS: dict[str, str] = dict(zip(("dps", "dollar", "pierce-dollar"), METRICS, strict=True))
 RANK_COLUMNS: dict[str, str] = {
@@ -47,6 +49,7 @@ RANK_COLUMNS: dict[str, str] = {
     "dps": "DPS",
     "damage_per_dollar": "damage per dollar",
 }
+MISSING_DATA_MESSAGE = 'No {kind} data loaded. Run "python -m btd6 load" first.'
 DIFFICULTY_CHOICES = tuple(DIFFICULTY_MULTIPLIERS)
 
 
@@ -299,6 +302,12 @@ def load_rounds_table(connection: sqlite3.Connection, args: argparse.Namespace) 
     )
 
 
+def report_missing_data(error: NoRoundDataError | NoIncomeDataError) -> int:
+    kind = "income" if isinstance(error, NoIncomeDataError) else "round"
+    print(MISSING_DATA_MESSAGE.format(kind=kind), file=sys.stderr)
+    return 1
+
+
 def run_rounds(args: argparse.Namespace) -> int:
     check_rounds_selection(args)
     failure = check_database_exists(args)
@@ -307,9 +316,8 @@ def run_rounds(args: argparse.Namespace) -> int:
     connection = connect(args.db)
     try:
         table = load_rounds_table(connection, args)
-    except NoRoundDataError:
-        print('No round data loaded. Run "python -m btd6 load" first.', file=sys.stderr)
-        return 1
+    except NoRoundDataError as error:
+        return report_missing_data(error)
     except ValueError as error:
         print(error, file=sys.stderr)
         return 2
@@ -320,21 +328,20 @@ def run_rounds(args: argparse.Namespace) -> int:
 
 
 def format_income_table(connection: sqlite3.Connection, up_to_round: int) -> str:
-    validate_round(connection, up_to_round)
-    records = []
-    running = 0.0
-    for number in range(1, up_to_round + 1):
-        income = round_income(connection, number)
-        running += income.total
-        records.append(
-            {
-                "round": number,
-                "pop cash": format_cell("money", round(income.pop_cash, 1)),
-                "end bonus": format_cell("money", income.end_bonus),
-                "total": format_cell("money", round(income.total, 1)),
-                "running total": format_cell("money", round(running, 1)),
-            }
+    incomes = round_incomes(connection, up_to_round)
+    running_totals = accumulate(income.total for income in incomes)
+    records = [
+        {
+            "round": number,
+            "pop cash": format_amount(income.pop_cash),
+            "end bonus": format_amount(income.end_bonus),
+            "total": format_amount(income.total),
+            "running total": format_amount(running),
+        }
+        for number, income, running in zip(
+            range(1, up_to_round + 1), incomes, running_totals, strict=True
         )
+    ]
     with pd.option_context("display.max_rows", None, "display.max_columns", None):
         return pd.DataFrame(records).to_string(index=False)
 
@@ -353,12 +360,8 @@ def run_income(args: argparse.Namespace) -> int:
     connection = connect(args.db)
     try:
         output = build_income_output(connection, args)
-    except NoRoundDataError:
-        print('No round data loaded. Run "python -m btd6 load" first.', file=sys.stderr)
-        return 1
-    except NoIncomeDataError:
-        print('No income data loaded. Run "python -m btd6 load" first.', file=sys.stderr)
-        return 1
+    except (NoRoundDataError, NoIncomeDataError) as error:
+        return report_missing_data(error)
     except ValueError as error:
         print(error, file=sys.stderr)
         return 2

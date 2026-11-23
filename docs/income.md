@@ -41,7 +41,7 @@ Children come from the `parent of` field [Bloons]. Health does not matter: a Cer
 
 So from round 81 a Ceramic still pays 87 + 8 (its one-child chain Rainbow → Zebra → Black → Pink → Yellow → Green → Blue → Red) = 95, and so do MOAB-class bloons, but a lone Rainbow pays 8 and a Lead pays 7.
 
-The database stores both values per bloon: `bloons.pop_cash` (rounds 1-80) and `bloons.pop_cash_super` (rounds 81+). They are computed by the ETL from `parent of` when bloons are loaded.
+The database stores both values per bloon: `bloons.pop_cash` (rounds 1-80) and `bloons.pop_cash_super` (rounds 81+). They are computed by the ETL (`btd6/etl/pop_cash.py`) from `parent of` when bloons are loaded.
 
 ## 2. Round multiplier
 

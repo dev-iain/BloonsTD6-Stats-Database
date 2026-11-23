@@ -9,7 +9,7 @@ from typing import Any
 import pandas as pd
 
 from btd6.etl.fetch import MAX_ROUND, PROJECT_ROOT
-from btd6.income import bloon_pop_cash
+from btd6.etl.pop_cash import bloon_pop_cash
 
 DAMAGE_TYPES: dict[int, tuple[str, set[str]]] = {
     0: ("Normal", set()),
@@ -194,6 +194,12 @@ def extract_income_thresholds(income_set: dict[str, Any]) -> list[dict[str, Any]
         {"max_round": int(item["threshold"]), "multiplier": float(item["multiplier"])}
         for item in items
     ]
+
+
+def extract_final_multiplier(income_set: dict[str, Any]) -> float:
+    if "finalMultiplier" not in income_set:
+        raise ValueError('income set has no "finalMultiplier"')
+    return income_set["finalMultiplier"]
 
 
 def split_bloon_name(name: str) -> tuple[str, bool, bool, bool]:

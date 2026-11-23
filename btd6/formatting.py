@@ -45,20 +45,30 @@ TABLE_CELL_COLUMNS = (
 )
 
 
+def whole_float_to_int(value: float) -> float | int:
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    return value
+
+
 def format_cell(column: str, value: object) -> str:
     if value is None:
         return "-"
     if column in FLAG_COLUMNS:
         return "yes" if value else "no"
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
+    if isinstance(value, float):
+        return str(whole_float_to_int(value))
     return str(value)
 
 
+def format_amount(amount: float) -> str:
+    return str(whole_float_to_int(round(amount, 1)))
+
+
 def format_money(amount: float) -> str:
-    rounded = round(amount, 1)
-    if rounded.is_integer():
-        return f"${int(rounded):,}"
+    rounded = whole_float_to_int(round(amount, 1))
+    if isinstance(rounded, int):
+        return f"${rounded:,}"
     return f"${rounded:,.1f}"
 
 

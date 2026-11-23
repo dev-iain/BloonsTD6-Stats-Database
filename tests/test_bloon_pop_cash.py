@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import pytest
-from btd6.income import bloon_pop_cash
 from hypothesis import given
 from hypothesis import strategies as st
+
+from btd6.etl.pop_cash import bloon_pop_cash
 
 CHILDREN = {
     "Red": [],
@@ -106,7 +107,10 @@ def test_bloon_pop_cash_at_least_one(children, super_ceramic) -> None:
 @given(children=acyclic_children())
 def test_bloon_pop_cash_recurrence(children) -> None:
     for name, kids in children.items():
-        expected = 1 + sum(c * bloon_pop_cash(k, children, frozenset(), False) for k, c in kids)
+        expected = 1 + sum(
+            count * bloon_pop_cash(child_name, children, frozenset(), False)
+            for child_name, count in kids
+        )
         assert bloon_pop_cash(name, children, frozenset(), False) == expected
 
 

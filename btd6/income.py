@@ -5,41 +5,21 @@ from dataclasses import dataclass
 
 from btd6.rounds import validate_round
 
-SUPER_CERAMIC_CASH = 87
 LAST_NORMAL_ROUND = 80
 END_BONUS_BASE = 100
 
-POP_CASH_COLUMNS = {False: "pop_cash", True: "pop_cash_super"}
-ZEBRA_SUPER_CHILD = [("Black", 1)]
-
-
-def surviving_children(
-    name: str,
-    children: dict[str, list[tuple[str, int]]],
-    moab_names: frozenset[str] | set[str],
-    super_ceramic: bool,
-) -> list[tuple[str, int]]:
-    released = children.get(name, [])
-    if not super_ceramic or name in moab_names:
-        return released
-    if name == "Zebra":
-        return ZEBRA_SUPER_CHILD
-    return released[:1] and [(released[0][0], 1)]
-
-
-def bloon_pop_cash(
-    name: str,
-    children: dict[str, list[tuple[str, int]]],
-    moab_names: frozenset[str] | set[str],
-    super_ceramic: bool,
-) -> int:
-    """Cash for fully popping one bloon: its own layer plus every released child."""
-    own = SUPER_CERAMIC_CASH if super_ceramic and name == "Ceramic" else 1
-    released = surviving_children(name, children, moab_names, super_ceramic)
-    return own + sum(
-        count * bloon_pop_cash(child, children, moab_names, super_ceramic)
-        for child, count in released
-    )
+NORMAL_POP_CASH_SQL = (
+    "SELECT SUM(round_groups.count * bloons.pop_cash), "
+    "MIN(CASE WHEN bloons.pop_cash IS NULL THEN bloons.name END) "
+    "FROM round_groups JOIN bloons ON bloons.id = round_groups.bloon_id "
+    "WHERE round_groups.round = ?"
+)
+SUPER_POP_CASH_SQL = (
+    "SELECT SUM(round_groups.count * bloons.pop_cash_super), "
+    "MIN(CASE WHEN bloons.pop_cash_super IS NULL THEN bloons.name END) "
+    "FROM round_groups JOIN bloons ON bloons.id = round_groups.bloon_id "
+    "WHERE round_groups.round = ?"
+)
 
 
 class NoIncomeDataError(ValueError):
@@ -55,10 +35,6 @@ class RoundIncome:
 
 def end_of_round_bonus(round_number: int) -> int:
     return END_BONUS_BASE + round_number
-
-
-def pop_cash_column(round_number: int) -> str:
-    return POP_CASH_COLUMNS[round_number > LAST_NORMAL_ROUND]
 
 
 def round_multiplier(connection: sqlite3.Connection, round_number: int) -> float:
@@ -81,19 +57,13 @@ def round_multiplier(connection: sqlite3.Connection, round_number: int) -> float
 
 
 def raw_pop_cash(connection: sqlite3.Connection, round_number: int) -> int:
-    column = pop_cash_column(round_number)
-    missing = connection.execute(
-        f"SELECT bloons.name FROM round_groups JOIN bloons ON bloons.id = round_groups.bloon_id "
-        f"WHERE round_groups.round = ? AND bloons.{column} IS NULL LIMIT 1",
-        (round_number,),
-    ).fetchone()
-    if missing is not None:
-        raise ValueError(f"Bloon {missing[0]} has no {column}; cannot price round {round_number}")
-    total = connection.execute(
-        f"SELECT SUM(round_groups.count * bloons.{column}) FROM round_groups "
-        f"JOIN bloons ON bloons.id = round_groups.bloon_id WHERE round_groups.round = ?",
-        (round_number,),
-    ).fetchone()[0]
+    if round_number > LAST_NORMAL_ROUND:
+        query, column = SUPER_POP_CASH_SQL, "pop_cash_super"
+    else:
+        query, column = NORMAL_POP_CASH_SQL, "pop_cash"
+    total, missing_name = connection.execute(query, (round_number,)).fetchone()
+    if missing_name is not None:
+        raise ValueError(f"Bloon {missing_name} has no {column}; cannot price round {round_number}")
     return total or 0
 
 
@@ -108,9 +78,12 @@ def round_income(connection: sqlite3.Connection, round_number: int) -> RoundInco
     return compute_round_income(connection, round_number)
 
 
-def cumulative_income(connection: sqlite3.Connection, up_to_round: int) -> float:
+def round_incomes(connection: sqlite3.Connection, up_to_round: int) -> list[RoundIncome]:
     validate_round(connection, up_to_round)
-    return sum(
-        compute_round_income(connection, round_number).total
-        for round_number in range(1, up_to_round + 1)
-    )
+    return [
+        compute_round_income(connection, round_number) for round_number in range(1, up_to_round + 1)
+    ]
+
+
+def cumulative_income(connection: sqlite3.Connection, up_to_round: int) -> float:
+    return sum(income.total for income in round_incomes(connection, up_to_round))
