@@ -4,9 +4,10 @@ import sqlite3
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from btd6.db.cost_loader import load_costs
 from btd6.db.loader import load_tower
 from btd6.db.seed import initialize_database
-from btd6.etl.fetch import fetch_tower_module, resolve_all_codes
+from btd6.etl import fetch as wiki
 from btd6.etl.towers import MAGIC_TOWERS
 
 
@@ -22,13 +23,15 @@ class RefreshError(Exception):
 def refresh_database(
     connection: sqlite3.Connection,
     tower_names: Iterable[str] | None = None,
-    fetch: Callable[[str], dict[str, Any]] = fetch_tower_module,
+    fetch: Callable[[str], dict[str, Any]] = wiki.fetch_tower_module,
 ) -> dict[str, int]:
     """Fetch and load each tower, returning {tower: upgrades written}.
 
     A failing tower does not stop the others (its previous rows stay intact because each
-    load is one transaction). Failures are raised together as `RefreshError` only after
-    the loop, so one bad fetch never hides the healthy towers' results.
+    load is one transaction). Stats and costs are both fetched before anything is written,
+    so a failed download never leaves a tower with stats but no costs.
+    Failures are raised together as `RefreshError` only after the loop, so one bad
+    fetch never hides the healthy towers' results.
     """
     if tower_names is None:
         tower_names = MAGIC_TOWERS
@@ -37,8 +40,11 @@ def refresh_database(
     failures: dict[str, Exception] = {}
     for tower_name in tower_names:
         try:
-            resolved = resolve_all_codes(fetch(tower_name))
-            loaded[tower_name] = load_tower(connection, tower_name, resolved)
+            resolved = wiki.resolve_all_codes(fetch(tower_name))
+            costs = wiki.fetch_costs(tower_name)
+            written = load_tower(connection, tower_name, resolved)
+            load_costs(connection, tower_name, costs)
+            loaded[tower_name] = written
         except Exception as error:
             failures[tower_name] = error
     if failures:

@@ -9,6 +9,8 @@ from typing import Any
 
 import requests
 
+from btd6.etl.towers import MAGIC_TOWERS
+
 API_URL = "https://www.bloonswiki.com/api.php"
 CODE_PATTERN = re.compile(r"^_\d{3}$")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -52,6 +54,51 @@ def fetch_roundset(name: str = DEFAULT_ROUNDSET) -> dict[str, Any]:
     if page.get("missing"):
         raise ValueError(f'Roundset "{name}" not found on the wiki')
     return decode_page_content(page)
+
+
+def cargo_rows(response: dict[str, Any]) -> list[dict[str, Any]]:
+    if "error" in response:
+        raise ValueError(f"Wiki cargo query failed: {response['error']}")
+    rows = [entry["title"] for entry in response.get("cargoquery", [])]
+    if not rows:
+        raise ValueError("Wiki cargo query returned no rows")
+    return rows
+
+
+def cost_upgrade_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "path": int(row["path"]),
+            "tier": int(row["tier"]),
+            "cost": int(row["cost"]),
+            "name": row["name"],
+        }
+        for row in rows
+    ]
+
+
+def fetch_costs(tower_name: str) -> dict[str, Any]:
+    if tower_name not in MAGIC_TOWERS or "'" in tower_name:
+        raise ValueError(f'Unknown or invalid tower name "{tower_name}"')
+    tower_response = wiki_api(
+        action="cargoquery",
+        tables="btd6_towers",
+        fields="name,cost,category",
+        where=f"name='{tower_name}'",
+    )
+    upgrade_response = wiki_api(
+        action="cargoquery",
+        tables="btd6_upgrades",
+        fields="tower,path,tier,cost,name",
+        where=f"tower='{tower_name}'",
+        limit=500,
+    )
+    tower_row = cargo_rows(tower_response)[0]
+    return {
+        "base_cost": int(tower_row["cost"]),
+        "category": tower_row["category"],
+        "upgrades": cost_upgrade_rows(cargo_rows(upgrade_response)),
+    }
 
 
 def fetch_wiki_page(title: str) -> dict[str, Any]:

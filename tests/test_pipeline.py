@@ -8,11 +8,14 @@ from typing import Any
 import pytest
 
 from btd6.db.connection import connect
+from btd6.etl import fetch
 from btd6.etl.pipeline import RefreshError, refresh_database
 from btd6.etl.towers import MAGIC_TOWERS
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "super_monkey_resolved.json"
 ROWS_PER_TOWER = 64
+
+pytestmark = pytest.mark.usefixtures("offline_costs_wiki")
 
 
 def load_tower_data() -> dict[str, Any]:
@@ -152,3 +155,36 @@ def test_refresh_error_message_lists_failed_towers(
     failures: dict[str, Exception], expected: str
 ) -> None:
     assert str(RefreshError({}, failures)) == expected
+
+
+def fail_costs_for(monkeypatch: pytest.MonkeyPatch, tower_name: str) -> None:
+    real_fetch_costs = fetch.fetch_costs
+
+    def flaky_fetch_costs(name: str) -> dict[str, Any]:
+        if name == tower_name:
+            raise RuntimeError(f"cost table down for {name}")
+        return real_fetch_costs(name)
+
+    monkeypatch.setattr(fetch, "fetch_costs", flaky_fetch_costs)
+
+
+def test_cost_fetch_failure_writes_no_upgrades(
+    connection: sqlite3.Connection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fail_costs_for(monkeypatch, "Druid")
+    with pytest.raises(RefreshError) as caught:
+        refresh_database(connection, ["Super Monkey", "Druid"], fetch=make_fetch())
+    assert "Druid" not in upgrade_counts_by_tower(connection)
+    assert "Druid" not in caught.value.loaded
+    assert caught.value.loaded == {"Super Monkey": ROWS_PER_TOWER}
+
+
+def test_cost_fetch_failure_keeps_previous_rows(
+    connection: sqlite3.Connection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    refresh_database(connection, ["Druid"], fetch=make_fetch())
+    before = snapshot_tower(connection, "Druid")
+    fail_costs_for(monkeypatch, "Druid")
+    with pytest.raises(RefreshError):
+        refresh_database(connection, ["Druid"], fetch=make_fetch())
+    assert snapshot_tower(connection, "Druid") == before

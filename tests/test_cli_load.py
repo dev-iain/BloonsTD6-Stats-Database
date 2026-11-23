@@ -25,6 +25,8 @@ LINES_WITHOUT_ALCHEMIST = (
     "Druid: 64 upgrades\n"
 )
 
+pytestmark = pytest.mark.usefixtures("offline_costs_wiki")
+
 
 def succeeding_fetch(tower_name: str) -> dict[str, Any]:
     return load_tower_data()
