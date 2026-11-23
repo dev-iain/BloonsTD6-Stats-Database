@@ -8,11 +8,21 @@ Design for the SQLite database that the loader (Iain) fills and the query layer 
 erDiagram
     towers ||--o{ upgrades : "has"
     damage_types ||--o{ upgrades : "classifies"
+    towers ||--o{ upgrade_costs : "prices"
 
     towers {
         INTEGER id PK
         TEXT name UK "NOT NULL"
         TEXT category "NOT NULL"
+        INTEGER base_cost "NULL until costs loaded"
+    }
+    upgrade_costs {
+        INTEGER id PK
+        INTEGER tower_id FK "NOT NULL"
+        INTEGER path_index "1-3, UK with tower_id, tier"
+        INTEGER tier "1-5"
+        TEXT name "NOT NULL"
+        INTEGER cost "NOT NULL, >= 0, Medium price"
     }
     damage_types {
         INTEGER id PK
@@ -178,7 +188,7 @@ Tower name and category are stored once in `towers`, and damage type name and fl
 
 ### Cost in 2.0
 
-`cost` is not in 1.0. It arrives as `002_add_upgrade_cost.sql`: `ALTER TABLE upgrades ADD COLUMN cost REAL CHECK (cost IS NULL OR cost >= 0)`, nullable so existing rows stay valid until reloaded. It is one value per upgrade, so it stays a column of `upgrades`, not a separate table.
+Costs arrive in `002_costs.sql`: `towers.base_cost` (nullable until costs are loaded) and a separate `upgrade_costs` table keyed by `(tower_id, path_index, tier)`. The wiki prices each tier of each path, not each `X-Y-Z` crosspath, so a column on `upgrades` would repeat the same tier price across every crosspath that contains it. The cumulative cost of a crosspath is computed by `btd6.costs.total_cost`. Prices are stored at Medium; the difficulty multiplier is applied in code. `upgrade_costs.tower_id` cascades on delete, like `upgrades.tower_id`.
 
 ## Queries this must support
 
