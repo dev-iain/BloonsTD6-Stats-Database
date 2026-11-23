@@ -1,14 +1,13 @@
-# UI view-models (#76): `btd6/ui/search_viewmodel.py`, `btd6/ui/services.py`
+# Request parameter parsing (#76): `btd6/api/params.py`
 
 ## Rules for these tests
 
-- Pure functions: no Tk, no database, except section 3 (temp SQLite files).
+- Pure functions: no database. Tested in `tests/test_api_params.py`.
 - Form keys (`form: dict[str, str | bool]`): `name`; one key per pop property (`lead`, `black`, `white`, `purple`, `glass`, `frozen`) holding `"any"`, `"can"`, `"cannot"` or a checkbox `bool`; `camo` holding `"either"`, `"yes"` or `"no"`; `min_range`, `min_pierce`, `min_damage`, `min_speed`; `damage_type`; `sort`; `limit`. A missing key behaves like its base value.
 - A checkbox `True` means "can pop", `False` (unchecked) means no filter (`None`).
-- Invalid input raises `QueryError` (the same class the query layer raises) whose message the UI shows in an inline label. No `ValueError` from `float()` or `int()` may leak.
+- Invalid input raises `QueryError` (the same class the query layer raises) whose message the API returns as a 422 `error` and the frontend shows inline. No `ValueError` from `float()` or `int()` may leak.
 - `form_to_filters` does not set `category`; the UI searches every category present.
 - Sort and limit are not `UpgradeFilters` fields (`search_upgrades` takes them as arguments), so they are parsed by the companion `form_to_search_options(form) -> tuple[str | None, int | None]`.
-- Rounds and Rankings tabs have no view-model rows here: they are blocked by the round-data and rankings epics.
 
 ---
 
@@ -189,52 +188,3 @@ Base case: A1, B1, C1, D1
 | T12 | real query rows | `rows_to_cells(search_upgrades(...))` equals `run_query` output for the same filters | `test_rows_to_cells_matches_run_query` |
 
 ---
-
-## 4. Missing-database state
-
-```python
-def run_query(database_path, filters, sort_by, descending) -> list[tuple[str, ...]]   # exists
-def list_damage_types(database_path: str) -> list[str]                                  # new, services.py
-```
-
-### ISP
-
-|Parameter|Characteristic|Partition|Value|
-|---|---|---|---|
-|`database_path` (state)|A) File state|A1: Loaded|migrated database with the fixture rows|
-|||A2: Missing|`tmp_path / "nope.db"`|
-|||A3: Exists, no tables|`sqlite3.connect(path).close()`|
-|||A4: Not a database|text file `hello`|
-
-Base case: A1
-
-### Base Choice Coverage
-
-| BCC Test | A | Oracle | Test Name |
-|---|---|---|---|
-| T1 | A1 | `list_damage_types` returns the 12 names sorted: Acid, Cold, Energy, Explosion, Fire, Frigid, Glacier, Normal, Plasma, Sharp, Shatter, Unknown | `test_list_damage_types_loaded` |
-| T2 | A2 | `list_damage_types` returns `[]` and creates no file; `run_query` raises `DatabaseMissingError` | `test_list_damage_types_missing_database` |
-| T3 | A3 | `list_damage_types` returns `[]`; `run_query` raises `DatabaseMissingError` | `test_list_damage_types_no_tables` |
-| T4 | A4 | `run_query` raises `sqlite3.DatabaseError` (the presenter shows "the database could not be read") | `test_run_query_not_a_database` |
-
-Extra: `MISSING_DATABASE_MESSAGE` is exposed by `btd6.ui.search_viewmodel` with the presenter's text (`test_missing_database_message_shared`).
-
----
-
-## 5. Search controls (#78, Tk, skipped without a display)
-
-`SearchTab(parent, database_path)` in `btd6/ui/search_tab.py` exposes `sort_combobox`, `limit_spinbox`, `damage_type_combobox` and `current_form() -> dict[str, str | bool]`.
-
-| Test | Oracle | Test Name |
-|---|---|---|
-| sort values | `sort_combobox["values"]` equals `("",) + query.SORT_COLUMNS`; state `readonly`; default `""` | `test_search_tab_sort_values_from_sort_columns` |
-| damage types | `damage_type_combobox["values"]` equals `("Any", *list_damage_types(db))`; default `"Any"`; readonly | `test_search_tab_damage_types_from_table` |
-| damage types, no database | values are `("Any",)` | `test_search_tab_damage_types_missing_database` |
-| limit spinbox bounds | `from` is `1`; blank by default; `current_form()["limit"] == ""` | `test_search_tab_limit_spinbox_blank_default` |
-| limit value | after setting `"7"`, `form_to_search_options(current_form())` is `(None, 7)` | `test_search_tab_limit_value_round_trip` |
-
----
-
-## 6. `gui` subcommand and window (#77)
-
-See the `gui` section appended to `tests/isp-tables/cli.md` and the tests in `tests/test_cli_gui.py` and `tests/ui/test_app_window.py`.

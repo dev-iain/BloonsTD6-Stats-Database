@@ -106,30 +106,21 @@ The table has the columns rank, tower, path, cost, DPS and damage per dollar. Fo
 - Range, projectile speed and lifespan are not part of any metric.
 - Upgrades with unknown damage, attack rate or cost (costs not loaded) rank last.
 
-## Desktop UI
+## Web UI
 
 ```bash
-uv run python -m btd6 gui
-uv run python -m btd6 --db path/to/btd6.db gui
+uv run python -m btd6 serve
+uv run python -m btd6 --db path/to/btd6.db serve --port 9000
 ```
 
-`ui` is accepted as an alias for `gui`. `--db PATH` works the same as for `search`.
+Then open `http://127.0.0.1:8000`. `--db PATH` works the same as for `search`; `--host` and `--port` default to `127.0.0.1` and `8000`.
 
-![Search tab](docs/images/search-tab.png)
+- **Search**: the same filters as the `search` command, plus a name box (case-insensitive substring), a damage type dropdown, a sort dropdown and a limit. The Pops column abbreviates the bloon types an upgrade can pop.
+- **Rankings**: rank upgrades by damage per dollar, DPS or pierce-weighted damage per dollar, for any difficulty.
+- **Rounds**: placeholder until the round-data work lands.
+- Follows your system light or dark setting.
 
-- **Search**: the same filters as `search`, plus a name box (case-insensitive substring), a damage type dropdown, a sort dropdown and a limit. Click a column header to sort ascending, click again for descending. The Pops column abbreviates the bloon types an upgrade can pop. Alt+D toggles dark mode.
-- **Rounds** and **Rankings**: placeholders ("Coming soon") until the round-data, income and ranking work lands.
-- If the database is missing or empty, a banner offers a **Load data** button. It fetches from the wiki in the background, so the window stays responsive.
-
-Tkinter needs a system Tk install on some Linux distributions:
-
-```bash
-sudo pacman -S tk            # Arch
-sudo apt install python3-tk  # Debian / Ubuntu
-sudo dnf install python3-tkinter  # Fedora
-```
-
-Without Tk, or without a display, the command prints a short message and exits with status 1. More detail, the keyboard map and a manual Windows checklist are in [docs/ui.md](docs/ui.md).
+The page is served by a small JSON API (`/api/upgrades`, `/api/rankings`, `/api/damage-types`). The endpoints and layout are in [docs/web.md](docs/web.md).
 
 ## Tests, linting and mutation testing
 
@@ -152,9 +143,10 @@ uv run mutmut run
 | `btd6/etl/` | wiki fetch, crosspath resolution, stat extraction, refresh pipeline |
 | `btd6/db/` | SQLite connection, migrations, seeding and loader |
 | `btd6/query.py` | `search_upgrades` and `UpgradeFilters` |
-| `btd6/cli.py` | the `load`, `search` and `gui` commands |
+| `btd6/cli.py` | the `load`, `search`, `rank` and `serve` commands |
 | `btd6/formatting.py` | result columns and cell formatting shared by the CLI and the UI |
-| `btd6/ui/` | Tkinter desktop UI: view-models, presenters, worker, theme, widgets |
+| `btd6/api/` | FastAPI app and request parsing behind the web UI |
+| `frontend/` | the JS web UI (HTML, CSS, ES module) |
 | `tests/` | pytest suite; ISP/BCC tables in `tests/isp-tables/` |
 | `docs/` | [schema](docs/schema.md), [query contract](docs/queries.md) and [UI notes](docs/ui.md) |
 

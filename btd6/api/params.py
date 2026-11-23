@@ -7,7 +7,6 @@ from typing import Any
 from btd6.formatting import format_row
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters
 
-MISSING_DATABASE_MESSAGE = "No database found. Load tower data from the wiki to get started."
 ANY_DAMAGE_TYPE = "Any"
 POP_CHOICES: dict[str, bool | None] = {"any": None, "can": True, "cannot": False}
 CAMO_CHOICES: dict[str, bool | None] = {"either": None, "yes": True, "no": False}
