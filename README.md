@@ -90,6 +90,22 @@ $ uv run python -m btd6 --db missing.db search
 Database not found at missing.db. Run "python -m btd6 load" first.
 ```
 
+## Rankings
+
+`rank` orders upgrades by damage per second or per dollar. It accepts the same filters as `search` (except `--sort`) plus `--metric` (`dps`, `dollar`, `pierce-dollar`; default `dollar`), `--difficulty` (`easy`, `medium`, `hard`, `impoppable`; default `medium`) and `--limit`.
+
+```bash
+uv run python -m btd6 rank --metric dps --difficulty hard --can-pop lead --limit 5
+```
+
+The table has the columns rank, tower, path, cost, DPS and damage per dollar. Formulas are in `docs/ranking.md`. Limitations:
+
+- Only the first attack and its first projectile are read, so towers with several attacks (Wizard, Ninja, Alchemist, Druid) are under-counted.
+- Abilities, buffs to other towers, damage-over-time and bonus damage to specific bloons are not included.
+- Pierce-weighted metrics assume every projectile uses its full pierce.
+- Range, projectile speed and lifespan are not part of any metric.
+- Upgrades with unknown damage, attack rate or cost (costs not loaded) rank last.
+
 ## Tests, linting and mutation testing
 
 ```bash

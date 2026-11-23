@@ -245,3 +245,76 @@ Feasibility notes: `refresh_database` tries every tower and reports all failures
 | T4 | A1 | B2 | C1 | returns `1`; stdout is the four success lines without Alchemist; stderr `Alchemist: failed: no upgrade data`; `COUNT(*)` is `256` | `test_main_load_one_tower_bad_data` |
 | T5 | A1 | B3 | C1 | returns `1`; stderr `Could not reach the wiki: connection refused`; stdout is empty | `test_main_load_wiki_unreachable` |
 | T6 | A1 | B1 | C2 | returns `0`; stdout is the same five lines as T1; `COUNT(*)` is still `320` | `test_main_load_already_loaded` |
+
+---
+
+## main: `rank` (#99)
+
+```python
+def main(argv: list[str] | None = None) -> int
+```
+
+Parses `argv` for the `rank` subcommand, builds filters the same way as `search`, calls `rank_upgrades(connection, filters, metric, difficulty, limit)` and prints a pandas table with columns `rank`, `tower`, `path`, `cost`, `DPS`, `damage per dollar` (rank starts at 1, rows in `rank_upgrades` order).
+
+Rules for these tests:
+- `rank` accepts every `search` filter option (`--can-pop`, `--cannot-pop`, `--min-*`, `--damage-type`, `--camo`, `--limit`) plus `--metric {dps,dollar,pierce-dollar}` (maps to `dps`, `damage_per_dollar`, `pierce_damage_per_dollar`; default `dollar`) and `--difficulty {easy,medium,hard,impoppable}` (default `medium`). `--sort` is not a `rank` option.
+- Tests do not pin number formatting. They parse each data line into rank, tower, path, cost, DPS, damage per dollar and compare against `rank_upgrades` on the same database (numbers with `pytest.approx`).
+- Argparse errors check the last stderr line; query-layer errors (`QueryError`) return 2 with one stderr line.
+
+Fixture: the four-path Super Monkey database from `tests/test_ranking.py` (`0-0-0`, `1-0-0`, `3-0-0`, `0-0-4`, all with costs) copied to `tmp_path / "btd6.db"`.
+
+Base input: `main(["--db", DB, "rank"])`.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`--metric`|A) Value|A1: Not given (default `dollar`)|none|
+|||A2: `dps`|`"dps"`|
+|||A3: `pierce-dollar`|`"pierce-dollar"`|
+|||A4: Not a choice (`damage_per_dollar` spelling is also invalid)|`"bogus"`|
+|`--difficulty`|B) Value|B1: Not given (default `medium`)|none|
+|||B2: `easy`|`"easy"`|
+|||B3: `impoppable`|`"impoppable"`|
+|||B4: Not a choice|`"nightmare"`|
+|`--limit`|C) Value|C1: Not given|none|
+|||C2: Smallest valid|`"1"`|
+|||C3: Below 1|`"0"`|
+|||C4: Not an integer|`"abc"`|
+|search filters|D) Filter given|D1: None|none|
+|||D2: `--can-pop lead`|`"--can-pop", "lead"`|
+|||D3: Matches nothing|`"--min-pierce", "99"`|
+|||D4: Same property in both pop flags|`"--can-pop", "lead", "--cannot-pop", "lead"`|
+|`--db` (state)|E) State before the call|E1: Loaded with costs|the four-row fixture|
+|||E2: Missing|`tmp_path / "missing.db"`|
+
+Base case: A1, B1, C1, D1, E1
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | D | E | Oracle | Test Name |
+|---|---|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | D1 | E1 | returns `0`; table equals `rank_upgrades(metric="damage_per_dollar", difficulty="medium")`; header columns in order | `test_main_rank_all_base` |
+| T2 | A2 | B1 | C1 | D1 | E1 | table equals `rank_upgrades(metric="dps")` | `test_main_rank_metric_choices` |
+| T3 | A3 | B1 | C1 | D1 | E1 | table equals `rank_upgrades(metric="pierce_damage_per_dollar")` | `test_main_rank_metric_choices` |
+| T4 | A4 | B1 | C1 | D1 | E1 | `SystemExit.code == 2`; last stderr line starts with `btd6 rank: error: argument --metric: invalid choice: 'bogus'` | `test_main_rank_metric_invalid` |
+| T5 | A1 | B2 | C1 | D1 | E1 | table equals `rank_upgrades(difficulty="easy")` | `test_main_rank_difficulty_choices` |
+| T6 | A1 | B3 | C1 | D1 | E1 | table equals `rank_upgrades(difficulty="impoppable")` | `test_main_rank_difficulty_choices` |
+| T7 | A1 | B4 | C1 | D1 | E1 | `SystemExit.code == 2`; last stderr line starts with `btd6 rank: error: argument --difficulty: invalid choice: 'nightmare'` | `test_main_rank_difficulty_invalid` |
+| T8 | A1 | B1 | C2 | D1 | E1 | one data row, equal to the first `rank_upgrades` row | `test_main_rank_limit_one` |
+| T9 | A1 | B1 | C3 | D1 | E1 | returns `2`; stderr `limit must be at least 1, got 0`; stdout empty | `test_main_rank_limit_zero` |
+| T10 | A1 | B1 | C4 | D1 | E1 | `SystemExit.code == 2`; last stderr line `btd6 rank: error: argument --limit: invalid int value: 'abc'` | `test_main_rank_limit_not_an_integer` |
+| T11 | A1 | B1 | C1 | D2 | E1 | table equals `rank_upgrades` with `can_pop_lead=True`, `category="Magic"` | `test_main_rank_can_pop_lead` |
+| T12 | A1 | B1 | C1 | D3 | E1 | returns `0`; stdout is `No upgrades match these filters.` | `test_main_rank_no_match` |
+| T13 | A1 | B1 | C1 | D4 | E1 | returns `2`; stderr `--can-pop and --cannot-pop both list lead`; stdout empty | `test_main_rank_lead_in_both_flags` |
+| T14 | A1 | B1 | C1 | D1 | E2 | returns `1`; stderr `Database not found at <path>. Run "python -m btd6 load" first.`; file not created | `test_main_rank_database_missing` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T15 | defaults (#99) | no options gives the same stdout as `--metric dollar --difficulty medium` | `test_main_rank_defaults_match_explicit` |
+| T16 | difficulty changes cost (#99) | cost of `0-0-0` under `hard` is above its cost under `easy` | `test_main_rank_difficulty_changes_cost` |
+| T17 | rank column (#99) | ranks printed are `1..n` in order | `test_main_rank_ranks_are_sequential` |
+| T18 | `--help` | `main(["--help"])` stdout contains `rank` | `test_main_help_lists_rank` |
+| T19 | property | for any metric, difficulty, limit, printed rows equal `rank_upgrades` rows | `test_main_rank_matches_rank_upgrades_property` |

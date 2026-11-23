@@ -17,7 +17,9 @@ PLAN_QUERIES = {
 def populated_connection():
     connection = connect(":memory:")
     apply_migrations(connection)
-    connection.execute("INSERT INTO towers VALUES (1, 'Super Monkey', 'Magic')")
+    connection.execute(
+        "INSERT INTO towers (id, name, category) VALUES (1, 'Super Monkey', 'Magic')"
+    )
     rows = [
         (1, f"{first}-{second}-0", 1 + (first + second) % 11, first * 10, first + second, first, 1)
         for first in range(6)
