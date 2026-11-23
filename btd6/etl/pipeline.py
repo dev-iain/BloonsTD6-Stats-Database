@@ -28,8 +28,10 @@ def refresh_database(
     """Fetch and load each tower, returning {tower: upgrades written}.
 
     A failing tower does not stop the others (its previous rows stay intact because each
-    load is one transaction). Failures are raised together as `RefreshError` only after
-    the loop, so one bad fetch never hides the healthy towers' results.
+    load is one transaction). Stats and costs are both fetched before anything is written,
+    so a failed download never leaves a tower with stats but no costs.
+    Failures are raised together as `RefreshError` only after the loop, so one bad
+    fetch never hides the healthy towers' results.
     """
     if tower_names is None:
         tower_names = MAGIC_TOWERS
@@ -39,8 +41,10 @@ def refresh_database(
     for tower_name in tower_names:
         try:
             resolved = wiki.resolve_all_codes(fetch(tower_name))
-            loaded[tower_name] = load_tower(connection, tower_name, resolved)
-            load_costs(connection, tower_name, wiki.fetch_costs(tower_name))
+            costs = wiki.fetch_costs(tower_name)
+            written = load_tower(connection, tower_name, resolved)
+            load_costs(connection, tower_name, costs)
+            loaded[tower_name] = written
         except Exception as error:
             failures[tower_name] = error
     if failures:
