@@ -11,6 +11,7 @@ SORT_COLUMNS = (
     "projectile_speed",
     "projectile_count",
     "ability_cooldown",
+    "path",
 )
 
 POP_PROPERTIES = ("lead", "black", "white", "purple", "glass", "frozen")
@@ -58,6 +59,7 @@ class QueryError(ValueError):
 @dataclass(frozen=True)
 class UpgradeFilters:
     tower_name: str | None = None
+    tower_name_contains: str | None = None
     category: str | None = None
     can_pop_lead: bool | None = None
     can_pop_black: bool | None = None
@@ -93,6 +95,11 @@ def damage_type_clause(connection: sqlite3.Connection, name: str) -> tuple[str, 
     return "damage_types.name = ?", [name]
 
 
+def name_contains_clause(value: str) -> tuple[str, list[object]]:
+    escaped = value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return "towers.name LIKE ? ESCAPE '\\'", [f"%{escaped}%"]
+
+
 def build_where(
     connection: sqlite3.Connection, filters: UpgradeFilters
 ) -> tuple[str, list[object]]:
@@ -105,6 +112,9 @@ def build_where(
         value = getattr(filters, field)
         if value is not None:
             clauses.append(threshold_clause(field, column, value))
+    name_part = (filters.tower_name_contains or "").strip()
+    if name_part:
+        clauses.append(name_contains_clause(name_part))
     if filters.damage_type is not None:
         clauses.append(damage_type_clause(connection, filters.damage_type))
     if not clauses:

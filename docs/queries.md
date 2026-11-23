@@ -39,6 +39,7 @@ A filter set to `None` adds no restriction. Given filters combine with AND.
 | Filter | Table.column | Rule |
 |---|---|---|
 | `tower_name` | `towers.name` | exact match; unknown name returns `[]` |
+| `tower_name_contains` | `towers.name` | stripped; `None`/empty/whitespace adds no filter; case-insensitive substring via `LIKE ? ESCAPE '\'` with `\`, `%`, `_` escaped so they match literally; `tower_name` stays exact |
 | `category` | `towers.category` | exact match; unknown category returns `[]` |
 | `can_pop_lead` ... `can_pop_frozen` | `damage_types.can_pop_<property>` | exact match; `NULL` (the `Unknown` damage type) never matches, for `True` or `False` |
 | `min_range` | `upgrades.range` | `>=`; `NULL` never matches |
@@ -53,7 +54,7 @@ A filter set to `None` adds no restriction. Given filters combine with AND.
 
 ## Sorting and limit
 
-- `sort_by` must be one of `range`, `attack_rate`, `projectile_damage`, `projectile_pierce`, `projectile_speed`, `projectile_count`, `ability_cooldown`; anything else raises `ValueError`. Build `ORDER BY` from this whitelist, never from the caller's string.
+- `sort_by` must be one of `range`, `attack_rate`, `projectile_damage`, `projectile_pierce`, `projectile_speed`, `projectile_count`, `ability_cooldown`, `path`; anything else raises `ValueError`. Build `ORDER BY` from this whitelist, never from the caller's string.
 - `NULL` sorts last in both directions.
 - Ties, and unsorted results, are ordered by `towers.name`, then `upgrades.path`.
 - `attack_rate` is seconds between attacks (lower is faster); with `descending=True` the slowest come first.

@@ -14,39 +14,8 @@ from btd6.db import connect
 from btd6.etl.fetch import PROJECT_ROOT, fetch_tower_module
 from btd6.etl.pipeline import RefreshError, refresh_database
 from btd6.etl.towers import MAGIC_TOWERS
+from btd6.formatting import EMPTY_RESULTS_MESSAGE, RESULT_COLUMNS, format_cell
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
-
-RESULT_COLUMNS: dict[str, str] = {
-    "tower_name": "tower",
-    "path": "path",
-    "damage_type": "type",
-    "projectile_damage": "damage",
-    "projectile_pierce": "pierce",
-    "range": "range",
-    "projectile_speed": "speed",
-    "attack_rate": "rate",
-    "can_hit_camo": "camo",
-    "can_pop_lead": "lead",
-    "can_pop_black": "black",
-    "can_pop_white": "white",
-    "can_pop_purple": "purple",
-    "can_pop_glass": "glass",
-    "can_pop_frozen": "frozen",
-}
-FLAG_COLUMNS = frozenset(
-    name for name in RESULT_COLUMNS if name.startswith(("can_pop_", "can_hit_"))
-)
-EMPTY_RESULTS_MESSAGE = "No upgrades match these filters."
-
-
-def format_cell(column: str, value: object) -> str:
-    if value is None:
-        return "-"
-    if column in FLAG_COLUMNS:
-        return "yes" if value else "no"
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
-    return str(value)
 
 
 def format_results(rows: list[sqlite3.Row]) -> str:
@@ -72,6 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_load_options(load_parser)
     search_parser = subparsers.add_parser("search", help="search towers and upgrades by stats")
     add_search_options(search_parser)
+    subparsers.add_parser("ui", help="open the desktop interface")
     return parser
 
 
@@ -151,9 +121,16 @@ def run_search(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_ui(args: argparse.Namespace) -> int:
+    from btd6.ui.launcher import launch
+
+    return launch(args.db)
+
+
 HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "load": run_load,
     "search": run_search,
+    "ui": run_ui,
 }
 
 
