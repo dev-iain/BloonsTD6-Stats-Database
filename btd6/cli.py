@@ -12,8 +12,15 @@ import requests
 
 from btd6.costs import DIFFICULTY_MULTIPLIERS
 from btd6.db import connect
-from btd6.etl.fetch import PROJECT_ROOT, fetch_bloons, fetch_roundset, fetch_tower_module
+from btd6.etl.fetch import (
+    PROJECT_ROOT,
+    fetch_bloons,
+    fetch_income_set,
+    fetch_roundset,
+    fetch_tower_module,
+)
 from btd6.etl.pipeline import (
+    INCOME_KEY,
     ROUND_GROUPS_KEY,
     ROUND_KEYS,
     ROUNDS_KEY,
@@ -151,8 +158,10 @@ def build_filters(args: argparse.Namespace) -> UpgradeFilters:
 
 def print_loaded(loaded: dict[str, int]) -> None:
     for tower_name, upgrade_count in loaded.items():
-        if tower_name not in ROUND_KEYS:
+        if tower_name not in (*ROUND_KEYS, INCOME_KEY):
             print(f"{tower_name}: {upgrade_count} upgrades")
+    if INCOME_KEY in loaded:
+        print(f"Income: {loaded[INCOME_KEY]} multiplier thresholds")
     if ROUNDS_KEY in loaded and ROUND_GROUPS_KEY in loaded:
         print(f"Rounds: {loaded[ROUNDS_KEY]} rounds, {loaded[ROUND_GROUPS_KEY]} groups")
 
@@ -178,6 +187,7 @@ def run_load(args: argparse.Namespace) -> int:
             include_rounds=not args.no_rounds,
             fetch_bloon_rows=fetch_bloons,
             fetch_roundset=fetch_roundset,
+            fetch_income_set=fetch_income_set,
         )
     except RefreshError as error:
         return report_refresh_error(error)

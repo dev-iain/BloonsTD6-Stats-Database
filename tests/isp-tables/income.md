@@ -237,7 +237,7 @@ Base case: A1, B1
 def extract_income_thresholds(income_set: dict[str, Any]) -> list[dict[str, Any]]
 ```
 
-Returns one row `{"threshold": int, "multiplier": float}` per threshold, in the given order. `finalMultiplier` is not a row; it is read by the loader.
+Returns one row `{"max_round": int, "multiplier": float}` per threshold, in the given order. `finalMultiplier` is not a row; it is read by the loader.
 
 ### ISP
 
@@ -254,8 +254,8 @@ Base case: A1
 
 | BCC Test | A | Oracle | Test Name |
 |---|---|---|---|
-| T1 | A1 | 6 rows; first `{"threshold": 50, "multiplier": 1}`, last `{"threshold": 140, "multiplier": 0.04}`, keys exactly `threshold, multiplier` | `test_extract_income_thresholds_base` |
-| T2 | A2 | `[{"threshold": 50, "multiplier": 1}]` | `test_extract_income_thresholds_single` |
+| T1 | A1 | 6 rows; first `{"max_round": 50, "multiplier": 1}`, last `{"max_round": 140, "multiplier": 0.04}`, keys exactly `max_round, multiplier` | `test_extract_income_thresholds_base` |
+| T2 | A2 | `[{"max_round": 50, "multiplier": 1}]` | `test_extract_income_thresholds_single` |
 | T3 | A3 | returns `[]` | `test_extract_income_thresholds_empty` |
 | T4 | A4 | raises `ValueError`: `income set has no "thresholds.items" list` | `test_extract_income_thresholds_missing_key` |
 
@@ -301,3 +301,7 @@ Hypothesis property: loading the same generated income set N times (1-3) leaves 
 - The spec does not say what happens for a bloon absent from `children`; tests assume it is a leaf (`children.get(name, [])`).
 - `moab_names` is a parameter added by this table; `bloons` data may instead provide a MOAB flag.
 - `extract_income_thresholds` and the missing-key `ValueError` messages are proposals.
+
+## Added by the red step (#91)
+
+Test files: `tests/test_fetch_income_set.py`, `tests/test_extract_income_thresholds.py`, `tests/test_income_migration.py`, `tests/test_load_income.py`, `tests/test_bloon_pop_cash.py`, `tests/test_parse_bloon_children.py` (also covers `extract_bloon_rows` pop cash), `tests/test_load_bloons_pop_cash.py`, `tests/test_pipeline_income.py`. `load_income` returns the number of thresholds (`test_load_income_*`). Extra tests: `test_load_income_invalid_rolls_back_and_keeps_old`, `test_load_income_negative_final_rolls_back`, `test_load_income_idempotent_property`.

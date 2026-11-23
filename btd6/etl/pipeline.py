@@ -6,7 +6,7 @@ from typing import Any
 
 from btd6.db.cost_loader import load_costs
 from btd6.db.loader import load_tower
-from btd6.db.round_loader import load_bloons, load_rounds
+from btd6.db.round_loader import load_bloons, load_income, load_rounds
 from btd6.db.seed import initialize_database
 from btd6.etl import fetch as wiki
 from btd6.etl.extract import extract_bloon_rows, extract_round_rows
@@ -15,6 +15,7 @@ from btd6.etl.towers import MAGIC_TOWERS
 BLOONS_KEY = "Bloons"
 ROUNDS_KEY = "Rounds"
 ROUND_GROUPS_KEY = "Round groups"
+INCOME_KEY = "Income"
 ROUND_KEYS = (BLOONS_KEY, ROUNDS_KEY, ROUND_GROUPS_KEY)
 
 
@@ -70,6 +71,18 @@ def refresh_rounds(
         failures[ROUNDS_KEY] = error
 
 
+def refresh_income(
+    connection: sqlite3.Connection,
+    fetch_income_set: Callable[[], dict[str, Any]],
+    loaded: dict[str, int],
+    failures: dict[str, Exception],
+) -> None:
+    try:
+        loaded[INCOME_KEY] = load_income(connection, fetch_income_set())
+    except Exception as error:
+        failures[INCOME_KEY] = error
+
+
 def refresh_rounds_with_defaults(
     connection: sqlite3.Connection,
     fetch_bloon_rows: Callable[[], list[dict[str, Any]]] | None,
@@ -93,6 +106,7 @@ def refresh_database(
     include_rounds: bool = True,
     fetch_bloon_rows: Callable[[], list[dict[str, Any]]] | None = None,
     fetch_roundset: Callable[[], dict[str, Any]] | None = None,
+    fetch_income_set: Callable[[], dict[str, Any]] | None = None,
 ) -> dict[str, int]:
     """Fetch and load each tower, then bloons and rounds, returning {name: rows written}.
 
@@ -101,7 +115,7 @@ def refresh_database(
     so a failed download never leaves a tower with stats but no costs.
     Failures are raised together as `RefreshError` only after everything ran, so one bad
     fetch never hides the healthy results. With `include_rounds`, the result also holds
-    "Bloons", "Rounds" (round count) and "Round groups".
+    "Bloons", "Rounds" (round count), "Round groups" and "Income" (thresholds).
     """
     if tower_names is None:
         tower_names = MAGIC_TOWERS
@@ -111,6 +125,7 @@ def refresh_database(
     refresh_towers(connection, tower_names, fetch, loaded, failures)
     if include_rounds:
         refresh_rounds_with_defaults(connection, fetch_bloon_rows, fetch_roundset, loaded, failures)
+        refresh_income(connection, fetch_income_set or wiki.fetch_income_set, loaded, failures)
     if failures:
         raise RefreshError(loaded, failures)
     return loaded

@@ -31,7 +31,18 @@ MOAB = RED | {
     "is_moab": "1",
     "speed": "1.0",
 }
-OUTPUT_KEYS = ["name", "health", "health_fort", "layers", "rbe", "rbe_fort", "is_moab", "speed"]
+OUTPUT_KEYS = [
+    "name",
+    "health",
+    "health_fort",
+    "layers",
+    "rbe",
+    "rbe_fort",
+    "is_moab",
+    "speed",
+    "pop_cash",
+    "pop_cash_super",
+]
 
 
 def red_with(**changes: str) -> dict[str, str]:
@@ -51,6 +62,8 @@ def test_extract_bloon_rows_base() -> None:
         "rbe_fort": 2,
         "is_moab": False,
         "speed": 1.0,
+        "pop_cash": 1,
+        "pop_cash_super": 1,
     }
     assert list(rows[0]) == OUTPUT_KEYS
     assert type(rows[0]["health"]) is int

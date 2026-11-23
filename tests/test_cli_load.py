@@ -9,6 +9,7 @@ import pytest
 import requests
 
 from btd6.cli import main
+from tests.factories import IncomeSetFactory
 from tests.test_pipeline import (
     fake_fetch_bloons,
     fake_fetch_roundset,
@@ -30,7 +31,7 @@ LINES_WITHOUT_ALCHEMIST = (
     "Druid: 64 upgrades\n"
 )
 
-ROUNDS_LINE = "Rounds: 3 rounds, 5 groups\n"
+ROUNDS_LINE = "Income: 6 multiplier thresholds\nRounds: 3 rounds, 5 groups\n"
 
 pytestmark = pytest.mark.usefixtures("offline_costs_wiki")
 
@@ -39,6 +40,7 @@ pytestmark = pytest.mark.usefixtures("offline_costs_wiki")
 def offline_rounds_wiki(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("btd6.cli.fetch_bloons", fake_fetch_bloons)
     monkeypatch.setattr("btd6.cli.fetch_roundset", fake_fetch_roundset)
+    monkeypatch.setattr("btd6.cli.fetch_income_set", IncomeSetFactory)
 
 
 def succeeding_fetch(tower_name: str) -> dict[str, Any]:

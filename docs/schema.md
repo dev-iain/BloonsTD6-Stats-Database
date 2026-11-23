@@ -22,6 +22,16 @@ erDiagram
         INTEGER rbe_fort "fortified rbe"
         INTEGER is_moab "NOT NULL, 0/1"
         REAL speed
+        INTEGER pop_cash "rounds 1-80, from 004"
+        INTEGER pop_cash_super "rounds 81+, from 004"
+    }
+    income_thresholds {
+        INTEGER max_round PK "CHECK >= 1"
+        REAL multiplier "NOT NULL, CHECK >= 0"
+    }
+    income_settings {
+        INTEGER id PK "CHECK = 1"
+        REAL final_multiplier "NOT NULL, CHECK >= 0"
     }
     rounds {
         INTEGER round PK "CHECK >= 1"
@@ -132,6 +142,21 @@ Added by `003_rounds.sql`. Row keys of the loader (`extract_bloon_rows`, `tests/
 Indexes: `idx_round_groups_round` (the per-round lookup the income and round views use; it duplicates the prefix of the `UNIQUE (round, group_index)` autoindex, kept explicit so the lookup does not depend on the uniqueness constraint) and `idx_round_groups_bloon_id` (foreign key; SQLite does not index it, and it speeds "which rounds contain bloon X" and the `bloons` delete check). Both are checked in `tests/test_db_indexes.py`.
 
 Modifier parsing rule: a roundset bloon name is a base name followed by any of the suffixes in no fixed order (`CeramicRegrowFortifiedCamo`, `DdtFortifiedCamo`). The loader strips the case-sensitive suffixes `Fortified`, `Camo` and `Regrow` from the end of the name, repeatedly and in any order, until none is left; each stripped suffix sets `is_fortified`, `is_camo` or `is_regrow` on the group. The remainder is the base name and is looked up in `bloons.name` to give `bloon_id` (it must not be empty). The rule is textual and does not check that the combination exists in the game. Example: `CeramicRegrowFortifiedCamo` -> base `Ceramic`, regrow, fortified, camo. Implemented by `split_bloon_name` in `btd6/etl/extract.py`.
+
+### `income_thresholds`, `income_settings` and `bloons.pop_cash*`
+
+Added by `004_income.sql` (epic #89; rules in `docs/income.md`).
+
+| Column | Type | NULL | Constraint / notes |
+|---|---|---|---|
+| `bloons.pop_cash` | INTEGER | yes | `CHECK (x IS NULL OR x >= 0)`; cash for fully popping one bloon in rounds 1-80, computed by the ETL from the Cargo `parent of` field |
+| `bloons.pop_cash_super` | INTEGER | yes | same, for rounds 81+ (one child per non-MOAB bloon, Super Ceramic pays 87) |
+| `income_thresholds.max_round` | INTEGER | no | `PRIMARY KEY`, `CHECK (max_round >= 1)`; last round the multiplier applies to |
+| `income_thresholds.multiplier` | REAL | no | `CHECK (multiplier >= 0)` |
+| `income_settings.id` | INTEGER | no | `PRIMARY KEY CHECK (id = 1)`: single row |
+| `income_settings.final_multiplier` | REAL | no | `CHECK (final_multiplier >= 0)`; applies above the last threshold |
+
+Loaded by `load_income` in `btd6/db/round_loader.py` (replaces all rows in one transaction, so reloads are idempotent).
 
 ### `damage_types`
 
@@ -252,7 +277,9 @@ Costs arrive in `002_costs.sql`: `towers.base_cost` (nullable until costs are lo
 - `health_fort` and `rbe_fort` are stored, not computed, because the wiki gives them and fortified health is not a fixed multiple of normal health across bloon types. They are `NULL` when the wiki has no value (for example MOAB-class bloons), never `0`.
 - `is_moab` is `NOT NULL`; an empty wiki value becomes `0` in `extract_bloon_rows`.
 - `start` and `duration` are seconds as `REAL`; `count` is the number of bloons in the group.
-- Income per round is not stored: it is derived from groups, bloons (`rbe`, `layers`) and modifiers in the query layer.
+- Income per round is not stored: it is derived from groups and `bloons.pop_cash` / `pop_cash_super` in `btd6/income.py`.
+- `finalMultiplier` lives in the single-row `income_settings` table instead of a sentinel `max_round` in `income_thresholds`: a sentinel would be a fake round number that every query has to special-case, and `max_round` stays a real round.
+- Pop cash is stored per bloon (two columns) rather than as a `bloon_children` edge table: the only consumer is income, the values are fixed by the wiki tree, and storing them keeps the per-round income a single `SUM` over `round_groups`.
 
 ## Queries this must support
 

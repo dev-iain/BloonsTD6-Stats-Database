@@ -29,6 +29,7 @@ PROJECTILE_FIELDS = (
 ABILITY_FIELDS = ("cooldown",)
 MAX_ROUND = 100
 DEFAULT_ROUNDSET = "DefaultRoundSet"
+DEFAULT_INCOME_SET = "DefaultIncomeSet"
 BLOON_FIELDS = (
     "id,name,health,health_fort,layers,rbe,rbe_fort,is_moab,speed,immunity,parent_of,child_of"
 )
@@ -57,6 +58,13 @@ def fetch_roundset(name: str = DEFAULT_ROUNDSET) -> dict[str, Any]:
     page = fetch_wiki_page(f"JSON:Bloons TD 6/Rounds/{name}")
     if page.get("missing"):
         raise ValueError(f'Roundset "{name}" not found on the wiki')
+    return decode_page_content(page)
+
+
+def fetch_income_set(name: str = DEFAULT_INCOME_SET) -> dict[str, Any]:
+    page = fetch_wiki_page(f"JSON:Bloons TD 6/Rounds/{name}")
+    if page.get("missing"):
+        raise ValueError(f'Income set "{name}" not found on the wiki')
     return decode_page_content(page)
 
 
