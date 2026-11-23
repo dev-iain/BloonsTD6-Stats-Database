@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import sqlite3
 from collections.abc import Iterator
@@ -11,6 +12,7 @@ import requests
 
 from btd6.db import connect
 from btd6.db.seed import initialize_database
+from btd6.etl import fetch
 from btd6.etl.fetch import PROJECT_ROOT
 
 
@@ -44,3 +46,20 @@ def database() -> Iterator[sqlite3.Connection]:
 def super_monkey_resolved(repo_root: Path) -> dict[str, Any]:
     with open(repo_root / "tests" / "fixtures" / "super_monkey_resolved.json") as handle:
         return json.load(handle)
+
+
+class OfflineCostsWiki:
+    """Serves the Super Monkey Cargo fixture for any `fetch_costs` query."""
+
+    def __init__(self) -> None:
+        path = Path(__file__).parent / "fixtures" / "costs_super_monkey_cargo.json"
+        self.responses = json.loads(path.read_text())
+
+    def __call__(self, **params: Any) -> dict[str, Any]:
+        key = "towers" if params["tables"] == "btd6_towers" else "upgrades"
+        return copy.deepcopy(self.responses[key])
+
+
+@pytest.fixture
+def offline_costs_wiki(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(fetch, "wiki_api", OfflineCostsWiki())

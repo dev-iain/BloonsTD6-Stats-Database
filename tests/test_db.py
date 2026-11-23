@@ -10,7 +10,7 @@ from hypothesis import strategies as st
 import btd6.db
 from btd6.db import apply_migrations, connect
 
-EXPECTED_TABLES = ["damage_types", "towers", "upgrades"]
+EXPECTED_TABLES = ["damage_types", "towers", "upgrade_costs", "upgrades"]
 
 
 def scalar(connection: sqlite3.Connection, sql: str):
@@ -85,7 +85,7 @@ def test_connect_existing_migrated_file(tmp_path):
     first.close()
     second = connect(path)
     try:
-        assert scalar(second, "PRAGMA user_version") == 1
+        assert scalar(second, "PRAGMA user_version") == 2
         assert scalar(second, "SELECT COUNT(*) FROM damage_types") == 12
         assert scalar(second, "PRAGMA foreign_keys") == 1
     finally:
@@ -125,8 +125,8 @@ def test_connect_foreign_key_cascade_delete(memory_connection):
 
 
 def test_apply_migrations_fresh_database(memory_connection):
-    assert apply_migrations(memory_connection) == ["001_initial.sql"]
-    assert scalar(memory_connection, "PRAGMA user_version") == 1
+    assert apply_migrations(memory_connection) == ["001_initial.sql", "002_costs.sql"]
+    assert scalar(memory_connection, "PRAGMA user_version") == 2
     assert table_names(memory_connection) == EXPECTED_TABLES
     assert scalar(memory_connection, "SELECT COUNT(*) FROM damage_types") == 12
     assert scalar(memory_connection, "SELECT COUNT(*) FROM towers") == 0
@@ -141,7 +141,7 @@ def test_apply_migrations_already_latest(tmp_path):
     second = connect(path)
     try:
         assert apply_migrations(second) == []
-        assert scalar(second, "PRAGMA user_version") == 1
+        assert scalar(second, "PRAGMA user_version") == 2
         assert scalar(second, "SELECT COUNT(*) FROM damage_types") == 12
     finally:
         second.close()
@@ -181,9 +181,9 @@ def test_apply_migrations_newer_version(memory_connection):
 
 
 def test_apply_migrations_twice(memory_connection):
-    assert apply_migrations(memory_connection) == ["001_initial.sql"]
+    assert apply_migrations(memory_connection) == ["001_initial.sql", "002_costs.sql"]
     assert apply_migrations(memory_connection) == []
-    assert scalar(memory_connection, "PRAGMA user_version") == 1
+    assert scalar(memory_connection, "PRAGMA user_version") == 2
     assert scalar(memory_connection, "SELECT COUNT(*) FROM damage_types") == 12
 
 
@@ -240,8 +240,8 @@ def test_apply_migrations_idempotent_property(calls):
     connection = connect(":memory:")
     try:
         results = [apply_migrations(connection) for _ in range(calls)]
-        assert results[0] == ["001_initial.sql"]
+        assert results[0] == ["001_initial.sql", "002_costs.sql"]
         assert all(result == [] for result in results[1:])
-        assert scalar(connection, "PRAGMA user_version") == 1
+        assert scalar(connection, "PRAGMA user_version") == 2
     finally:
         connection.close()

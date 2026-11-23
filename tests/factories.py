@@ -55,6 +55,35 @@ class UpgradeRowFactory(factory.Factory):
     can_pop_frozen = True
 
 
+class UpgradeCostRowFactory(factory.Factory):
+    """One `fetch_costs` upgrade row; path/tier cycle through all 15 slots."""
+
+    class Meta:
+        model = dict
+
+    path = factory.Sequence(lambda index: index // 5 % 3 + 1)
+    tier = factory.Sequence(lambda index: index % 5 + 1)
+    cost = factory.LazyAttribute(lambda row: 100 * row.tier)
+    name = factory.LazyAttribute(lambda row: f"Upgrade {row.path}-{row.tier}")
+
+
+class CostsFactory(factory.Factory):
+    """`fetch_costs` output with all 15 upgrades; every price is 100 x tier."""
+
+    class Meta:
+        model = dict
+
+    base_cost = 1000
+    category = "Magic"
+    upgrades = factory.LazyFunction(
+        lambda: [
+            UpgradeCostRowFactory.build(path=path, tier=tier)
+            for path in (1, 2, 3)
+            for tier in range(1, 6)
+        ]
+    )
+
+
 class StatsFactory(factory.Factory):
     """Wiki-shaped nested stats dict; params fill the first projectile."""
 

@@ -52,6 +52,22 @@ erDiagram
 | `id` | INTEGER | no | `PRIMARY KEY` |
 | `name` | TEXT | no | `UNIQUE` (e.g. `Super Monkey`) |
 | `category` | TEXT | no | (e.g. `Magic`) |
+| `base_cost` | INTEGER | yes | Medium-difficulty price; added by `002_costs.sql`, NULL until costs are loaded |
+
+### `upgrade_costs`
+
+Added by `002_costs.sql`, filled by `btd6/db/cost_loader.py::load_costs` (idempotent, replaces one tower's rows). `btd6.costs.total_cost` sums them.
+
+| Column | Type | Null | Constraints |
+|---|---|---|---|
+| `id` | INTEGER | no | `PRIMARY KEY` |
+| `tower_id` | INTEGER | no | `REFERENCES towers (id)` |
+| `path_index` | INTEGER | no | `CHECK BETWEEN 1 AND 3` |
+| `tier` | INTEGER | no | `CHECK BETWEEN 1 AND 5` |
+| `name` | TEXT | yes | upgrade name |
+| `cost` | INTEGER | no | Medium price |
+
+`UNIQUE (tower_id, path_index, tier)`.
 
 ### `damage_types`
 

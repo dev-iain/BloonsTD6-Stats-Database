@@ -14,6 +14,8 @@ from btd6.etl.towers import MAGIC_TOWERS
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "super_monkey_resolved.json"
 ROWS_PER_TOWER = 64
 
+pytestmark = pytest.mark.usefixtures("offline_costs_wiki")
+
 
 def load_tower_data() -> dict[str, Any]:
     """Flat `_NNN` nodes: resolve_all_codes returns them unchanged, giving 64 upgrades."""

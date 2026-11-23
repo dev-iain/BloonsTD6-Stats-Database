@@ -4,8 +4,10 @@ import sqlite3
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from btd6.db.cost_loader import load_costs
 from btd6.db.loader import load_tower
 from btd6.db.seed import initialize_database
+from btd6.etl import fetch as wiki
 from btd6.etl.fetch import fetch_tower_module, resolve_all_codes
 from btd6.etl.towers import MAGIC_TOWERS
 
@@ -39,6 +41,7 @@ def refresh_database(
         try:
             resolved = resolve_all_codes(fetch(tower_name))
             loaded[tower_name] = load_tower(connection, tower_name, resolved)
+            load_costs(connection, tower_name, wiki.fetch_costs(tower_name))
         except Exception as error:
             failures[tower_name] = error
     if failures:
