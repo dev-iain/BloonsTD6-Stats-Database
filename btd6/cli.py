@@ -28,10 +28,16 @@ from btd6.etl.pipeline import (
     refresh_database,
 )
 from btd6.etl.towers import MAGIC_TOWERS
-from btd6.formatting import EMPTY_RESULTS_MESSAGE, RESULT_COLUMNS, format_cell
+from btd6.formatting import (
+    EMPTY_RESULTS_MESSAGE,
+    RESULT_COLUMNS,
+    format_cell,
+    income_summary,
+)
+from btd6.income import NoIncomeDataError, round_income
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import METRICS, rank_upgrades
-from btd6.rounds import NoRoundDataError, RoundGroup, get_round
+from btd6.rounds import NoRoundDataError, RoundGroup, get_round, validate_round
 
 RANK_METRICS: dict[str, str] = dict(zip(("dps", "dollar", "pierce-dollar"), METRICS, strict=True))
 RANK_COLUMNS: dict[str, str] = {
@@ -98,7 +104,15 @@ def build_parser() -> argparse.ArgumentParser:
     add_serve_options(serve_parser)
     rounds_parser = subparsers.add_parser("rounds", help="show the bloons in a round or range")
     add_rounds_options(rounds_parser)
+    income_parser = subparsers.add_parser("income", help="show income from popping bloons")
+    add_income_options(income_parser)
     return parser
+
+
+def add_income_options(subparser: argparse.ArgumentParser) -> None:
+    group = subparser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--round", type=int, dest="round_number", metavar="N")
+    group.add_argument("--up-to", type=int, dest="up_to_round", metavar="N")
 
 
 def add_serve_options(subparser: argparse.ArgumentParser) -> None:
@@ -305,6 +319,55 @@ def run_rounds(args: argparse.Namespace) -> int:
     return 0
 
 
+def format_income_table(connection: sqlite3.Connection, up_to_round: int) -> str:
+    validate_round(connection, up_to_round)
+    records = []
+    running = 0.0
+    for number in range(1, up_to_round + 1):
+        income = round_income(connection, number)
+        running += income.total
+        records.append(
+            {
+                "round": number,
+                "pop cash": format_cell("money", round(income.pop_cash, 1)),
+                "end bonus": format_cell("money", income.end_bonus),
+                "total": format_cell("money", round(income.total, 1)),
+                "running total": format_cell("money", round(running, 1)),
+            }
+        )
+    with pd.option_context("display.max_rows", None, "display.max_columns", None):
+        return pd.DataFrame(records).to_string(index=False)
+
+
+def build_income_output(connection: sqlite3.Connection, args: argparse.Namespace) -> str:
+    if args.round_number is not None:
+        income = round_income(connection, args.round_number)
+        return income_summary(income, args.round_number)
+    return format_income_table(connection, args.up_to_round)
+
+
+def run_income(args: argparse.Namespace) -> int:
+    failure = check_database_exists(args)
+    if failure is not None:
+        return failure
+    connection = connect(args.db)
+    try:
+        output = build_income_output(connection, args)
+    except NoRoundDataError:
+        print('No round data loaded. Run "python -m btd6 load" first.', file=sys.stderr)
+        return 1
+    except NoIncomeDataError:
+        print('No income data loaded. Run "python -m btd6 load" first.', file=sys.stderr)
+        return 1
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return 2
+    finally:
+        connection.close()
+    print(output)
+    return 0
+
+
 def run_serve(args: argparse.Namespace) -> int:
     if not Path(args.db).exists():
         print(f'Database not found at {args.db}. Run "python -m btd6 load" first.', file=sys.stderr)
@@ -323,6 +386,7 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "rank": run_rank,
     "serve": run_serve,
     "rounds": run_rounds,
+    "income": run_income,
 }
 
 

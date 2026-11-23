@@ -42,6 +42,10 @@ def bloon_pop_cash(
     )
 
 
+class NoIncomeDataError(ValueError):
+    """Raised when income thresholds or settings are not loaded."""
+
+
 @dataclass(frozen=True)
 class RoundIncome:
     pop_cash: float
@@ -67,12 +71,12 @@ def round_multiplier(connection: sqlite3.Connection, round_number: int) -> float
     if row is not None:
         return row[0]
     if connection.execute("SELECT 1 FROM income_thresholds LIMIT 1").fetchone() is None:
-        raise ValueError("No income thresholds loaded")
+        raise NoIncomeDataError("No income thresholds loaded")
     settings = connection.execute(
         "SELECT final_multiplier FROM income_settings WHERE id = 1"
     ).fetchone()
     if settings is None:
-        raise ValueError("No income settings loaded")
+        raise NoIncomeDataError("No income settings loaded")
     return settings[0]
 
 

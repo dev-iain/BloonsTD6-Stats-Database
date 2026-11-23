@@ -107,6 +107,31 @@ The table has the columns rank, tower, path, cost, DPS and damage per dollar. Fo
 - Range, projectile speed and lifespan are not part of any metric.
 - Upgrades with unknown damage, attack rate or cost (costs not loaded) rank last.
 
+## Round income
+
+`income` shows the cash earned from popping every bloon in a round plus the end-of-round bonus, using the loaded round data and income multipliers. Give exactly one of `--round N` (one line) or `--up-to N` (a table for rounds 1 to N with a running total). Run `load` first; a round outside the loaded range exits with code 2.
+
+```bash
+uv run python -m btd6 income --round 40
+```
+
+```text
+Round 40: $381 pop cash + $140 end bonus = $521
+```
+
+```bash
+uv run python -m btd6 income --up-to 5
+```
+
+```text
+ round pop cash end bonus total running total
+     1       20       101   121           121
+     2       35       102   137           258
+     3       35       103   138           396
+     4       71       104   175           571
+     5       59       105   164           735
+```
+
 ## Web UI
 
 ```bash
