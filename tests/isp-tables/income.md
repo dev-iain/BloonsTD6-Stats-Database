@@ -2,7 +2,7 @@
 
 ## Rules for these tests
 
-- Spec: `docs/income.md`. Oracle for whole rounds: `tests/fixtures/wiki_round_cash.csv` (columns `round, pop_cash, end_bonus`, rounds 1-100). Sums over that CSV: rounds 1-5 = 735, rounds 1-40 = 16856, rounds 1-100 = 178994.
+- Spec: `docs/income.md`. Oracle for whole rounds: `tests/fixtures/wiki_round_cash.csv` (columns `round, pop_cash, end_bonus`, rounds 1-100). Sums over that CSV: rounds 1-5 = 735, rounds 1-40 = 16856, rounds 1-100 = 178994.4.
 - `bloon_pop_cash` and `round_multiplier` live in `btd6/income.py` (#92). `fetch_income_set` lives in `btd6/etl/fetch.py`, `extract_income_thresholds` in `btd6/etl/extract.py`, `load_income` in `btd6/db/` (#91).
 - DB tests use SQLite `:memory:`. Two fixtures: `income_db` (full: income tables loaded from the DefaultIncomeSet thresholds plus rounds 1-100 and bloons loaded) and `short_income_db` (rounds 1-5 only, same thresholds). Both built with factory_boy factories; network is faked, never the wiki.
 - Children fixture for `bloon_pop_cash` (wiki `parent of`): `Red: []`, `Blue: [Red x1]`, `Green: [Blue x1]`, `Yellow: [Green x1]`, `Pink: [Yellow x1]`, `Black: [Pink x2]`, `White: [Pink x2]`, `Lead: [Black x2]`, `Zebra: [Black x1, White x1]`, `Rainbow: [Zebra x2]`, `Ceramic: [Rainbow x2]`, `MOAB: [Ceramic x4]`, `BFB: [MOAB x4]`, `ZOMG: [BFB x4]`, `DDT: [Ceramic x4]`, `BAD: [ZOMG x2, DDT x3]`.
@@ -192,7 +192,7 @@ Base case: A2, B1
 | T1 | A2 | B1 | returns approx `735.0` (121 + 137 + 138 + 175 + 164) | `test_cumulative_income_base` |
 | T2 | A1 | B1 | returns `121.0` | `test_cumulative_income_known_rounds` (parametrized, 1) |
 | T3 | A3 | B1 | returns approx `16856.0` | `test_cumulative_income_known_rounds` (40) |
-| T4 | A4 | B1 | returns approx `178994.0` (sum of CSV `pop_cash + end_bonus`) | `test_cumulative_income_last_round` |
+| T4 | A4 | B1 | returns approx `178994.4` (sum of CSV `pop_cash + end_bonus`) | `test_cumulative_income_last_round` |
 | T5 | A5 | B1 | raises `ValueError` | `test_cumulative_income_invalid_round` (parametrized, 101) |
 | T6 | A6 | B1 | raises `ValueError` | `test_cumulative_income_invalid_round` (0) |
 | T7 | A7 | B1 | raises `ValueError` | `test_cumulative_income_invalid_round` (-1) |
