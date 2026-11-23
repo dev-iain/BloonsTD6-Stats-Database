@@ -10,7 +10,16 @@ from hypothesis import strategies as st
 import btd6.db
 from btd6.db import apply_migrations, connect
 
-EXPECTED_TABLES = ["damage_types", "towers", "upgrade_costs", "upgrades"]
+EXPECTED_TABLES = [
+    "bloons",
+    "damage_types",
+    "round_groups",
+    "rounds",
+    "towers",
+    "upgrade_costs",
+    "upgrades",
+]
+ALL_MIGRATIONS = ["001_initial.sql", "002_costs.sql", "003_rounds.sql"]
 
 
 def scalar(connection: sqlite3.Connection, sql: str):
@@ -85,7 +94,7 @@ def test_connect_existing_migrated_file(tmp_path):
     first.close()
     second = connect(path)
     try:
-        assert scalar(second, "PRAGMA user_version") == 2
+        assert scalar(second, "PRAGMA user_version") == 3
         assert scalar(second, "SELECT COUNT(*) FROM damage_types") == 12
         assert scalar(second, "PRAGMA foreign_keys") == 1
     finally:
@@ -125,8 +134,8 @@ def test_connect_foreign_key_cascade_delete(memory_connection):
 
 
 def test_apply_migrations_fresh_database(memory_connection):
-    assert apply_migrations(memory_connection) == ["001_initial.sql", "002_costs.sql"]
-    assert scalar(memory_connection, "PRAGMA user_version") == 2
+    assert apply_migrations(memory_connection) == ALL_MIGRATIONS
+    assert scalar(memory_connection, "PRAGMA user_version") == 3
     assert table_names(memory_connection) == EXPECTED_TABLES
     assert scalar(memory_connection, "SELECT COUNT(*) FROM damage_types") == 12
     assert scalar(memory_connection, "SELECT COUNT(*) FROM towers") == 0
@@ -141,7 +150,7 @@ def test_apply_migrations_already_latest(tmp_path):
     second = connect(path)
     try:
         assert apply_migrations(second) == []
-        assert scalar(second, "PRAGMA user_version") == 2
+        assert scalar(second, "PRAGMA user_version") == 3
         assert scalar(second, "SELECT COUNT(*) FROM damage_types") == 12
     finally:
         second.close()
@@ -181,9 +190,9 @@ def test_apply_migrations_newer_version(memory_connection):
 
 
 def test_apply_migrations_twice(memory_connection):
-    assert apply_migrations(memory_connection) == ["001_initial.sql", "002_costs.sql"]
+    assert apply_migrations(memory_connection) == ALL_MIGRATIONS
     assert apply_migrations(memory_connection) == []
-    assert scalar(memory_connection, "PRAGMA user_version") == 2
+    assert scalar(memory_connection, "PRAGMA user_version") == 3
     assert scalar(memory_connection, "SELECT COUNT(*) FROM damage_types") == 12
 
 
@@ -240,8 +249,128 @@ def test_apply_migrations_idempotent_property(calls):
     connection = connect(":memory:")
     try:
         results = [apply_migrations(connection) for _ in range(calls)]
-        assert results[0] == ["001_initial.sql", "002_costs.sql"]
+        assert results[0] == ALL_MIGRATIONS
         assert all(result == [] for result in results[1:])
-        assert scalar(connection, "PRAGMA user_version") == 2
+        assert scalar(connection, "PRAGMA user_version") == 3
     finally:
         connection.close()
+
+
+def migrate_to_version_two(connection: sqlite3.Connection) -> None:
+    for script in sorted(btd6.db.MIGRATIONS_DIR.glob("00[12]_*.sql")):
+        version = int(script.name.split("_", 1)[0])
+        btd6.db.run_script_atomically(connection, script.read_text(), version)
+
+
+def insert_round_data(connection: sqlite3.Connection) -> None:
+    connection.execute("INSERT INTO bloons (id, name, is_moab) VALUES (1, 'Red', 0)")
+    connection.execute("INSERT INTO rounds (round) VALUES (1)")
+    connection.execute(
+        "INSERT INTO round_groups (round, group_index, bloon_id, is_camo, is_regrow,"
+        " is_fortified, count, start, duration) VALUES (1, 0, 1, 0, 0, 0, 20, 0.0, 10.0)"
+    )
+
+
+def test_migration_003_upgrades_version_two_database(memory_connection):
+    migrate_to_version_two(memory_connection)
+    insert_tower_and_upgrade(memory_connection)
+    memory_connection.execute(
+        "INSERT INTO upgrade_costs (tower_id, path_index, tier, name, cost)"
+        " VALUES (1, 1, 1, 'Laser Blasts', 300)"
+    )
+    assert apply_migrations(memory_connection) == ["003_rounds.sql"]
+    assert scalar(memory_connection, "PRAGMA user_version") == 3
+    assert scalar(memory_connection, "SELECT COUNT(*) FROM upgrades") == 1
+    assert scalar(memory_connection, "SELECT cost FROM upgrade_costs") == 300
+    assert scalar(memory_connection, "SELECT COUNT(*) FROM bloons") == 0
+
+
+def test_bloons_columns(memory_connection):
+    apply_migrations(memory_connection)
+    columns = [row["name"] for row in memory_connection.execute("PRAGMA table_info(bloons)")]
+    assert columns == [
+        "id", "name", "health", "health_fort", "layers", "rbe", "rbe_fort", "is_moab", "speed",
+    ]  # fmt: skip
+
+
+def test_bloons_nullable_stats_and_unique_name(memory_connection):
+    apply_migrations(memory_connection)
+    insert_round_data(memory_connection)
+    assert scalar(memory_connection, "SELECT health FROM bloons") is None
+    with pytest.raises(sqlite3.IntegrityError):
+        memory_connection.execute("INSERT INTO bloons (name, is_moab) VALUES ('Red', 0)")
+
+
+def test_bloons_is_moab_must_be_boolean(memory_connection):
+    apply_migrations(memory_connection)
+    with pytest.raises(sqlite3.IntegrityError):
+        memory_connection.execute("INSERT INTO bloons (name, is_moab) VALUES ('Red', 2)")
+
+
+def test_rounds_must_be_positive(memory_connection):
+    apply_migrations(memory_connection)
+    with pytest.raises(sqlite3.IntegrityError):
+        memory_connection.execute("INSERT INTO rounds (round) VALUES (0)")
+
+
+def test_round_groups_foreign_keys_enforced(memory_connection):
+    apply_migrations(memory_connection)
+    insert_round_data(memory_connection)
+    with pytest.raises(sqlite3.IntegrityError):
+        memory_connection.execute("UPDATE round_groups SET bloon_id = 99")
+    with pytest.raises(sqlite3.IntegrityError):
+        memory_connection.execute("UPDATE round_groups SET round = 99")
+
+
+def test_round_groups_cascade_when_round_deleted(memory_connection):
+    apply_migrations(memory_connection)
+    insert_round_data(memory_connection)
+    memory_connection.execute("DELETE FROM rounds WHERE round = 1")
+    assert scalar(memory_connection, "SELECT COUNT(*) FROM round_groups") == 0
+
+
+def test_round_groups_rejects_bloon_delete_in_use(memory_connection):
+    apply_migrations(memory_connection)
+    insert_round_data(memory_connection)
+    with pytest.raises(sqlite3.IntegrityError):
+        memory_connection.execute("DELETE FROM bloons WHERE id = 1")
+
+
+def test_round_groups_unique_round_and_group_index(memory_connection):
+    apply_migrations(memory_connection)
+    insert_round_data(memory_connection)
+    with pytest.raises(sqlite3.IntegrityError):
+        insert_round_data_group_again(memory_connection)
+
+
+def insert_round_data_group_again(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        "INSERT INTO round_groups (round, group_index, bloon_id, is_camo, is_regrow,"
+        " is_fortified, count, start, duration) VALUES (1, 0, 1, 0, 0, 0, 5, 0.0, 1.0)"
+    )
+
+
+def test_round_groups_accepts_negative_start(memory_connection):
+    apply_migrations(memory_connection)
+    insert_round_data(memory_connection)
+    memory_connection.execute("UPDATE round_groups SET start = -0.15")
+    assert memory_connection.execute("SELECT start FROM round_groups").fetchone()[0] == -0.15
+
+
+def test_round_groups_rejects_null_start(memory_connection):
+    apply_migrations(memory_connection)
+    insert_round_data(memory_connection)
+    with pytest.raises(sqlite3.IntegrityError):
+        memory_connection.execute("UPDATE round_groups SET start = NULL")
+
+
+@pytest.mark.parametrize(
+    "assignment",
+    ["count = 0", "is_camo = 2", "is_regrow = 2", "is_fortified = 2", "group_index = -1",
+     "duration = -1"],
+)  # fmt: skip
+def test_round_groups_check_constraints(memory_connection, assignment):
+    apply_migrations(memory_connection)
+    insert_round_data(memory_connection)
+    with pytest.raises(sqlite3.IntegrityError):
+        memory_connection.execute(f"UPDATE round_groups SET {assignment}")

@@ -1,0 +1,100 @@
+{
+  "cargoquery": [
+    {
+      "title": {
+        "id": "Blue",
+        "name": "Blue Bloon",
+        "health": "1",
+        "health fort": "",
+        "layers": "2",
+        "rbe": "2",
+        "rbe fort": "",
+        "is moab": "",
+        "speed": "35",
+        "immunity": "",
+        "parent of": "[[Red Bloon (BTD6)|Red Bloon]] \u00d71",
+        "child of": "[[Green Bloon (BTD6)|Green Bloon]], [[Aura Bloon]]"
+      }
+    },
+    {
+      "title": {
+        "id": "Ceramic",
+        "name": "Ceramic Bloon",
+        "health": "10",
+        "health fort": "20",
+        "layers": "9",
+        "rbe": "104",
+        "rbe fort": "114",
+        "is moab": "",
+        "speed": "62.5",
+        "immunity": "",
+        "parent of": "[[Rainbow Bloon (BTD6)|Rainbow Bloon]] \u00d72",
+        "child of": "[[MOAB (BTD6)|MOAB]], [[DDT (BTD6)|DDT]], [[Diamond Bloon]]"
+      }
+    },
+    {
+      "title": {
+        "id": "Green",
+        "name": "Green Bloon",
+        "health": "1",
+        "health fort": "",
+        "layers": "3",
+        "rbe": "3",
+        "rbe fort": "",
+        "is moab": "",
+        "speed": "45",
+        "immunity": "",
+        "parent of": "[[Blue Bloon (BTD6)|Blue Bloon]] \u00d71",
+        "child of": "[[Yellow Bloon (BTD6)|Yellow Bloon]], [[Aura Bloon]]"
+      }
+    },
+    {
+      "title": {
+        "id": "Moab",
+        "name": "MOAB",
+        "health": "200",
+        "health fort": "400",
+        "layers": "10",
+        "rbe": "616",
+        "rbe fort": "856",
+        "is moab": "1",
+        "speed": "25",
+        "immunity": "",
+        "parent of": "[[Ceramic Bloon (BTD6)|Ceramic Bloon]] \u00d74",
+        "child of": "[[BFB (BTD6)|BFB]]"
+      }
+    },
+    {
+      "title": {
+        "id": "Red",
+        "name": "Red Bloon",
+        "health": "1",
+        "health fort": "",
+        "layers": "1",
+        "rbe": "1",
+        "rbe fort": "",
+        "is moab": "",
+        "speed": "25",
+        "immunity": "",
+        "parent of": "",
+        "child of": "[[Blue Bloon (BTD6)|Blue Bloon]], [[Aura Bloon]], [[Dynamite Bloon]]"
+      }
+    },
+    {
+      "title": {
+        "id": "Zomg",
+        "name": "ZOMG",
+        "health": "4000",
+        "health fort": "8000",
+        "layers": "12",
+        "rbe": "16656",
+        "rbe fort": "27296",
+        "is moab": "1",
+        "speed": "4.5",
+        "immunity": "",
+        "parent of": "[[BFB (BTD6)|BFB]] \u00d74",
+        "child of": "[[BAD (BTD6)|BAD]]"
+      }
+    }
+  ]
+}

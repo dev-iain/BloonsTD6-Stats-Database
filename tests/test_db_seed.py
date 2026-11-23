@@ -90,7 +90,7 @@ def test_initialize_database_migrates_and_seeds():
     connection = connect(":memory:")
     initialize_database(connection)
     initialize_database(connection)
-    assert connection.execute("PRAGMA user_version").fetchone()[0] == 2
+    assert connection.execute("PRAGMA user_version").fetchone()[0] == 3
     assert count_types(connection) == 12
     connection.close()
 

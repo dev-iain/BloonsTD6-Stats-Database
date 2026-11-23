@@ -49,3 +49,23 @@ def test_filter_uses_index(populated_connection, index_name, sql):
 def test_camo_filter_scans(populated_connection):
     detail = plan_details(populated_connection, "SELECT id FROM upgrades WHERE can_hit_camo = 1")
     assert "SCAN upgrades" in detail
+
+
+def test_round_groups_round_filter_uses_index(populated_connection):
+    populated_connection.execute("INSERT INTO bloons (id, name, is_moab) VALUES (1, 'Red', 0)")
+    for round_number in range(1, 41):
+        populated_connection.execute("INSERT INTO rounds (round) VALUES (?)", (round_number,))
+        populated_connection.execute(
+            "INSERT INTO round_groups (round, group_index, bloon_id, is_camo, is_regrow,"
+            " is_fortified, count, start, duration) VALUES (?, 0, 1, 0, 0, 0, 10, 0, 5)",
+            (round_number,),
+        )
+    populated_connection.execute("ANALYZE")
+    detail = plan_details(populated_connection, "SELECT id FROM round_groups WHERE round = 12")
+    assert "SEARCH round_groups USING" in detail
+    assert "idx_round_groups_round" in detail or "sqlite_autoindex_round_groups" in detail
+
+
+def test_round_groups_bloon_id_filter_uses_index(populated_connection):
+    detail = plan_details(populated_connection, "SELECT id FROM round_groups WHERE bloon_id = 1")
+    assert "idx_round_groups_bloon_id" in detail

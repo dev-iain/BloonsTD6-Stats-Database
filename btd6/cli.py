@@ -12,12 +12,19 @@ import requests
 
 from btd6.costs import DIFFICULTY_MULTIPLIERS
 from btd6.db import connect
-from btd6.etl.fetch import PROJECT_ROOT, fetch_tower_module
-from btd6.etl.pipeline import RefreshError, refresh_database
+from btd6.etl.fetch import PROJECT_ROOT, fetch_bloons, fetch_roundset, fetch_tower_module
+from btd6.etl.pipeline import (
+    ROUND_GROUPS_KEY,
+    ROUND_KEYS,
+    ROUNDS_KEY,
+    RefreshError,
+    refresh_database,
+)
 from btd6.etl.towers import MAGIC_TOWERS
 from btd6.formatting import EMPTY_RESULTS_MESSAGE, RESULT_COLUMNS, format_cell
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import METRICS, rank_upgrades
+from btd6.rounds import NoRoundDataError, RoundGroup, get_round
 
 RANK_METRICS: dict[str, str] = dict(zip(("dps", "dollar", "pierce-dollar"), METRICS, strict=True))
 RANK_COLUMNS: dict[str, str] = {
@@ -82,6 +89,8 @@ def build_parser() -> argparse.ArgumentParser:
     add_rank_options(rank_parser)
     serve_parser = subparsers.add_parser("serve", help="serve the web interface and API")
     add_serve_options(serve_parser)
+    rounds_parser = subparsers.add_parser("rounds", help="show the bloons in a round or range")
+    add_rounds_options(rounds_parser)
     return parser
 
 
@@ -92,6 +101,16 @@ def add_serve_options(subparser: argparse.ArgumentParser) -> None:
 
 def add_load_options(subparser: argparse.ArgumentParser) -> None:
     subparser.add_argument("--tower", action="append", choices=MAGIC_TOWERS, metavar="NAME")
+    subparser.add_argument(
+        "--no-rounds", action="store_true", help="skip loading bloons and rounds"
+    )
+
+
+def add_rounds_options(subparser: argparse.ArgumentParser) -> None:
+    subparser.add_argument("--round", type=int, dest="round_number", metavar="N")
+    subparser.add_argument("--from", type=int, dest="first_round", metavar="A")
+    subparser.add_argument("--to", type=int, dest="last_round", metavar="B")
+    subparser.set_defaults(rounds_parser=subparser)
 
 
 def add_filter_options(subparser: argparse.ArgumentParser) -> None:
@@ -132,7 +151,10 @@ def build_filters(args: argparse.Namespace) -> UpgradeFilters:
 
 def print_loaded(loaded: dict[str, int]) -> None:
     for tower_name, upgrade_count in loaded.items():
-        print(f"{tower_name}: {upgrade_count} upgrades")
+        if tower_name not in ROUND_KEYS:
+            print(f"{tower_name}: {upgrade_count} upgrades")
+    if ROUNDS_KEY in loaded and ROUND_GROUPS_KEY in loaded:
+        print(f"Rounds: {loaded[ROUNDS_KEY]} rounds, {loaded[ROUND_GROUPS_KEY]} groups")
 
 
 def report_refresh_error(error: RefreshError) -> int:
@@ -149,7 +171,14 @@ def report_refresh_error(error: RefreshError) -> int:
 def run_load(args: argparse.Namespace) -> int:
     connection = connect(args.db)
     try:
-        loaded = refresh_database(connection, args.tower, fetch=fetch_tower_module)
+        loaded = refresh_database(
+            connection,
+            args.tower,
+            fetch=fetch_tower_module,
+            include_rounds=not args.no_rounds,
+            fetch_bloon_rows=fetch_bloons,
+            fetch_roundset=fetch_roundset,
+        )
     except RefreshError as error:
         return report_refresh_error(error)
     finally:
@@ -164,6 +193,10 @@ def check_request(args: argparse.Namespace) -> int | None:
         conflict = next(prop for prop in POP_PROPERTIES if prop in conflicts)
         print(f"--can-pop and --cannot-pop both list {conflict}", file=sys.stderr)
         return 2
+    return check_database_exists(args)
+
+
+def check_database_exists(args: argparse.Namespace) -> int | None:
     if not Path(args.db).exists():
         print(f'Database not found at {args.db}. Run "python -m btd6 load" first.', file=sys.stderr)
         return 1
@@ -202,6 +235,66 @@ def run_search(args: argparse.Namespace) -> int:
     return 0
 
 
+def check_rounds_selection(args: argparse.Namespace) -> None:
+    has_range = args.first_round is not None or args.last_round is not None
+    if args.round_number is not None and has_range:
+        args.rounds_parser.error("--round cannot be combined with --from/--to")
+    if args.round_number is None and not has_range:
+        args.rounds_parser.error("one of --round or --from/--to is required")
+    if has_range and (args.first_round is None or args.last_round is None):
+        args.rounds_parser.error("--from and --to must be given together")
+
+
+def format_rounds(groups_by_round: dict[int, list[RoundGroup]]) -> str:
+    records = [
+        {
+            "round": number,
+            "bloon": group.bloon,
+            "count": group.count,
+            "camo": format_cell("can_hit_camo", group.is_camo),
+            "regrow": format_cell("can_hit_camo", group.is_regrow),
+            "fortified": format_cell("can_hit_camo", group.is_fortified),
+            "start": format_cell("start", group.start),
+            "duration": format_cell("duration", group.duration),
+            "rbe": format_cell("rbe", group.rbe),
+        }
+        for number, groups in groups_by_round.items()
+        for group in groups
+    ]
+    with pd.option_context("display.max_rows", None, "display.max_columns", None):
+        return pd.DataFrame(records).to_string(index=False)
+
+
+def load_rounds_table(connection: sqlite3.Connection, args: argparse.Namespace) -> str:
+    first = args.round_number if args.round_number is not None else args.first_round
+    last = args.round_number if args.round_number is not None else args.last_round
+    if first > last:
+        raise ValueError("--from must not be greater than --to")
+    return format_rounds(
+        {number: get_round(connection, number) for number in range(first, last + 1)}
+    )
+
+
+def run_rounds(args: argparse.Namespace) -> int:
+    check_rounds_selection(args)
+    failure = check_database_exists(args)
+    if failure is not None:
+        return failure
+    connection = connect(args.db)
+    try:
+        table = load_rounds_table(connection, args)
+    except NoRoundDataError:
+        print('No round data loaded. Run "python -m btd6 load" first.', file=sys.stderr)
+        return 1
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return 2
+    finally:
+        connection.close()
+    print(table)
+    return 0
+
+
 def run_serve(args: argparse.Namespace) -> int:
     if not Path(args.db).exists():
         print(f'Database not found at {args.db}. Run "python -m btd6 load" first.', file=sys.stderr)
@@ -219,6 +312,7 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "search": run_search,
     "rank": run_rank,
     "serve": run_serve,
+    "rounds": run_rounds,
 }
 
 

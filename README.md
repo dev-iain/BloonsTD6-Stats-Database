@@ -18,7 +18,7 @@ uv sync
 
 ## Build the database
 
-`load` downloads each Magic tower from the BTD6 wiki, so it needs network access. It writes `btd6.db` in the project folder (use `--db PATH` before the command to choose another file). Running it again replaces the data instead of duplicating it.
+`load` downloads each Magic tower, the bloon stats and rounds 1-100 from the BTD6 wiki, so it needs network access. It writes `btd6.db` in the project folder (use `--db PATH` before the command to choose another file). Running it again replaces the data instead of duplicating it.
 
 ```bash
 uv run python -m btd6 load
@@ -30,9 +30,10 @@ Wizard Monkey: 64 upgrades
 Ninja Monkey: 64 upgrades
 Alchemist: 64 upgrades
 Druid: 64 upgrades
+Rounds: 100 rounds, 1234 groups
 ```
 
-Load only some towers with `--tower` (repeatable): `uv run python -m btd6 load --tower "Wizard Monkey"`.
+Load only some towers with `--tower` (repeatable): `uv run python -m btd6 load --tower "Wizard Monkey"`. Add `--no-rounds` to skip the bloons and rounds (no round download, existing rounds stay untouched). If only the bloons or rounds step fails, the towers are still loaded and the error is printed as `Bloons: failed: ...` or `Rounds: failed: ...`.
 
 ## Search
 
