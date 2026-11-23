@@ -65,6 +65,16 @@ def cargo_rows(response: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def is_crosspath_upgrade(row: dict[str, Any]) -> bool:
+    """Paragons come back as path -1, tier 6, and cut upgrades carry unused=1.
+
+    Neither belongs to an X-Y-Z path.
+    """
+    if str(row.get("unused") or "0") != "0":
+        return False
+    return 1 <= int(row["path"]) <= 3 and 1 <= int(row["tier"]) <= 5
+
+
 def cost_upgrade_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [
         {
@@ -74,6 +84,7 @@ def cost_upgrade_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "name": row["name"],
         }
         for row in rows
+        if is_crosspath_upgrade(row)
     ]
 
 
@@ -89,7 +100,7 @@ def fetch_costs(tower_name: str) -> dict[str, Any]:
     upgrade_response = wiki_api(
         action="cargoquery",
         tables="btd6_upgrades",
-        fields="tower,path,tier,cost,name",
+        fields="tower,path,tier,cost,name,unused",
         where=f"tower='{tower_name}'",
         limit=500,
     )
