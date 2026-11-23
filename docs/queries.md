@@ -89,3 +89,47 @@ These are raised as `QueryError`, a subclass of `ValueError` defined in `btd6/qu
 Every `can_pop_*` value is a function of the damage type, so storing it per upgrade would be a transitive dependency (not 3NF) and could drift from `damage_type_id`. The flags are therefore seeded once in `damage_types`, and `search_upgrades` reads them through the `damage_types` join it already needs for `damage_type`. `extract_row` still returns the flags, but the loader uses only the damage type name to look up `damage_type_id`. `Unknown` is seeded with `NULL` flags, because an unmapped bitmask says nothing about what can be popped. The result row columns are unchanged.
 
 Until #16 lands, query tests build this schema in an in-memory fixture database.
+
+## Round queries (`btd6/rounds.py`, #87)
+
+```python
+@dataclass(frozen=True)
+class RoundGroup:
+    group_index: int
+    bloon: str
+    is_camo: bool
+    is_regrow: bool
+    is_fortified: bool
+    count: int
+    start: float
+    duration: float
+    rbe: int | None
+    is_moab: bool
+
+
+@dataclass(frozen=True)
+class RoundSummary:
+    round: int
+    total_bloons: int
+    total_rbe: int
+    has_moab: bool
+    has_camo: bool
+    has_lead: bool
+    has_ceramic: bool
+
+
+def get_round(connection: sqlite3.Connection, round_number: int) -> list[RoundGroup]: ...
+def get_round_summary(connection: sqlite3.Connection, round_number: int) -> RoundSummary: ...
+```
+
+- `get_round` returns the groups of one round ordered by `group_index`; repeated bloons are not merged. `bloon` is the base name (`Blue` with `is_camo` for a camo Blue); `rbe` and `is_moab` come from the base bloon.
+- `get_round_summary` aggregates the groups: `total_bloons` is the sum of `count`; `total_rbe` is the sum of `count * rbe` using the base bloon's `rbe` (fortified health is not applied); `has_lead` and `has_ceramic` follow the base bloon name (a camo Lead sets `has_lead` and `has_camo`).
+- Argument validation is shared. SQL is parameterized.
+
+| Cause | Error |
+|---|---|
+| `round_number` not an `int` (including `bool`, `float`, `str`, `None`) | `TypeError` |
+| round below 1 or above the highest loaded round | `ValueError`: `Round <n> is not loaded; loaded rounds are 1-<max>` |
+| no rows in `rounds` | `ValueError` (`NoRoundDataError`): `No round data loaded` |
+
+CLI: `python -m btd6 rounds --round N` or `--from A --to B` (inclusive) prints columns `round, bloon, count, camo, regrow, fortified, start, duration, rbe`. A missing database or empty round tables exits `1`; a `ValueError` (including `--from` greater than `--to`) prints one stderr line and exits `2`. Argparse errors exit `2`.

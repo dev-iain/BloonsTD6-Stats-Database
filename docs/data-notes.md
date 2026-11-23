@@ -69,3 +69,32 @@ Decision: the first-attack and first-projectile summaries are left as they are f
 - Damage types are never `Unknown`, but only the first projectile's `immuneBloonProperties` is used, so the type of secondary attacks is not recorded.
 - Paragons: the wiki's `btd6_upgrades` cargo table lists each paragon (Magus Perfectus, Ascended Shadow, Root of all Nature) as `path = -1`, `tier = 6`. Wizard Monkey, Ninja Monkey and Druid each have one; Super Monkey and Alchemist have none. `fetch_costs` skips them because they are not part of any `X-Y-Z` crosspath (tiers stop at 5) and `upgrade_costs.path_index` is limited to 1-3. Loading used to fail for those three towers with `CHECK constraint failed: path_index BETWEEN 1 AND 3`.
 - Unused upgrades: the same cargo table has an `unused` flag. Wizard Monkey lists a cut upgrade, "Soulbind" (path 3, tier 5, 24000), next to the real "Prince of Darkness" (26500), so loading failed with `UNIQUE constraint failed: upgrade_costs.tower_id, upgrade_costs.path_index, upgrade_costs.tier`. `fetch_costs` fetches `unused` and skips rows where it is set. It is the only unused row across the five towers.
+
+## Bloons and rounds (issue #88)
+
+Checked with a real `fetch_bloons` and `fetch_roundset` on 2026-11-23: 25 Cargo bloon rows, and the default round set has 140 rounds of which rounds 1-100 are loaded (286 groups, every round non-empty). Rounds 1-100 are in the database; the wiki has more, which `extract_round_rows` ignores. Sanity checks: round 1 is 20 Red, round 40 contains a MOAB.
+
+### Negative group start (round 86)
+
+Round 86 group 0 is `BfbFortified` x5 with `start = -0.15` in the original `JSON:Bloons TD 6/Rounds/DefaultRoundSet`. It is the only negative start in rounds 1-100, and the only group with `start < 0`. It is a wiki value (cause of the negative offset not documented by the wiki), not an extraction bug. The wiki value is kept (not clamped). `round_groups.start` originally had `CHECK (start >= 0)`, which made a real `load` fail with `Rounds: failed: CHECK constraint failed: start >= 0`; migration `003_rounds.sql` now declares `start REAL NOT NULL` with no sign check (`duration` keeps `CHECK (duration >= 0)`). No group has `duration = 0` (shortest is 0.1 s), and no group has `count <= 0`.
+
+### NULLs in `bloons`
+
+Cargo returns empty strings for unset fields and `extract_bloon_row` turns them into NULL.
+
+| Column | NULL for | Cause |
+|---|---|---|
+| health_fort, rbe_fort | every bloon except Lead, Ceramic, Moab, Bfb, Zomg, Ddt and Bad | the wiki only sets fortified values where Fortified exists in the game. Every round group with `is_fortified = 1` is on those bloons, which do have `health_fort`, so no group joins to a NULL fortified health. Queries should still use `COALESCE(health_fort, health)` |
+| is_moab | stored as 0, not NULL | Cargo leaves it empty for non-MOAB bloons; the extractor maps empty to 0 |
+
+`health`, `layers`, `rbe` and `speed` have no NULLs.
+
+### Bloons never used in rounds 1-100
+
+AuraBloon, DiamondBloon, DynamiteBloon, GlassBloon, RetributionBloon, RingleaderBloon, TestBloon and TestBloonMoab are in Cargo but in no round of the default round set. The first six are not part of the standard rounds (cause not stated in Cargo); TestBloon (999999 health) and TestBloonMoab (100000000 health) are developer test bloons. They are kept in `bloons` and have no `round_groups` rows, so rankings by bloon must not assume every bloon appears in a round. Loading is not affected.
+
+### Names and keys
+
+- Cargo `name` is the display name ("Aura Bloon", "BFB", "MOAB Test Bloon"); the roundset uses the `id` ("AuraBloon", "Bfb"). `extract_bloon_row` stores `id` as `bloons.name`, which is what `split_bloon_name` yields from a roundset name. Display names would not match.
+- Roundset names carry modifiers as suffixes (`LeadFortified`, `CeramicCamoRegrow`); `split_bloon_name` strips `Fortified`, `Camo` and `Regrow` until none is left. No roundset name in rounds 1-100 fails to resolve to a Cargo bloon.
+- Cargo field names can contain spaces; `normalize_cargo_keys` replaces them with `_`. The current bloon query returns none, so this is a guard.

@@ -29,6 +29,10 @@ PROJECTILE_FIELDS = (
 ABILITY_FIELDS = ("cooldown",)
 MAX_ROUND = 100
 DEFAULT_ROUNDSET = "DefaultRoundSet"
+BLOON_FIELDS = (
+    "id,name,health,health_fort,layers,rbe,rbe_fort,is_moab,speed,immunity,parent_of,child_of"
+)
+CARGO_PAGE_LIMIT = 500
 
 
 def wiki_api(**params: str | int) -> dict[str, Any]:
@@ -56,10 +60,39 @@ def fetch_roundset(name: str = DEFAULT_ROUNDSET) -> dict[str, Any]:
     return decode_page_content(page)
 
 
-def cargo_rows(response: dict[str, Any]) -> list[dict[str, Any]]:
+def cargo_titles(response: dict[str, Any]) -> list[dict[str, Any]]:
     if "error" in response:
         raise ValueError(f"Wiki cargo query failed: {response['error']}")
-    rows = [entry["title"] for entry in response.get("cargoquery", [])]
+    return [entry["title"] for entry in response.get("cargoquery", [])]
+
+
+def cargo_rows(response: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = cargo_titles(response)
+    if not rows:
+        raise ValueError("Wiki cargo query returned no rows")
+    return rows
+
+
+def normalize_cargo_keys(title: dict[str, Any]) -> dict[str, Any]:
+    return {key.replace(" ", "_"): value for key, value in title.items()}
+
+
+def fetch_bloons() -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    offset = 0
+    while True:
+        response = wiki_api(
+            action="cargoquery",
+            tables="btd6_bloons",
+            fields=BLOON_FIELDS,
+            limit=CARGO_PAGE_LIMIT,
+            offset=offset,
+        )
+        page = [normalize_cargo_keys(title) for title in cargo_titles(response)]
+        rows.extend(page)
+        if len(page) < CARGO_PAGE_LIMIT:
+            break
+        offset += CARGO_PAGE_LIMIT
     if not rows:
         raise ValueError("Wiki cargo query returned no rows")
     return rows
@@ -102,7 +135,7 @@ def fetch_costs(tower_name: str) -> dict[str, Any]:
         tables="btd6_upgrades",
         fields="tower,path,tier,cost,name,unused",
         where=f"tower='{tower_name}'",
-        limit=500,
+        limit=CARGO_PAGE_LIMIT,
     )
     tower_row = cargo_rows(tower_response)[0]
     return {

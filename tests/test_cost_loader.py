@@ -182,7 +182,7 @@ def test_refresh_database_stores_costs(
     database: sqlite3.Connection, cargo_costs: dict[str, Any]
 ) -> None:
     resolved = json.loads((FIXTURE_DIR / "super_monkey_resolved.json").read_text())
-    refresh_database(database, ["Super Monkey"], fetch=lambda _name: resolved)
+    refresh_database(database, ["Super Monkey"], fetch=lambda _name: resolved, include_rounds=False)
     assert base_cost(database, "Super Monkey") == 2500
     assert len(cost_rows(database)) == 15
 

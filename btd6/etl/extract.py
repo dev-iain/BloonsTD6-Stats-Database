@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -108,3 +109,62 @@ def build_group_rows(round_number: int, round_data: dict[str, Any]) -> list[dict
         }
         for group_index, group in enumerate(round_data.get("bloonGroups", []))
     ]
+
+
+BLOON_INTEGER_FIELDS = ("health", "health_fort", "layers", "rbe", "rbe_fort")
+MODIFIER_SUFFIXES = ("Fortified", "Camo", "Regrow")
+
+
+def parse_number(
+    raw: dict[str, str], field: str, convert: Callable[[str], int | float]
+) -> int | float | None:
+    text = str(raw.get(field) or "").strip()
+    if not text:
+        return None
+    try:
+        return convert(text)
+    except ValueError:
+        raise ValueError(
+            f"Bloon {str(raw.get('id', '')).strip()!r} has non-numeric {field}: {text!r}"
+        ) from None
+
+
+def parse_is_moab(raw: dict[str, str]) -> bool:
+    text = str(raw.get("is_moab") or "").strip()
+    if text not in ("", "0", "1"):
+        raise ValueError(f'Bloon {raw.get("id")!r} has invalid is_moab: "{text}"')
+    return text == "1"
+
+
+def extract_bloon_row(raw: dict[str, str]) -> dict[str, Any]:
+    name = str(raw.get("id") or "").strip()
+    if not name:
+        raise ValueError("Bloon row has an empty name (Cargo id)")
+    row: dict[str, Any] = {"name": name}
+    for field in BLOON_INTEGER_FIELDS:
+        row[field] = parse_number(raw, field, int)
+    row["is_moab"] = parse_is_moab(raw)
+    row["speed"] = parse_number(raw, "speed", float)
+    return row
+
+
+def extract_bloon_rows(raw: list[dict[str, str]]) -> list[dict[str, Any]]:
+    return [extract_bloon_row(entry) for entry in raw]
+
+
+def split_bloon_name(name: str) -> tuple[str, bool, bool, bool]:
+    if not name:
+        raise ValueError("Cannot split an empty bloon name")
+    found: set[str] = set()
+    base = name
+    stripped = True
+    while stripped:
+        stripped = False
+        for suffix in MODIFIER_SUFFIXES:
+            if base.endswith(suffix):
+                base = base[: -len(suffix)]
+                found.add(suffix)
+                stripped = True
+    if not base:
+        raise ValueError(f"Bloon name {name!r} has no base bloon")
+    return base, "Camo" in found, "Regrow" in found, "Fortified" in found

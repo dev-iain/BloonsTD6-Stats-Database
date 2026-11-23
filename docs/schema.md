@@ -1,4 +1,4 @@
-# Schema (1.0)
+# Schema
 
 Design for the SQLite database that the loader (Iain) fills and the query layer (Nicole) reads. DDL is in `btd6/db/migrations/001_initial.sql`; this file records the decisions behind it. `btd6.db.connect(path)` enables `PRAGMA foreign_keys = ON` and `sqlite3.Row`; `btd6.db.apply_migrations(connection)` applies unapplied migrations in numeric order, tracked by `PRAGMA user_version`. Never edit an applied migration.
 
@@ -9,6 +9,35 @@ erDiagram
     towers ||--o{ upgrades : "has"
     damage_types ||--o{ upgrades : "classifies"
     towers ||--o{ upgrade_costs : "prices"
+    rounds ||--o{ round_groups : "spawns"
+    bloons ||--o{ round_groups : "base bloon"
+
+    bloons {
+        INTEGER id PK
+        TEXT name UK "NOT NULL, base bloon"
+        INTEGER health "NULL if wiki has none"
+        INTEGER health_fort "fortified health"
+        INTEGER layers
+        INTEGER rbe "red bloon equivalent"
+        INTEGER rbe_fort "fortified rbe"
+        INTEGER is_moab "NOT NULL, 0/1"
+        REAL speed
+    }
+    rounds {
+        INTEGER round PK "CHECK >= 1"
+    }
+    round_groups {
+        INTEGER id PK
+        INTEGER round FK "NOT NULL, UK with group_index"
+        INTEGER group_index "NOT NULL, >= 0"
+        INTEGER bloon_id FK "NOT NULL, base bloon"
+        INTEGER is_camo "NOT NULL, 0/1"
+        INTEGER is_regrow "NOT NULL, 0/1"
+        INTEGER is_fortified "NOT NULL, 0/1"
+        INTEGER count "NOT NULL, > 0"
+        REAL start "NOT NULL, seconds, may be slightly negative"
+        REAL duration "NOT NULL, seconds, >= 0"
+    }
 
     towers {
         INTEGER id PK
@@ -78,6 +107,31 @@ Added by `002_costs.sql`, filled by `btd6/db/cost_loader.py::load_costs` (idempo
 | `cost` | INTEGER | no | Medium price |
 
 `UNIQUE (tower_id, path_index, tier)`.
+
+### `bloons`, `rounds`, `round_groups`
+
+Added by `003_rounds.sql`. Row keys of the loader (`extract_bloon_rows`, `tests/isp-tables/bloons.md`): `name, health, health_fort, layers, rbe, rbe_fort, is_moab, speed`.
+
+| Table.column | Type | Null | Constraints |
+|---|---|---|---|
+| `bloons.id` | INTEGER | no | `PRIMARY KEY` |
+| `bloons.name` | TEXT | no | `UNIQUE`; base names only, taken from the Cargo `id` (`Red`, `Moab`, `Ddt`, `Zomg`, `Bad`) so they match roundset base names |
+| `bloons.health`, `health_fort`, `layers`, `rbe`, `rbe_fort` | INTEGER | yes | `CHECK (x IS NULL OR x >= 0)` |
+| `bloons.is_moab` | INTEGER | no | `CHECK (is_moab IN (0, 1))` |
+| `bloons.speed` | REAL | yes | `CHECK (speed IS NULL OR speed >= 0)` |
+| `rounds.round` | INTEGER | no | `PRIMARY KEY`, `CHECK (round >= 1)` |
+| `round_groups.id` | INTEGER | no | `PRIMARY KEY` |
+| `round_groups.round` | INTEGER | no | `REFERENCES rounds (round) ON DELETE CASCADE` |
+| `round_groups.group_index` | INTEGER | no | `CHECK (group_index >= 0)`; `UNIQUE (round, group_index)` |
+| `round_groups.bloon_id` | INTEGER | no | `REFERENCES bloons (id)` (no cascade: a bloon in use cannot be deleted) |
+| `round_groups.is_camo`, `is_regrow`, `is_fortified` | INTEGER | no | `CHECK (x IN (0, 1))` |
+| `round_groups.count` | INTEGER | no | `CHECK (count > 0)` |
+| `round_groups.start` | REAL | no | seconds; no CHECK, the wiki has one `-0.15` (round 86) |
+| `round_groups.duration` | REAL | no | `CHECK (duration >= 0)`, seconds |
+
+Indexes: `idx_round_groups_round` (the per-round lookup the income and round views use; it duplicates the prefix of the `UNIQUE (round, group_index)` autoindex, kept explicit so the lookup does not depend on the uniqueness constraint) and `idx_round_groups_bloon_id` (foreign key; SQLite does not index it, and it speeds "which rounds contain bloon X" and the `bloons` delete check). Both are checked in `tests/test_db_indexes.py`.
+
+Modifier parsing rule: a roundset bloon name is a base name followed by any of the suffixes in no fixed order (`CeramicRegrowFortifiedCamo`, `DdtFortifiedCamo`). The loader strips the case-sensitive suffixes `Fortified`, `Camo` and `Regrow` from the end of the name, repeatedly and in any order, until none is left; each stripped suffix sets `is_fortified`, `is_camo` or `is_regrow` on the group. The remainder is the base name and is looked up in `bloons.name` to give `bloon_id` (it must not be empty). The rule is textual and does not check that the combination exists in the game. Example: `CeramicRegrowFortifiedCamo` -> base `Ceramic`, regrow, fortified, camo. Implemented by `split_bloon_name` in `btd6/etl/extract.py`.
 
 ### `damage_types`
 
@@ -189,6 +243,16 @@ Tower name and category are stored once in `towers`, and damage type name and fl
 ### Cost in 2.0
 
 Costs arrive in `002_costs.sql`: `towers.base_cost` (nullable until costs are loaded) and a separate `upgrade_costs` table keyed by `(tower_id, path_index, tier)`. The wiki prices each tier of each path, not each `X-Y-Z` crosspath, so a column on `upgrades` would repeat the same tier price across every crosspath that contains it. The cumulative cost of a crosspath is computed by `btd6.costs.total_cost`. Prices are stored at Medium; the difficulty multiplier is applied in code. `upgrade_costs.tower_id` cascades on delete, like `upgrades.tower_id`.
+
+### Rounds in 2.0
+
+- Bloon modifiers are flags on `round_groups`, not rows in `bloons`: `bloons` holds the 20 or so base types once, so `RedCamo` and `Red` share health and speed, and a group stores only what the round changes. Storing every combination in `bloons` would duplicate stats and invent combinations that do not exist.
+- `rounds` holds only the round number. It exists so `round_groups.round` has a foreign key target and a round with no groups (if one ever appears) is representable; deleting a round cascades to its groups (a reload replaces a round's groups).
+- `(round, group_index)` is the natural key (`group_index` is the position of the group in the wiki's roundset, so the spawn order is kept); `id` is a surrogate like `upgrades.id`.
+- `health_fort` and `rbe_fort` are stored, not computed, because the wiki gives them and fortified health is not a fixed multiple of normal health across bloon types. They are `NULL` when the wiki has no value (for example MOAB-class bloons), never `0`.
+- `is_moab` is `NOT NULL`; an empty wiki value becomes `0` in `extract_bloon_rows`.
+- `start` and `duration` are seconds as `REAL`; `count` is the number of bloons in the group.
+- Income per round is not stored: it is derived from groups, bloons (`rbe`, `layers`) and modifiers in the query layer.
 
 ## Queries this must support
 

@@ -318,3 +318,57 @@ Base case: A1, B1, C1, D1, E1
 | T17 | rank column (#99) | ranks printed are `1..n` in order | `test_main_rank_ranks_are_sequential` |
 | T18 | `--help` | `main(["--help"])` stdout contains `rank` | `test_main_help_lists_rank` |
 | T19 | property | for any metric, difficulty, limit, printed rows equal `rank_upgrades` rows | `test_main_rank_matches_rank_upgrades_property` |
+
+---
+
+## main: `load` with rounds and `--no-rounds` (#86)
+
+```python
+def main(argv: list[str] | None = None) -> int
+```
+
+`load` also fetches bloons and the default roundset (rounds 1-100) after the towers, writes them with `load_bloons` and `load_rounds`, and prints `Rounds: <r> rounds, <g> groups` after the tower lines. `--no-rounds` skips bloons and rounds entirely: no fetch, no tables written, no `Rounds:` line. A failing rounds step does not hide the tower results (same rule as one failing tower).
+
+Take the `load` path of `main(argv)`. First, we use interface-based modeling; we know that `load` takes an optional `--no-rounds` flag, thus we model whether it was given. The wiki is the only external dependency, thus we model the fetch outcome for the new data: it succeeds, the bloons fetch fails (rounds cannot be linked to bloon ids, so the rounds step is skipped), or the roundset fetch fails. Finally we model the database state, since a second load must leave the counts unchanged. Tower fetching is held at its base (every tower succeeds) and is covered in the section above; row counts and stdout follow from these choices and are checked in the oracle.
+
+Fixture: as in `main: load`, plus fakes over `btd6.cli.fetch_bloons` (returns raw Cargo rows for `Red`, `Blue`, `Moab`) and `btd6.cli.fetch_roundset` (round 1 = `Red` x20; round 2 = `Red` x35; round 3 = `Red` x5, `BlueCamo` x3, `Red` x2). That is 3 rounds and 5 groups. The existing `load` tests (T1-T6 above) install these fakes too, so they never reach the wiki; their stdout then also ends with `Rounds: 3 rounds, 5 groups`. Open decision: the tower tests keep asserting only the five tower lines through `startswith`/line filtering, or each test is updated to the full output.
+
+Base input: `main(["--db", NEW_DB, "load"])`, `NEW_DB` not yet created.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`--no-rounds`|A) Flag|A1: Not given **(Base)**|none|
+|||A2: Given|`"--no-rounds"`|
+|fetch (new data)|B) Fetch outcome|B1: Bloons and roundset succeed **(Base)**|fakes as above|
+|||B2: Bloons fetch fails|`fetch_bloons` raises `ValueError("Wiki cargo query returned no rows")`|
+|||B3: Roundset fetch fails|`fetch_roundset` raises `ValueError('Roundset "DefaultRoundSet" not found on the wiki')`|
+|`--db` (state: file)|C) State before the call|C1: Missing **(Base)**|`NEW_DB` not created|
+|||C2: Already loaded with rounds|`NEW_DB` after one successful base `load`|
+
+Base case: A1, B1, C1
+
+Excluded or reduced combinations: with A2 no rounds fetch happens, so B does not apply; A2 is tested with B1 fakes installed and asserted never called.
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | returns `0`; the last stdout line is `Rounds: 3 rounds, 5 groups`; `COUNT(*)` of `rounds` is `3`, of `round_groups` is `5`, of `bloons` is `3` | `test_main_load_rounds_base` |
+| T2 | A2 | B1 | C1 | returns `0`; stdout has the five tower lines and no `Rounds:` line; `rounds`, `round_groups` and `bloons` are empty; neither fake was called | `test_main_load_no_rounds_flag` |
+| T3 | A1 | B2 | C1 | returns `1`; stderr `Bloons: failed: Wiki cargo query returned no rows`; the 320 upgrade rows are still loaded; `rounds` is empty; no `Rounds:` line | `test_main_load_bloons_fetch_fails` |
+| T4 | A1 | B3 | C1 | returns `1`; stderr `Rounds: failed: Roundset "DefaultRoundSet" not found on the wiki`; the 320 upgrade rows and the 3 bloons are loaded; `round_groups` is empty | `test_main_load_roundset_fetch_fails` |
+| T5 | A1 | B1 | C2 | returns `0`; counts still 3 rounds, 5 groups, 3 bloons and 320 upgrades; the stdout `Rounds:` line is unchanged | `test_main_load_rounds_already_loaded` |
+
+Extra tests, not BCC: `--no-rounds` on a database that already holds rounds leaves them untouched (`test_main_load_no_rounds_keeps_existing_rounds`); `--no-rounds` combined with `--tower Wizard Monkey` loads one tower only and no rounds (`test_main_load_no_rounds_with_tower`); `--tower` given without `--no-rounds` still loads rounds, since rounds do not depend on the tower list.
+
+---
+
+## main: `rounds` (#87)
+
+The `rounds` subcommand (`--round N`, `--from A --to B`) has its ISP and BCC tables, with the fixture and the 10 base-choice tests, in `tests/isp-tables/round_queries.md` (section `main: rounds`), next to the `get_round` tables it prints from. Its dispatch counts as a new command in the A block of `main: dispatch and search`: `rounds` is a valid command, and `btd6 --help` lists `load, search, rank, serve, rounds`.
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T1 | help text | `btd6 --help` stdout names `rounds` among the commands | `test_main_help_lists_rounds_command` |

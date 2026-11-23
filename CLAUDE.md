@@ -33,7 +33,7 @@ Database for compiling tower stats from Bloons Tower Defense 6, as well as an ag
 ## Architecture
 ---
 - `btd6/etl/fetch.py`: wiki API fetch, crosspath resolution (`resolve_all_codes`) -> `data.json` (gitignored)
-- `btd6/etl/extract.py`: flattens a resolved upgrade into a stats row (`extract_row`), `DAMAGE_TYPES` bitmask table
+- `btd6/etl/extract.py`: flattens a resolved upgrade into a stats row (`extract_row`), `DAMAGE_TYPES` bitmask table; round and bloon flattening: `extract_round_rows`, `extract_bloon_rows` (Cargo strings -> typed rows, `id` is stored as `name`) and `split_bloon_name` (`BfbFortified` -> base, camo, regrow, fortified)
 - `data.csv`: current extractor output (64 upgrades), used as a regression fixture
 - `btd6/db/connection.py`: `connect` (default `btd6.db`, foreign keys on, `sqlite3.Row`); `btd6/db/seed.py`: `seed_lookup_tables` from `DAMAGE_TYPES`, `initialize_database`; `btd6/db/__init__.py`: `apply_migrations` (numbered scripts in `btd6/db/migrations/`, tracked by `PRAGMA user_version`); schema decisions in `docs/schema.md`
 - `btd6/query.py`: `UpgradeFilters` and `search_upgrades` (contract in `docs/queries.md`)
@@ -42,8 +42,9 @@ Database for compiling tower stats from Bloons Tower Defense 6, as well as an ag
 - `btd6/cli.py`: argparse entry point (`python -m btd6`); commands `load`, `search`, `rank` and `serve`
 - `btd6/ranking.py`: `add_metrics`, `rank_upgrades` (formulas in `docs/ranking.md`)
 - `btd6/costs.py`: `total_cost`; `btd6/db/cost_loader.py`: `load_costs`; `fetch_costs` in `btd6/etl/fetch.py`; migration `002_costs` adds the costs tables
+- `btd6/db/round_loader.py`: `load_bloons` (upsert by name, keeps ids), `load_rounds` (replaces rounds 1-100 and their groups); `fetch_bloons` in `btd6/etl/fetch.py` (paged Cargo `btd6_bloons`, spaces in keys become `_`); `btd6/rounds.py`: `get_round`, `get_round_summary`; migration `003_rounds` adds `bloons`, `rounds`, `round_groups`; `python -m btd6 rounds --round N` (or `--from A --to B`) prints a round; `load` also loads bloons and rounds unless `--no-rounds`; known data quirks in `docs/data-notes.md`
 - Planned: `btd6/db/loader.py`, refresh pipeline; `tests/` mirrors the package
-- Data currently covers Super Monkey only. 1.0 scope is magic monkeys; add towers by re-running the fetch with another tower name.
+- Data covers the five magic monkeys (64 upgrades each) plus bloons and rounds 1-100; `data.csv` is Super Monkey only. 1.0 scope is magic monkeys; add towers by re-running the fetch with another tower name.
 - Upgrade paths are written `X-Y-Z` (e.g. `0-2-3`); the wiki's `_023` codes are converted by `path_from_code`.
 
 ## Roadmap
@@ -60,7 +61,7 @@ Development is test-driven (ISP/boundary tables for filter inputs).
 
 ### 2.0: Round information and rankings, in order of priority
 - [X] Implement web UI (FastAPI + JS frontend, replaced Tkinter)
-- [ ] Round data in the database (up to round 40)
+- [X] Round data in the database (up to round 40)
   - only stores count and bloon type; needs to have income data calculations (how much each round makes in total when popping all bloons)
 - [ ] Expected income per round from pops (excludes monkeys that affect cash generation, positive or negative)
 - [ ] Best bang for buck: highest damage per dollar
