@@ -4,7 +4,6 @@ import pytest
 
 from btd6 import cli, formatting
 from btd6.query import POP_PROPERTIES
-from btd6.ui.presenters import TABLE_COLUMNS
 
 SAMPLE_ROW = {
     "tower_name": "Super Monkey",
@@ -54,9 +53,5 @@ def test_pops_summary_none_and_all() -> None:
 
 def test_format_row_matches_columns_and_formats_values() -> None:
     cells = formatting.format_row(SAMPLE_ROW)
-    assert len(cells) == len(TABLE_COLUMNS)
+    assert len(cells) == len(formatting.TABLE_CELL_COLUMNS) + 1
     assert cells == ("Super Monkey", "0-2-3", "0.045", "1", "2", "-", "200", "-")
-
-
-def test_table_cell_columns_match_presenter_columns() -> None:
-    assert formatting.TABLE_CELL_COLUMNS == tuple(spec.key for spec in TABLE_COLUMNS[:-1])

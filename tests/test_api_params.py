@@ -1,43 +1,17 @@
 from __future__ import annotations
 
-import sqlite3
-import tkinter as tk
-from pathlib import Path
 from typing import Any
 
 import pytest
-from btd6.ui.search_viewmodel import (
-    MISSING_DATABASE_MESSAGE as VIEWMODEL_MISSING_MESSAGE,
-)
-from btd6.ui.search_viewmodel import (
-    form_to_filters,
-    form_to_search_options,
-    rows_to_cells,
-)
 from hypothesis import given
 from hypothesis import strategies as st
 
-from btd6.formatting import format_cell, format_row
-from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
-from btd6.ui.presenters import MISSING_DATABASE_MESSAGE, TABLE_COLUMNS, DatabaseMissingError
-from btd6.ui.services import list_damage_types, run_query
+from btd6.api.params import form_to_filters, form_to_search_options, rows_to_cells
+from btd6.formatting import TABLE_CELL_COLUMNS, format_cell, format_row
+from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters
 from tests.factories import ResultRowFactory
-from tests.test_query import build_database
 
-DAMAGE_TYPE_NAMES = [
-    "Acid",
-    "Cold",
-    "Energy",
-    "Explosion",
-    "Fire",
-    "Frigid",
-    "Glacier",
-    "Normal",
-    "Plasma",
-    "Sharp",
-    "Shatter",
-    "Unknown",
-]
+TABLE_WIDTH = len(TABLE_CELL_COLUMNS) + 1
 
 
 def base_form(**overrides: str | bool) -> dict[str, str | bool]:
@@ -299,111 +273,9 @@ def test_rows_to_cells_shape_invariant(overrides: list[dict[str, Any]]) -> None:
     rows = [build_row(**item) for item in overrides]
     cells = rows_to_cells(rows)
     assert len(cells) == len(rows)
-    assert all(len(row) == len(TABLE_COLUMNS) for row in cells)
+    assert all(len(row) == TABLE_WIDTH for row in cells)
     assert all(isinstance(cell, str) for row in cells for cell in row)
     assert cells == [format_row(row) for row in rows]
-
-
-def test_rows_to_cells_matches_run_query(tmp_path: Path, golden_csv_path: Path) -> None:
-    path = str(tmp_path / "match.db")
-    connection = build_database(golden_csv_path, path=path)
-    connection.commit()
-    rows = search_upgrades(connection, UpgradeFilters(can_pop_lead=False), sort_by="path")
-    expected = run_query(path, UpgradeFilters(can_pop_lead=False), "path", True)
-    connection.close()
-    assert len(rows_to_cells(rows)) == len(expected)
-    assert sorted(rows_to_cells(rows)) == sorted(expected)
-
-
-# endregion
-
-# region missing database
-
-
-@pytest.fixture
-def loaded_path(tmp_path: Path, golden_csv_path: Path) -> str:
-    path = str(tmp_path / "loaded.db")
-    build_database(golden_csv_path, path=path).close()
-    return path
-
-
-def test_list_damage_types_loaded(loaded_path: str) -> None:
-    assert list_damage_types(loaded_path) == DAMAGE_TYPE_NAMES
-
-
-def test_list_damage_types_missing_database(tmp_path: Path) -> None:
-    missing = tmp_path / "nope.db"
-    assert list_damage_types(str(missing)) == []
-    assert not missing.exists()
-
-
-def test_list_damage_types_no_tables(tmp_path: Path) -> None:
-    path = tmp_path / "empty.db"
-    sqlite3.connect(path).close()
-    assert list_damage_types(str(path)) == []
-
-
-def test_run_query_not_a_database(tmp_path: Path) -> None:
-    path = tmp_path / "text.db"
-    path.write_text("hello")
-    with pytest.raises(sqlite3.DatabaseError):
-        run_query(str(path), UpgradeFilters(), None, False)
-
-
-def test_run_query_missing_database_raises(tmp_path: Path) -> None:
-    with pytest.raises(DatabaseMissingError):
-        run_query(str(tmp_path / "nope.db"), UpgradeFilters(), None, False)
-
-
-def test_missing_database_message_shared() -> None:
-    assert VIEWMODEL_MISSING_MESSAGE == MISSING_DATABASE_MESSAGE
-
-
-# endregion
-
-# region search controls
-
-
-@pytest.fixture
-def search_tab(tk_root: tk.Tk, loaded_path: str):
-    from btd6.ui.search_tab import SearchTab
-
-    tab = SearchTab(tk_root, loaded_path)
-    tab.update_idletasks()
-    return tab
-
-
-def test_search_tab_sort_values_from_sort_columns(search_tab) -> None:
-    combobox = search_tab.sort_combobox
-    assert tuple(combobox["values"]) == ("", *SORT_COLUMNS)
-    assert str(combobox.cget("state")) == "readonly"
-    assert combobox.get() == ""
-
-
-def test_search_tab_damage_types_from_table(search_tab, loaded_path: str) -> None:
-    combobox = search_tab.damage_type_combobox
-    assert tuple(combobox["values"]) == ("Any", *list_damage_types(loaded_path))
-    assert str(combobox.cget("state")) == "readonly"
-    assert combobox.get() == "Any"
-
-
-def test_search_tab_damage_types_missing_database(tk_root: tk.Tk, tmp_path: Path) -> None:
-    from btd6.ui.search_tab import SearchTab
-
-    tab = SearchTab(tk_root, str(tmp_path / "nope.db"))
-    assert tuple(tab.damage_type_combobox["values"]) == ("Any",)
-
-
-def test_search_tab_limit_spinbox_blank_default(search_tab) -> None:
-    assert float(search_tab.limit_spinbox.cget("from")) == 1
-    assert search_tab.limit_spinbox.get() == ""
-    assert search_tab.current_form()["limit"] == ""
-
-
-def test_search_tab_limit_value_round_trip(search_tab) -> None:
-    search_tab.limit_spinbox.delete(0, "end")
-    search_tab.limit_spinbox.insert(0, "7")
-    assert form_to_search_options(search_tab.current_form()) == (None, 7)
 
 
 # endregion

@@ -80,8 +80,14 @@ def build_parser() -> argparse.ArgumentParser:
     add_search_options(search_parser)
     rank_parser = subparsers.add_parser("rank", help="rank upgrades by damage per second or dollar")
     add_rank_options(rank_parser)
-    subparsers.add_parser("gui", aliases=["ui"], help="open the desktop interface")
+    serve_parser = subparsers.add_parser("serve", help="serve the web interface and API")
+    add_serve_options(serve_parser)
     return parser
+
+
+def add_serve_options(subparser: argparse.ArgumentParser) -> None:
+    subparser.add_argument("--host", default="127.0.0.1")
+    subparser.add_argument("--port", type=int, default=8000)
 
 
 def add_load_options(subparser: argparse.ArgumentParser) -> None:
@@ -196,18 +202,23 @@ def run_search(args: argparse.Namespace) -> int:
     return 0
 
 
-def run_gui(args: argparse.Namespace) -> int:
-    from btd6.ui.launcher import launch
+def run_serve(args: argparse.Namespace) -> int:
+    if not Path(args.db).exists():
+        print(f'Database not found at {args.db}. Run "python -m btd6 load" first.', file=sys.stderr)
+        return 1
+    import uvicorn
 
-    return launch(args.db)
+    from btd6.api import create_app
+
+    uvicorn.run(create_app(args.db), host=args.host, port=args.port)
+    return 0
 
 
 HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "load": run_load,
     "search": run_search,
     "rank": run_rank,
-    "gui": run_gui,
-    "ui": run_gui,
+    "serve": run_serve,
 }
 
 

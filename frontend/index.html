@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BTD6 Tower Stats</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>BTD6 <span>Tower Stats</span></h1>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="search" aria-selected="true">Search</button>
+      <button role="tab" data-tab="rankings" aria-selected="false">Rankings</button>
+      <button role="tab" data-tab="rounds" aria-selected="false">Rounds</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="tab-search" class="panel" role="tabpanel">
+      <form id="search-form" class="filters" autocomplete="off">
+        <label>Tower name <input name="name" type="text" placeholder="Super Monkey"></label>
+        <label>Min range <input name="min_range" type="number" min="0" step="any"></label>
+        <label>Min pierce <input name="min_pierce" type="number" min="0" step="any"></label>
+        <label>Min damage <input name="min_damage" type="number" min="0" step="any"></label>
+        <label>Min speed <input name="min_speed" type="number" min="0" step="any"></label>
+        <label>Damage type
+          <select name="damage_type"><option value="">Any</option></select>
+        </label>
+        <label>Camo
+          <select name="camo">
+            <option value="either">Either</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+        <label>Sort by <select name="sort" id="sort-select"><option value="">Default</option></select></label>
+        <label>Limit <input name="limit" type="number" min="1" step="1"></label>
+        <fieldset class="pops"><legend>Pops</legend><div id="pop-filters"></div></fieldset>
+        <div class="actions">
+          <button type="submit" class="primary">Search</button>
+          <button type="reset">Reset</button>
+        </div>
+      </form>
+      <p class="status" id="search-status" role="status"></p>
+      <div class="table-wrap"><table id="search-table"></table></div>
+    </section>
+
+    <section id="tab-rankings" class="panel" role="tabpanel" hidden>
+      <form id="rank-form" class="filters" autocomplete="off">
+        <label>Metric
+          <select name="metric">
+            <option value="damage_per_dollar">Damage per dollar</option>
+            <option value="dps">DPS</option>
+            <option value="pierce_damage_per_dollar">Pierce damage per dollar</option>
+          </select>
+        </label>
+        <label>Difficulty
+          <select name="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+            <option value="impoppable">Impoppable</option>
+          </select>
+        </label>
+        <label>Limit <input name="limit" type="number" min="1" step="1" value="25"></label>
+        <div class="actions"><button type="submit" class="primary">Rank</button></div>
+      </form>
+      <p class="status" id="rank-status" role="status"></p>
+      <div class="table-wrap"><table id="rank-table"></table></div>
+    </section>
+
+    <section id="tab-rounds" class="panel" role="tabpanel" hidden>
+      <p class="status">Round data is not available yet.</p>
+    </section>
+  </main>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>
