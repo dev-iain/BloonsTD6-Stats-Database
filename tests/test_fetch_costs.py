@@ -23,7 +23,7 @@ TOWER_PARAMS = {
 UPGRADE_PARAMS = {
     "action": "cargoquery",
     "tables": "btd6_upgrades",
-    "fields": "tower,path,tier,cost,name",
+    "fields": "tower,path,tier,cost,name,unused",
     "where": "tower='Super Monkey'",
     "limit": 500,
 }
@@ -187,3 +187,35 @@ def test_fetch_costs_path_and_tier_in_range(install_wiki: InstallWiki) -> None:
     for row in fetch.fetch_costs("Super Monkey")["upgrades"]:
         assert 1 <= row["path"] <= 3
         assert 1 <= row["tier"] <= 5
+
+
+def paragon_entry(name: str = "Magus Perfectus") -> dict[str, Any]:
+    fields = {"tower": "Wizard Monkey", "path": "-1", "tier": "6", "cost": "800000", "name": name}
+    return {"title": fields}
+
+
+def test_fetch_costs_skips_paragon_upgrade(
+    install_wiki: InstallWiki, raw_responses: dict[str, Any]
+) -> None:
+    upgrades = copy.deepcopy(raw_responses["upgrades"])
+    upgrades["cargoquery"].append(paragon_entry())
+    install_wiki(upgrades=upgrades)
+    result = fetch.fetch_costs("Super Monkey")
+    assert len(result["upgrades"]) == len(raw_responses["upgrades"]["cargoquery"])
+    assert all(1 <= row["path"] <= 3 and row["tier"] <= 5 for row in result["upgrades"])
+    assert "Magus Perfectus" not in {row["name"] for row in result["upgrades"]}
+
+
+def test_fetch_costs_skips_unused_upgrade(
+    install_wiki: InstallWiki, raw_responses: dict[str, Any]
+) -> None:
+    upgrades = copy.deepcopy(raw_responses["upgrades"])
+    kept = copy.deepcopy(upgrades["cargoquery"][-1])
+    kept["title"].update({"unused": "0", "name": "Kept"})
+    dropped = copy.deepcopy(kept)
+    dropped["title"].update({"unused": "1", "name": "Soulbind", "cost": "24000"})
+    upgrades["cargoquery"].extend([kept, dropped])
+    install_wiki(upgrades=upgrades)
+    names = {row["name"] for row in fetch.fetch_costs("Super Monkey")["upgrades"]}
+    assert "Kept" in names
+    assert "Soulbind" not in names
