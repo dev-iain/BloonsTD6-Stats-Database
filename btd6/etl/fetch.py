@@ -25,6 +25,8 @@ PROJECTILE_FIELDS = (
     "filterInvisible",
 )
 ABILITY_FIELDS = ("cooldown",)
+MAX_ROUND = 100
+DEFAULT_ROUNDSET = "DefaultRoundSet"
 
 
 def wiki_api(**params: str | int) -> dict[str, Any]:
@@ -41,15 +43,30 @@ def fetch_tower_module(tower_name: str) -> dict[str, Any]:
     source as a JSON string, so the payload has to be decoded twice: once for the API
     envelope and once for the module content itself.
     """
+    page = fetch_wiki_page(f"Module:BTD6 stats/{tower_name}/new")
+    return decode_page_content(page)
+
+
+def fetch_roundset(name: str = DEFAULT_ROUNDSET) -> dict[str, Any]:
+    page = fetch_wiki_page(f"JSON:Bloons TD 6/Rounds/{name}")
+    if page.get("missing"):
+        raise ValueError(f'Roundset "{name}" not found on the wiki')
+    return decode_page_content(page)
+
+
+def fetch_wiki_page(title: str) -> dict[str, Any]:
     envelope = wiki_api(
         action="query",
-        titles=f"Module:BTD6 stats/{tower_name}/new",
+        titles=title,
         prop="revisions",
         rvprop="content",
         rvslots="main",
         formatversion=2,
     )
-    page = envelope["query"]["pages"][0]
+    return envelope["query"]["pages"][0]
+
+
+def decode_page_content(page: dict[str, Any]) -> dict[str, Any]:
     return json.loads(page["revisions"][0]["slots"]["main"]["content"])
 
 

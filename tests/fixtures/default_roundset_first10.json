@@ -1,0 +1,202 @@
+{
+  "rounds": [
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Red",
+          "count": 20,
+          "start": 0,
+          "duration": 17.5125
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Red",
+          "count": 35,
+          "start": 0,
+          "duration": 19
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Red",
+          "count": 10,
+          "start": 0,
+          "duration": 5.1
+        },
+        {
+          "bloon": "Blue",
+          "count": 5,
+          "start": 5.7,
+          "duration": 2.248
+        },
+        {
+          "bloon": "Red",
+          "count": 15,
+          "start": 9.71,
+          "duration": 7
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Red",
+          "count": 25,
+          "start": 0,
+          "duration": 12
+        },
+        {
+          "bloon": "Blue",
+          "count": 18,
+          "start": 7.9,
+          "duration": 2.5
+        },
+        {
+          "bloon": "Red",
+          "count": 10,
+          "start": 14.51,
+          "duration": 2.8
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Blue",
+          "count": 12,
+          "start": 0,
+          "duration": 5.13899
+        },
+        {
+          "bloon": "Red",
+          "count": 5,
+          "start": 5.7,
+          "duration": 2.284
+        },
+        {
+          "bloon": "Blue",
+          "count": 15,
+          "start": 8.6,
+          "duration": 7.9
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Green",
+          "count": 4,
+          "start": 0,
+          "duration": 1.71
+        },
+        {
+          "bloon": "Red",
+          "count": 15,
+          "start": 5.33,
+          "duration": 5
+        },
+        {
+          "bloon": "Blue",
+          "count": 15,
+          "start": 10.8,
+          "duration": 7.9
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Blue",
+          "count": 10,
+          "start": 0,
+          "duration": 5.13899
+        },
+        {
+          "bloon": "Green",
+          "count": 5,
+          "start": 5.7,
+          "duration": 4.95
+        },
+        {
+          "bloon": "Red",
+          "count": 20,
+          "start": 11.812,
+          "duration": 10.84
+        },
+        {
+          "bloon": "Blue",
+          "count": 10,
+          "start": 22.81,
+          "duration": 3.991
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Blue",
+          "count": 20,
+          "start": 0,
+          "duration": 10.84
+        },
+        {
+          "bloon": "Green",
+          "count": 2,
+          "start": 11.42,
+          "duration": 0.57
+        },
+        {
+          "bloon": "Red",
+          "count": 10,
+          "start": 14.03,
+          "duration": 1.97
+        },
+        {
+          "bloon": "Green",
+          "count": 12,
+          "start": 18.272,
+          "duration": 10.6
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Green",
+          "count": 30,
+          "start": 0,
+          "duration": 18.95
+        }
+      ]
+    },
+    {
+      "bloonGroups": [
+        {
+          "bloon": "Blue",
+          "count": 60,
+          "start": 0,
+          "duration": 35
+        },
+        {
+          "bloon": "Blue",
+          "count": 20,
+          "start": 35,
+          "duration": 9
+        },
+        {
+          "bloon": "Blue",
+          "count": 22,
+          "start": 44,
+          "duration": 3.987
+        }
+      ]
+    }
+  ],
+  "linkedIncomeSet": "DefaultIncomeSet",
+  "scale": 1
+}

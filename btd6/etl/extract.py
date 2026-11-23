@@ -6,7 +6,7 @@ from typing import Any
 
 import pandas as pd
 
-from btd6.etl.fetch import PROJECT_ROOT
+from btd6.etl.fetch import MAX_ROUND, PROJECT_ROOT
 
 DAMAGE_TYPES: dict[int, tuple[str, set[str]]] = {
     0: ("Normal", set()),
@@ -80,3 +80,31 @@ def export_csv(json_path: Path | None = None, csv_path: Path | None = None) -> p
     dataframe = build_dataframe(resolved)
     dataframe.to_csv(csv_path)
     return dataframe
+
+
+def extract_round_rows(
+    roundset: dict[str, Any], max_round: int = MAX_ROUND
+) -> list[dict[str, Any]]:
+    if max_round < 1:
+        raise ValueError(f"max_round must be at least 1, got {max_round}")
+    rounds = roundset.get("rounds")
+    if not isinstance(rounds, list):
+        raise ValueError('roundset has no "rounds" list')
+    rows: list[dict[str, Any]] = []
+    for index, round_data in enumerate(rounds[:max_round]):
+        rows.extend(build_group_rows(index + 1, round_data))
+    return rows
+
+
+def build_group_rows(round_number: int, round_data: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        {
+            "round": round_number,
+            "group_index": group_index,
+            "bloon": group["bloon"],
+            "count": group["count"],
+            "start": group["start"],
+            "duration": group["duration"],
+        }
+        for group_index, group in enumerate(round_data.get("bloonGroups", []))
+    ]
