@@ -3,9 +3,12 @@ from __future__ import annotations
 import csv
 import re
 import sqlite3
+import string
 from pathlib import Path
 
 import pytest
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from btd6.db import apply_migrations, connect
 from btd6.query import UpgradeFilters, build_order_by, build_where, search_upgrades
@@ -246,6 +249,7 @@ def test_search_upgrades_sort_with_limit(conn):
         "projectile_speed",
         "projectile_count",
         "ability_cooldown",
+        "path",
     ],
 )
 def test_search_upgrades_sort_every_whitelisted_column(conn, column):
@@ -387,7 +391,7 @@ VALID_DAMAGE_TYPES = (
 )
 SORT_ALLOWED = (
     "range, attack_rate, projectile_damage, projectile_pierce, projectile_speed, "
-    "projectile_count, ability_cooldown"
+    "projectile_count, ability_cooldown, path"
 )
 
 
@@ -549,3 +553,247 @@ def test_search_upgrades_unknown_category_empty(conn_with_wizard):
 @pytest.mark.parametrize("name", MAGIC_TOWER_NAMES)
 def test_query_source_hardcodes_no_tower_names(name, repo_root):
     assert name not in (repo_root / "btd6" / "query.py").read_text()
+
+
+SPECIAL_TOWERS = (
+    ("Rate 100% Monkey", "Magic"),
+    ("Snake_Case Monkey", "Magic"),
+    ("Back\\Slash Monkey", "Magic"),
+)
+
+
+@pytest.fixture
+def conn_with_special_names(conn_with_wizard: sqlite3.Connection, golden_csv_path: Path):
+    base_row = load_fixture_rows(golden_csv_path)["0-0-0"]
+    for name, category in SPECIAL_TOWERS:
+        insert_upgrade(conn_with_wizard, insert_tower(conn_with_wizard, name, category), base_row)
+    conn_with_wizard.commit()
+    return conn_with_wizard
+
+
+@pytest.fixture
+def conn_with_primary(conn_with_wizard: sqlite3.Connection, golden_csv_path: Path):
+    dart_id = insert_tower(conn_with_wizard, "Dart Monkey", "Primary")
+    insert_upgrade(conn_with_wizard, dart_id, load_fixture_rows(golden_csv_path)["0-0-0"])
+    conn_with_wizard.commit()
+    return conn_with_wizard
+
+
+def tower_names_of(result: list[sqlite3.Row]) -> set[str]:
+    return {row["tower_name"] for row in result}
+
+
+@pytest.mark.parametrize("value", [None, "", " ", "   ", "\t\n "])
+def test_search_upgrades_name_contains_no_filter(conn_with_wizard, value):
+    result = search_upgrades(conn_with_wizard, UpgradeFilters(tower_name_contains=value))
+    assert len(result) == 8
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("s", {"Super Monkey"}),
+        ("w", {"Wizard Monkey"}),
+        ("m", {"Super Monkey", "Wizard Monkey"}),
+        ("super", {"Super Monkey"}),
+        ("SUPER", {"Super Monkey"}),
+        ("SuPeR MoNkEy", {"Super Monkey"}),
+        ("  super  ", {"Super Monkey"}),
+        ("monkey", {"Super Monkey", "Wizard Monkey"}),
+        ("Wizard Monkey", {"Wizard Monkey"}),
+        ("zard Mon", {"Wizard Monkey"}),
+        ("zzz", set()),
+        ("Super Monkeys", set()),
+    ],
+)
+def test_search_upgrades_name_contains_substring(conn_with_wizard, value, expected):
+    result = search_upgrades(conn_with_wizard, UpgradeFilters(tower_name_contains=value))
+    assert tower_names_of(result) == expected
+    assert len(result) == 4 * len(expected)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("%", {"Rate 100% Monkey"}),
+        ("100%", {"Rate 100% Monkey"}),
+        ("_", {"Snake_Case Monkey"}),
+        ("E_C", {"Snake_Case Monkey"}),
+        ("SNAKE_CASE", {"Snake_Case Monkey"}),
+        ("\\", {"Back\\Slash Monkey"}),
+        ("k\\s", {"Back\\Slash Monkey"}),
+        ("S_per", set()),
+        ("Sup%", set()),
+        ("%Monkey", set()),
+        ("\\%", set()),
+        ("\\_", set()),
+        ("100\\%", set()),
+    ],
+)
+def test_search_upgrades_name_contains_metacharacters_are_literal(
+    conn_with_special_names, value, expected
+):
+    result = search_upgrades(conn_with_special_names, UpgradeFilters(tower_name_contains=value))
+    assert tower_names_of(result) == expected
+
+
+@pytest.mark.parametrize("value", ["%", "_", "\\"])
+def test_search_upgrades_name_contains_metacharacter_absent_from_names(conn_with_wizard, value):
+    assert search_upgrades(conn_with_wizard, UpgradeFilters(tower_name_contains=value)) == []
+
+
+@pytest.mark.parametrize(
+    ("category", "value", "expected"),
+    [
+        ("Magic", "monkey", {"Super Monkey", "Wizard Monkey"}),
+        ("Magic", "wizard", {"Wizard Monkey"}),
+        ("Primary", "monkey", {"Dart Monkey"}),
+        ("Primary", "super", set()),
+        ("Military", "monkey", set()),
+    ],
+)
+def test_search_upgrades_name_contains_with_category(conn_with_primary, category, value, expected):
+    filters = UpgradeFilters(category=category, tower_name_contains=value)
+    assert tower_names_of(search_upgrades(conn_with_primary, filters)) == expected
+
+
+@pytest.mark.parametrize(
+    ("tower_name", "value", "expected"),
+    [
+        ("Super Monkey", "SUPER", {"Super Monkey"}),
+        ("Wizard Monkey", "monkey", {"Wizard Monkey"}),
+        ("Super Monkey", "wizard", set()),
+        ("super monkey", "super", set()),
+    ],
+)
+def test_search_upgrades_name_contains_with_exact_tower_name(
+    conn_with_wizard, tower_name, value, expected
+):
+    filters = UpgradeFilters(tower_name=tower_name, tower_name_contains=value)
+    assert tower_names_of(search_upgrades(conn_with_wizard, filters)) == expected
+
+
+def test_search_upgrades_tower_name_stays_exact_with_contains_unset(conn_with_wizard):
+    result = search_upgrades(conn_with_wizard, UpgradeFilters(tower_name="Super"))
+    assert result == []
+
+
+def test_search_upgrades_name_contains_with_numeric_filter(conn_with_wizard):
+    filters = UpgradeFilters(tower_name_contains="MONKEY", min_range=999)
+    result = search_upgrades(conn_with_wizard, filters)
+    assert [(row["tower_name"], row["path"]) for row in result] == [
+        ("Wizard Monkey", path) for path in FIXTURE_PATHS
+    ]
+
+
+def test_search_upgrades_name_contains_with_numeric_filter_excludes_all(conn_with_wizard):
+    filters = UpgradeFilters(tower_name_contains="super", min_range=999)
+    assert search_upgrades(conn_with_wizard, filters) == []
+
+
+def test_search_upgrades_name_contains_with_numeric_filter_selects_subset(conn_with_wizard):
+    filters = UpgradeFilters(tower_name_contains="super", min_range=60)
+    assert paths_of(search_upgrades(conn_with_wizard, filters)) == ["1-1-0", "2-1-0"]
+
+
+def test_search_upgrades_name_contains_with_sort_and_limit(conn_with_wizard):
+    filters = UpgradeFilters(tower_name_contains="monkey")
+    result = search_upgrades(conn_with_wizard, filters, sort_by="range", limit=2)
+    assert [row["tower_name"] for row in result] == ["Wizard Monkey", "Wizard Monkey"]
+
+
+def test_build_where_name_contains_uses_escaped_like(conn):
+    sql, params = build_where(conn, UpgradeFilters(tower_name_contains="50%_\\"))
+    assert sql == " WHERE towers.name LIKE ? ESCAPE '\\'"
+    assert params == ["%50\\%\\_\\\\%"]
+
+
+@pytest.mark.parametrize("value", [None, "", "   "])
+def test_build_where_name_contains_blank_adds_no_clause(conn, value):
+    assert build_where(conn, UpgradeFilters(tower_name_contains=value)) == ("", [])
+
+
+ASCII_TEXT = st.text(alphabet=string.printable.replace("\x0b", "").replace("\x0c", ""), max_size=6)
+
+
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=200)
+@given(value=ASCII_TEXT)
+def test_property_name_contains_matches_python_substring(conn_with_special_names, value):
+    needle = value.strip().lower()
+    result = search_upgrades(conn_with_special_names, UpgradeFilters(tower_name_contains=value))
+    all_rows = search_upgrades(conn_with_special_names)
+    expected = [row for row in all_rows if needle in row["tower_name"].lower()]
+    assert [(row["tower_name"], row["path"]) for row in result] == [
+        (row["tower_name"], row["path"]) for row in expected
+    ]
+
+
+def test_search_upgrades_sort_path_descending(conn):
+    result = search_upgrades(conn, sort_by="path")
+    assert paths_of(result) == ["2-1-0", "2-0-0", "1-1-0", "0-0-0"]
+
+
+def test_search_upgrades_sort_path_ascending(conn):
+    result = search_upgrades(conn, sort_by="path", descending=False)
+    assert paths_of(result) == FIXTURE_PATHS
+
+
+def test_search_upgrades_sort_path_ties_broken_by_tower_name_descending(conn_with_wizard):
+    result = search_upgrades(conn_with_wizard, sort_by="path")
+    assert [(row["tower_name"], row["path"]) for row in result] == [
+        (tower, path)
+        for path in reversed(FIXTURE_PATHS)
+        for tower in ("Super Monkey", "Wizard Monkey")
+    ]
+
+
+def test_search_upgrades_sort_path_ties_broken_by_tower_name_ascending(conn_with_wizard):
+    result = search_upgrades(conn_with_wizard, sort_by="path", descending=False)
+    assert [(row["tower_name"], row["path"]) for row in result] == [
+        (tower, path) for path in FIXTURE_PATHS for tower in ("Super Monkey", "Wizard Monkey")
+    ]
+
+
+def test_search_upgrades_sort_path_with_limit(conn):
+    result = search_upgrades(conn, sort_by="path", descending=False, limit=2)
+    assert paths_of(result) == ["0-0-0", "1-1-0"]
+
+
+def test_search_upgrades_sort_path_with_filters(conn):
+    result = search_upgrades(conn, UpgradeFilters(min_range=60), sort_by="path")
+    assert paths_of(result) == ["2-1-0", "1-1-0"]
+
+
+def test_search_upgrades_sort_path_message_lists_new_column(conn):
+    with pytest.raises(ValueError, match=r"Allowed: .*\bpath\b"):
+        search_upgrades(conn, sort_by="bogus")
+
+
+@pytest.mark.parametrize("column", ["Path", "PATH", "path ", "upgrades.path", "paths"])
+def test_search_upgrades_sort_path_lookalikes_rejected(conn, column):
+    with pytest.raises(ValueError, match="Cannot sort by"):
+        search_upgrades(conn, sort_by=column)
+
+
+def test_build_order_by_path_descending():
+    assert build_order_by("path", True) == (
+        " ORDER BY upgrades.path DESC NULLS LAST, towers.name, upgrades.path"
+    )
+
+
+def test_build_order_by_path_ascending():
+    assert build_order_by("path", False) == (
+        " ORDER BY upgrades.path ASC NULLS LAST, towers.name, upgrades.path"
+    )
+
+
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=20)
+@given(descending=st.booleans())
+def test_property_sort_path_orders_by_path_then_tower_name(conn_with_wizard, descending):
+    result = search_upgrades(conn_with_wizard, sort_by="path", descending=descending)
+    keys = [(row["path"], row["tower_name"]) for row in result]
+    by_path = sorted(keys, key=lambda key: key[0], reverse=descending)
+    assert [key[0] for key in keys] == [key[0] for key in by_path]
+    for path in {key[0] for key in keys}:
+        names = [name for found, name in keys if found == path]
+        assert names == sorted(names)
