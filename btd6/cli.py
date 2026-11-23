@@ -10,12 +10,13 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+from btd6.costs import DIFFICULTY_MULTIPLIERS
 from btd6.db import connect
 from btd6.etl.fetch import PROJECT_ROOT, fetch_tower_module
 from btd6.etl.pipeline import RefreshError, refresh_database
 from btd6.etl.towers import MAGIC_TOWERS
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
-from btd6.ranking import rank_upgrades
+from btd6.ranking import METRICS, rank_upgrades
 
 RESULT_COLUMNS: dict[str, str] = {
     "tower_name": "tower",
@@ -38,11 +39,7 @@ FLAG_COLUMNS = frozenset(
     name for name in RESULT_COLUMNS if name.startswith(("can_pop_", "can_hit_"))
 )
 EMPTY_RESULTS_MESSAGE = "No upgrades match these filters."
-RANK_METRICS: dict[str, str] = {
-    "dps": "dps",
-    "dollar": "damage_per_dollar",
-    "pierce-dollar": "pierce_damage_per_dollar",
-}
+RANK_METRICS: dict[str, str] = dict(zip(("dps", "dollar", "pierce-dollar"), METRICS, strict=True))
 RANK_COLUMNS: dict[str, str] = {
     "tower_name": "tower",
     "path": "path",
@@ -50,7 +47,7 @@ RANK_COLUMNS: dict[str, str] = {
     "dps": "DPS",
     "damage_per_dollar": "damage per dollar",
 }
-DIFFICULTY_CHOICES = ("easy", "medium", "hard", "impoppable")
+DIFFICULTY_CHOICES = tuple(DIFFICULTY_MULTIPLIERS)
 
 
 def format_cell(column: str, value: object) -> str:
@@ -77,10 +74,15 @@ def format_results(rows: list[sqlite3.Row]) -> str:
         return pd.DataFrame(records).to_string(index=False)
 
 
+def format_float(value: float) -> str:
+    rounded = round(value, 4)
+    return str(int(rounded)) if rounded.is_integer() else str(rounded)
+
+
 def format_rank_value(value: object) -> str:
     if value is None or pd.isna(value):
         return "-"
-    return format_cell("", round(float(value), 4))
+    return format_float(float(value))
 
 
 def format_ranking(frame: pd.DataFrame) -> str:

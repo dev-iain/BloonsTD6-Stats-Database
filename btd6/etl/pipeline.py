@@ -8,7 +8,6 @@ from btd6.db.cost_loader import load_costs
 from btd6.db.loader import load_tower
 from btd6.db.seed import initialize_database
 from btd6.etl import fetch as wiki
-from btd6.etl.fetch import fetch_tower_module, resolve_all_codes
 from btd6.etl.towers import MAGIC_TOWERS
 
 
@@ -24,7 +23,7 @@ class RefreshError(Exception):
 def refresh_database(
     connection: sqlite3.Connection,
     tower_names: Iterable[str] | None = None,
-    fetch: Callable[[str], dict[str, Any]] = fetch_tower_module,
+    fetch: Callable[[str], dict[str, Any]] = wiki.fetch_tower_module,
 ) -> dict[str, int]:
     """Fetch and load each tower, returning {tower: upgrades written}.
 
@@ -39,7 +38,7 @@ def refresh_database(
     failures: dict[str, Exception] = {}
     for tower_name in tower_names:
         try:
-            resolved = resolve_all_codes(fetch(tower_name))
+            resolved = wiki.resolve_all_codes(fetch(tower_name))
             loaded[tower_name] = load_tower(connection, tower_name, resolved)
             load_costs(connection, tower_name, wiki.fetch_costs(tower_name))
         except Exception as error:

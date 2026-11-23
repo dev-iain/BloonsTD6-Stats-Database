@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -39,14 +40,19 @@ class FakeWiki:
         return self.towers if params["tables"] == "btd6_towers" else self.upgrades
 
 
+InstallWiki = Callable[..., FakeWiki]
+
+
 @pytest.fixture
 def raw_responses() -> dict[str, Any]:
     return copy.deepcopy(json.loads(FIXTURE_PATH.read_text()))
 
 
 @pytest.fixture
-def install_wiki(monkeypatch: pytest.MonkeyPatch, raw_responses: dict[str, Any]):
-    def install(towers: dict[str, Any] | None = None, upgrades: dict[str, Any] | None = None):
+def install_wiki(monkeypatch: pytest.MonkeyPatch, raw_responses: dict[str, Any]) -> InstallWiki:
+    def install(
+        towers: dict[str, Any] | None = None, upgrades: dict[str, Any] | None = None
+    ) -> FakeWiki:
         fake = FakeWiki(
             raw_responses["towers"] if towers is None else towers,
             raw_responses["upgrades"] if upgrades is None else upgrades,
@@ -57,7 +63,7 @@ def install_wiki(monkeypatch: pytest.MonkeyPatch, raw_responses: dict[str, Any])
     return install
 
 
-def test_fetch_costs_base_cost_and_category(install_wiki) -> None:
+def test_fetch_costs_base_cost_and_category(install_wiki: InstallWiki) -> None:
     install_wiki()
     result = fetch.fetch_costs("Super Monkey")
     assert result["base_cost"] == 2500
@@ -65,7 +71,7 @@ def test_fetch_costs_base_cost_and_category(install_wiki) -> None:
     assert set(result) == {"base_cost", "category", "upgrades"}
 
 
-def test_fetch_costs_upgrade_rows(install_wiki) -> None:
+def test_fetch_costs_upgrade_rows(install_wiki: InstallWiki) -> None:
     install_wiki()
     upgrades = fetch.fetch_costs("Super Monkey")["upgrades"]
     assert len(upgrades) == 15
@@ -83,7 +89,7 @@ def test_fetch_costs_upgrade_rows(install_wiki) -> None:
     assert [by_key[(3, tier)]["cost"] for tier in range(1, 6)] == [3000, 1200, 5600, 55555, 165650]
 
 
-def test_fetch_costs_converts_strings_to_ints(install_wiki) -> None:
+def test_fetch_costs_converts_strings_to_ints(install_wiki: InstallWiki) -> None:
     install_wiki()
     result = fetch.fetch_costs("Super Monkey")
     assert type(result["base_cost"]) is int
@@ -94,7 +100,7 @@ def test_fetch_costs_converts_strings_to_ints(install_wiki) -> None:
         assert isinstance(row["name"], str)
 
 
-def test_fetch_costs_exact_query_params(install_wiki) -> None:
+def test_fetch_costs_exact_query_params(install_wiki: InstallWiki) -> None:
     fake = install_wiki()
     fetch.fetch_costs("Super Monkey")
     assert len(fake.calls) == 2
@@ -103,7 +109,9 @@ def test_fetch_costs_exact_query_params(install_wiki) -> None:
 
 
 @pytest.mark.parametrize("tower_name", MAGIC_TOWERS)
-def test_fetch_costs_where_clause_uses_tower_name(install_wiki, tower_name: str) -> None:
+def test_fetch_costs_where_clause_uses_tower_name(
+    install_wiki: InstallWiki, tower_name: str
+) -> None:
     fake = install_wiki()
     fetch.fetch_costs(tower_name)
     wheres = sorted(call["where"] for call in fake.calls)
@@ -121,7 +129,9 @@ def test_fetch_costs_where_clause_uses_tower_name(install_wiki, tower_name: str)
         "Wizard'Monkey",
     ],
 )
-def test_fetch_costs_rejects_bad_name_without_query(install_wiki, tower_name: str) -> None:
+def test_fetch_costs_rejects_bad_name_without_query(
+    install_wiki: InstallWiki, tower_name: str
+) -> None:
     fake = install_wiki()
     with pytest.raises(ValueError):
         fetch.fetch_costs(tower_name)
@@ -141,20 +151,20 @@ def test_fetch_costs_never_queries_unknown_tower(tower_name: str) -> None:
     assert calls == []
 
 
-def test_fetch_costs_empty_tower_result(install_wiki) -> None:
+def test_fetch_costs_empty_tower_result(install_wiki: InstallWiki) -> None:
     install_wiki(towers={"cargoquery": []})
     with pytest.raises(ValueError):
         fetch.fetch_costs("Super Monkey")
 
 
-def test_fetch_costs_empty_upgrade_result(install_wiki) -> None:
+def test_fetch_costs_empty_upgrade_result(install_wiki: InstallWiki) -> None:
     install_wiki(upgrades={"cargoquery": []})
     with pytest.raises(ValueError):
         fetch.fetch_costs("Super Monkey")
 
 
 @pytest.mark.parametrize("failing", ["towers", "upgrades"])
-def test_fetch_costs_error_response(install_wiki, failing: str) -> None:
+def test_fetch_costs_error_response(install_wiki: InstallWiki, failing: str) -> None:
     error = {"error": {"code": "internal_api_error", "info": "boom"}}
     install_wiki(**{failing: error})
     with pytest.raises(ValueError):
@@ -163,7 +173,7 @@ def test_fetch_costs_error_response(install_wiki, failing: str) -> None:
 
 @pytest.mark.parametrize("failing", ["towers", "upgrades"])
 def test_fetch_costs_error_key_with_rows_still_raises(
-    install_wiki, raw_responses, failing: str
+    install_wiki: InstallWiki, raw_responses: dict[str, Any], failing: str
 ) -> None:
     response = raw_responses[failing]
     response["error"] = {"code": "warning", "info": "partial"}
@@ -172,7 +182,7 @@ def test_fetch_costs_error_key_with_rows_still_raises(
         fetch.fetch_costs("Super Monkey")
 
 
-def test_fetch_costs_path_and_tier_in_range(install_wiki) -> None:
+def test_fetch_costs_path_and_tier_in_range(install_wiki: InstallWiki) -> None:
     install_wiki()
     for row in fetch.fetch_costs("Super Monkey")["upgrades"]:
         assert 1 <= row["path"] <= 3

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import sqlite3
-from typing import Any
 
 import pytest
 from hypothesis import given, settings
@@ -13,23 +12,9 @@ from btd6.db.cost_loader import load_costs
 from btd6.db.loader import ensure_tower
 from btd6.db.seed import initialize_database
 from btd6.query import QueryError
-from tests.factories import CostsFactory, UpgradeCostRowFactory
+from tests.factories import CostsFactory, UpgradeCostRowFactory, super_monkey_costs
 
-SUPER_MONKEY_COSTS = {
-    1: [2000, 2500, 20000, 100000, 500000],
-    2: [1500, 1900, 7500, 25000, 70000],
-    3: [3000, 1200, 5600, 55555, 165650],
-}
 DIFFICULTIES = ("easy", "medium", "hard", "impoppable")
-
-
-def super_monkey_costs() -> dict[str, Any]:
-    upgrades = [
-        UpgradeCostRowFactory.build(path=path, tier=tier, cost=prices[tier - 1])
-        for path, prices in SUPER_MONKEY_COSTS.items()
-        for tier in range(1, 6)
-    ]
-    return CostsFactory.build(base_cost=2500, upgrades=upgrades)
 
 
 @pytest.fixture
@@ -80,7 +65,12 @@ def test_total_cost_default_is_medium(loaded: sqlite3.Connection) -> None:
     )
 
 
-def assert_query_error(connection, path, difficulty="medium", tower="Super Monkey"):
+def assert_query_error(
+    connection: sqlite3.Connection,
+    path: str,
+    difficulty: str = "medium",
+    tower: str = "Super Monkey",
+) -> None:
     with pytest.raises(QueryError):
         total_cost(connection, tower, path, difficulty)
 

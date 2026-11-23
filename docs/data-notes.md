@@ -55,6 +55,13 @@ Codes are shown as paths (`_023` is `0-2-3`). Rows are flagged when another proj
 
 Decision: the first-attack and first-projectile summaries are left as they are for 1.0. `extract_row` takes the first entry of each `_order` list, so when that entry is a "Splash" projectile, a damage-over-time effect or an attack with no projectile, damage, pierce and speed come out NULL (and the damage type is read from that entry too). The fix belongs with the 2.0 "stats per attack" work (an `attacks` table, see `docs/schema.md` "Known limitations"). Until then, a NULL in these columns can mean "the first entry is not the main hit", not "the tower has no such stat". Check the tower's resolved JSON before trusting it.
 
+## NULLs from costs and ranking
+
+- `towers.base_cost` is NULL until costs are loaded for that tower (`load_costs`, run by `refresh_database` after `load_tower`). While it is NULL, `total_cost` returns `None`, so every ranking metric for that tower is NULL and ranks last.
+- `dps` is NULL when `attack_rate` is NULL or 0, or when `projectile_damage` is NULL. `damage_per_dollar` follows `dps`. The cause is the one described under "Deferred to 2.0": `extract_row` reads the first `_order` entry, which may not be the main attack (a "Splash" projectile, a damage-over-time effect, or an attack with no projectile), so damage and rate come out NULL rather than the tower lacking them (see the NULL counts for `projectile_damage` above).
+- `pierce_damage_per_dollar` is also NULL when `projectile_pierce` is NULL, for the same first-entry reason (Alchemist has 8 such upgrades). Other metrics are unaffected by a NULL pierce.
+- A NULL `projectile_count` is not a problem: ranking treats it as 1.
+
 ## Other things to know
 
 - Sentinel values: `9999999` appears for damage and pierce on Druid (Vine, Ball Lightning, Superstorm spawners). Any ranking by damage or pierce must exclude or cap it, and the first-projectile summary does not currently include them.

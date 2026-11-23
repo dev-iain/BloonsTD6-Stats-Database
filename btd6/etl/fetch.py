@@ -65,6 +65,18 @@ def cargo_rows(response: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def cost_upgrade_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "path": int(row["path"]),
+            "tier": int(row["tier"]),
+            "cost": int(row["cost"]),
+            "name": row["name"],
+        }
+        for row in rows
+    ]
+
+
 def fetch_costs(tower_name: str) -> dict[str, Any]:
     if tower_name not in MAGIC_TOWERS or "'" in tower_name:
         raise ValueError(f'Unknown or invalid tower name "{tower_name}"')
@@ -85,15 +97,7 @@ def fetch_costs(tower_name: str) -> dict[str, Any]:
     return {
         "base_cost": int(tower_row["cost"]),
         "category": tower_row["category"],
-        "upgrades": [
-            {
-                "path": int(row["path"]),
-                "tier": int(row["tier"]),
-                "cost": int(row["cost"]),
-                "name": row["name"],
-            }
-            for row in cargo_rows(upgrade_response)
-        ],
+        "upgrades": cost_upgrade_rows(cargo_rows(upgrade_response)),
     }
 
 

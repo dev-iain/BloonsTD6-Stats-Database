@@ -63,8 +63,8 @@ class UpgradeCostRowFactory(factory.Factory):
 
     path = factory.Sequence(lambda index: index // 5 % 3 + 1)
     tier = factory.Sequence(lambda index: index % 5 + 1)
-    cost = factory.LazyAttribute(lambda row: 100 * row.tier)
-    name = factory.LazyAttribute(lambda row: f"Upgrade {row.path}-{row.tier}")
+    cost = factory.LazyAttribute(lambda upgrade: 100 * upgrade.tier)
+    name = factory.LazyAttribute(lambda upgrade: f"Upgrade {upgrade.path}-{upgrade.tier}")
 
 
 class CostsFactory(factory.Factory):
@@ -82,6 +82,22 @@ class CostsFactory(factory.Factory):
             for tier in range(1, 6)
         ]
     )
+
+
+SUPER_MONKEY_COSTS = {
+    1: [2000, 2500, 20000, 100000, 500000],
+    2: [1500, 1900, 7500, 25000, 70000],
+    3: [3000, 1200, 5600, 55555, 165650],
+}
+
+
+def super_monkey_costs() -> dict[str, Any]:
+    upgrades = [
+        UpgradeCostRowFactory.build(path=path, tier=tier, cost=prices[tier - 1])
+        for path, prices in SUPER_MONKEY_COSTS.items()
+        for tier in range(1, 6)
+    ]
+    return CostsFactory.build(base_cost=2500, upgrades=upgrades)
 
 
 class StatsFactory(factory.Factory):

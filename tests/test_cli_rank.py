@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any
 
 import pandas
 import pytest
@@ -39,7 +40,9 @@ def db_file(tmp_path: Path) -> str:
     return str(path)
 
 
-def expected_frame(db_file: str, filters: UpgradeFilters | None = None, **kwargs):
+def expected_frame(
+    db_file: str, filters: UpgradeFilters | None = None, **kwargs: Any
+) -> pandas.DataFrame:
     connection = connect(db_file)
     try:
         return rank_upgrades(connection, filters or UpgradeFilters(category="Magic"), **kwargs)
@@ -70,7 +73,7 @@ def run_rank(db_file: str, options: list[str]) -> int:
     return main(["--db", db_file, "rank", *options])
 
 
-def test_main_rank_all_base(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_all_base(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = run_rank(db_file, [])
 
     captured = capsys.readouterr()
@@ -80,7 +83,9 @@ def test_main_rank_all_base(db_file: str, capsys: pytest.CaptureFixture[str]):
 
 
 @pytest.mark.parametrize("flag_value", list(METRIC_NAMES))
-def test_main_rank_metric_choices(db_file: str, capsys: pytest.CaptureFixture[str], flag_value):
+def test_main_rank_metric_choices(
+    db_file: str, capsys: pytest.CaptureFixture[str], flag_value: str
+) -> None:
     exit_code = run_rank(db_file, ["--metric", flag_value])
 
     captured = capsys.readouterr()
@@ -88,7 +93,7 @@ def test_main_rank_metric_choices(db_file: str, capsys: pytest.CaptureFixture[st
     assert_matches(captured.out, expected_frame(db_file, metric=METRIC_NAMES[flag_value]))
 
 
-def test_main_rank_metric_invalid(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_metric_invalid(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as caught:
         run_rank(db_file, ["--metric", "bogus"])
 
@@ -97,7 +102,7 @@ def test_main_rank_metric_invalid(db_file: str, capsys: pytest.CaptureFixture[st
     assert last_line.startswith("btd6 rank: error: argument --metric: invalid choice: 'bogus'")
 
 
-def test_main_rank_metric_rejects_query_layer_spelling(db_file: str):
+def test_main_rank_metric_rejects_query_layer_spelling(db_file: str) -> None:
     with pytest.raises(SystemExit) as caught:
         run_rank(db_file, ["--metric", "damage_per_dollar"])
     assert caught.value.code == 2
@@ -106,7 +111,7 @@ def test_main_rank_metric_rejects_query_layer_spelling(db_file: str):
 @pytest.mark.parametrize("difficulty", DIFFICULTIES)
 def test_main_rank_difficulty_choices(
     db_file: str, capsys: pytest.CaptureFixture[str], difficulty: str
-):
+) -> None:
     exit_code = run_rank(db_file, ["--difficulty", difficulty])
 
     captured = capsys.readouterr()
@@ -114,7 +119,7 @@ def test_main_rank_difficulty_choices(
     assert_matches(captured.out, expected_frame(db_file, difficulty=difficulty))
 
 
-def test_main_rank_difficulty_invalid(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_difficulty_invalid(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as caught:
         run_rank(db_file, ["--difficulty", "nightmare"])
 
@@ -125,7 +130,7 @@ def test_main_rank_difficulty_invalid(db_file: str, capsys: pytest.CaptureFixtur
     )
 
 
-def test_main_rank_limit_one(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_limit_one(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = run_rank(db_file, ["--limit", "1"])
 
     captured = capsys.readouterr()
@@ -134,7 +139,7 @@ def test_main_rank_limit_one(db_file: str, capsys: pytest.CaptureFixture[str]):
     assert len(parse_table(captured.out)) == 1
 
 
-def test_main_rank_limit_zero(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_limit_zero(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = run_rank(db_file, ["--limit", "0"])
 
     captured = capsys.readouterr()
@@ -143,7 +148,7 @@ def test_main_rank_limit_zero(db_file: str, capsys: pytest.CaptureFixture[str]):
     assert captured.out == ""
 
 
-def test_main_rank_limit_not_an_integer(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_limit_not_an_integer(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as caught:
         run_rank(db_file, ["--limit", "abc"])
 
@@ -153,7 +158,7 @@ def test_main_rank_limit_not_an_integer(db_file: str, capsys: pytest.CaptureFixt
     )
 
 
-def test_main_rank_can_pop_lead(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_can_pop_lead(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = run_rank(db_file, ["--can-pop", "lead"])
 
     captured = capsys.readouterr()
@@ -162,7 +167,7 @@ def test_main_rank_can_pop_lead(db_file: str, capsys: pytest.CaptureFixture[str]
     assert_matches(captured.out, expected_frame(db_file, filters))
 
 
-def test_main_rank_no_match(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_no_match(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = run_rank(db_file, ["--min-pierce", "99"])
 
     captured = capsys.readouterr()
@@ -171,7 +176,7 @@ def test_main_rank_no_match(db_file: str, capsys: pytest.CaptureFixture[str]):
     assert captured.out.strip() == NO_MATCH_LINE
 
 
-def test_main_rank_lead_in_both_flags(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_lead_in_both_flags(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = run_rank(db_file, ["--can-pop", "lead", "--cannot-pop", "lead"])
 
     captured = capsys.readouterr()
@@ -180,7 +185,7 @@ def test_main_rank_lead_in_both_flags(db_file: str, capsys: pytest.CaptureFixtur
     assert captured.out == ""
 
 
-def test_main_rank_database_missing(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_database_missing(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     missing_path = tmp_path / "missing.db"
 
     exit_code = run_rank(str(missing_path), [])
@@ -194,7 +199,9 @@ def test_main_rank_database_missing(tmp_path: Path, capsys: pytest.CaptureFixtur
     assert not missing_path.exists()
 
 
-def test_main_rank_defaults_match_explicit(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_defaults_match_explicit(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
     run_rank(db_file, [])
     default_output = capsys.readouterr().out
     run_rank(db_file, ["--metric", "dollar", "--difficulty", "medium"])
@@ -204,7 +211,9 @@ def test_main_rank_defaults_match_explicit(db_file: str, capsys: pytest.CaptureF
     assert default_output == explicit_output
 
 
-def test_main_rank_difficulty_changes_cost(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_difficulty_changes_cost(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
     run_rank(db_file, ["--difficulty", "easy"])
     easy = {row["path"]: float(row["cost"]) for row in parse_table(capsys.readouterr().out)}
     run_rank(db_file, ["--difficulty", "hard"])
@@ -213,14 +222,14 @@ def test_main_rank_difficulty_changes_cost(db_file: str, capsys: pytest.CaptureF
     assert hard["0-0-0"] > easy["0-0-0"]
 
 
-def test_main_rank_ranks_are_sequential(db_file: str, capsys: pytest.CaptureFixture[str]):
+def test_main_rank_ranks_are_sequential(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
     run_rank(db_file, [])
 
     ranks = [int(row["rank"]) for row in parse_table(capsys.readouterr().out)]
     assert ranks == list(range(1, len(UPGRADE_STATS) + 1))
 
 
-def test_main_help_lists_rank(capsys: pytest.CaptureFixture[str]):
+def test_main_help_lists_rank(capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as caught:
         main(["--help"])
 
@@ -234,7 +243,13 @@ def test_main_help_lists_rank(capsys: pytest.CaptureFixture[str]):
     difficulty=st.sampled_from(DIFFICULTIES),
     limit=st.one_of(st.none(), st.integers(min_value=1, max_value=6)),
 )
-def test_main_rank_matches_rank_upgrades_property(db_file, capsys, metric, difficulty, limit):
+def test_main_rank_matches_rank_upgrades_property(
+    db_file: str,
+    capsys: pytest.CaptureFixture[str],
+    metric: str,
+    difficulty: str,
+    limit: int | None,
+) -> None:
     options = ["--metric", metric, "--difficulty", difficulty]
     if limit is not None:
         options += ["--limit", str(limit)]

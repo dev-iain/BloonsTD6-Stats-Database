@@ -4,7 +4,7 @@ import sqlite3
 
 import pandas
 
-from btd6.costs import DIFFICULTY_MULTIPLIERS, total_cost
+from btd6.costs import total_cost, validate_difficulty
 from btd6.query import QueryError, UpgradeFilters, search_upgrades
 
 METRICS = ("dps", "damage_per_dollar", "pierce_damage_per_dollar")
@@ -50,8 +50,7 @@ def rank_upgrades(
 ) -> pandas.DataFrame:
     if metric not in METRICS:
         raise QueryError(f'Cannot rank by "{metric}". Allowed: {", ".join(METRICS)}')
-    if difficulty not in DIFFICULTY_MULTIPLIERS:
-        raise QueryError(f"Unknown difficulty: {difficulty!r}")
+    validate_difficulty(difficulty)
     if limit is not None and limit < 1:
         raise QueryError(f"limit must be at least 1, got {limit}")
     frame = rows_to_frame(search_upgrades(connection, filters))

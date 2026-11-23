@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-import copy
 import json
 import sqlite3
 from pathlib import Path
 from typing import Any
 
 import pytest
-from btd6.costs import total_cost
-from btd6.db.cost_loader import load_costs
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from btd6.costs import total_cost
 from btd6.db import connect
+from btd6.db.cost_loader import load_costs
 from btd6.db.loader import load_tower
 from btd6.db.seed import initialize_database
 from btd6.etl import fetch
@@ -23,19 +22,8 @@ FIXTURE_DIR = Path(__file__).parent / "fixtures"
 FIXTURE_PATH = FIXTURE_DIR / "costs_super_monkey_cargo.json"
 
 
-class FakeWiki:
-    def __init__(self, responses: dict[str, Any]) -> None:
-        self.responses = responses
-
-    def __call__(self, **params: Any) -> dict[str, Any]:
-        key = "towers" if params["tables"] == "btd6_towers" else "upgrades"
-        return self.responses[key]
-
-
 @pytest.fixture
-def cargo_costs(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
-    responses = copy.deepcopy(json.loads(FIXTURE_PATH.read_text()))
-    monkeypatch.setattr(fetch, "wiki_api", FakeWiki(responses))
+def cargo_costs(offline_costs_wiki: None) -> dict[str, Any]:
     return fetch.fetch_costs("Super Monkey")
 
 
@@ -48,8 +36,8 @@ def cost_rows(connection: sqlite3.Connection) -> list[tuple[Any, ...]]:
 
 
 def base_cost(connection: sqlite3.Connection, tower_name: str) -> int | None:
-    row = connection.execute("SELECT base_cost FROM towers WHERE name = ?", (tower_name,))
-    return row.fetchone()[0]
+    cursor = connection.execute("SELECT base_cost FROM towers WHERE name = ?", (tower_name,))
+    return cursor.fetchone()[0]
 
 
 def insert_cost_sql(values: str) -> str:
@@ -82,12 +70,12 @@ def test_load_costs_stores_base_cost_and_all_upgrades(
 
 def test_load_costs_creates_missing_tower_with_category(database: sqlite3.Connection) -> None:
     load_costs(database, "Wizard Monkey", CostsFactory.build(base_cost=400))
-    category = database.execute("SELECT category FROM towers WHERE name = 'Wizard Monkey'")
-    assert category.fetchone()[0] == "Magic"
+    cursor = database.execute("SELECT category FROM towers WHERE name = 'Wizard Monkey'")
+    assert cursor.fetchone()[0] == "Magic"
 
 
 def test_load_costs_keeps_existing_upgrades(
-    database: sqlite3.Connection, super_monkey_resolved: dict[str, Any], cargo_costs
+    database: sqlite3.Connection, super_monkey_resolved: dict[str, Any], cargo_costs: dict[str, Any]
 ) -> None:
     load_tower(database, "Super Monkey", super_monkey_resolved)
     load_costs(database, "Super Monkey", cargo_costs)
@@ -190,14 +178,18 @@ def test_load_costs_idempotent_property(base: int, prices: list[int]) -> None:
     connection.close()
 
 
-def test_refresh_database_stores_costs(database: sqlite3.Connection, cargo_costs) -> None:
+def test_refresh_database_stores_costs(
+    database: sqlite3.Connection, cargo_costs: dict[str, Any]
+) -> None:
     resolved = json.loads((FIXTURE_DIR / "super_monkey_resolved.json").read_text())
     refresh_database(database, ["Super Monkey"], fetch=lambda _name: resolved)
     assert base_cost(database, "Super Monkey") == 2500
     assert len(cost_rows(database)) == 15
 
 
-def test_round_trip_fixture_to_total_cost(database: sqlite3.Connection, cargo_costs) -> None:
+def test_round_trip_fixture_to_total_cost(
+    database: sqlite3.Connection, cargo_costs: dict[str, Any]
+) -> None:
     load_costs(database, "Super Monkey", cargo_costs)
     assert total_cost(database, "Super Monkey", "0-0-0") == 2500
     load_costs(database, "Super Monkey", cargo_costs)
