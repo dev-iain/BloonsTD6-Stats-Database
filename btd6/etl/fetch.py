@@ -9,7 +9,7 @@ from typing import Any
 
 import requests
 
-from btd6.etl.towers import MAGIC_TOWERS
+from btd6.etl.towers import KNOWN_TOWERS
 
 API_URL = "https://www.bloonswiki.com/api.php"
 CODE_PATTERN = re.compile(r"^_\d{3}$")
@@ -131,7 +131,7 @@ def cost_upgrade_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def fetch_costs(tower_name: str) -> dict[str, Any]:
-    if tower_name not in MAGIC_TOWERS or "'" in tower_name:
+    if tower_name not in KNOWN_TOWERS or "'" in tower_name:
         raise ValueError(f'Unknown or invalid tower name "{tower_name}"')
     tower_response = wiki_api(
         action="cargoquery",

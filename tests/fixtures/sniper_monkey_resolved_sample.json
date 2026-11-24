@@ -1,0 +1,96 @@
+{
+  "_000": {
+    "range": 20,
+    "footprintRadius": 6,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 1.59,
+        "projectiles": {
+          "_order": [
+            "Projectile"
+          ],
+          "Projectile": {
+            "damage": 2,
+            "pierce": 1,
+            "radius": 0,
+            "lifespan": 0.1,
+            "immuneBloonProperties": 17,
+            "filterInvisible": true
+          }
+        }
+      }
+    }
+  },
+  "_100": {
+    "range": 20,
+    "footprintRadius": 6,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 1.59,
+        "projectiles": {
+          "_order": [
+            "Projectile"
+          ],
+          "Projectile": {
+            "damage": 4,
+            "pierce": 1,
+            "radius": 0,
+            "lifespan": 0.1,
+            "immuneBloonProperties": 0,
+            "filterInvisible": true
+          }
+        }
+      }
+    }
+  },
+  "_050": {
+    "range": 20,
+    "footprintRadius": 6,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 0.636,
+        "projectiles": {
+          "_order": [
+            "Projectile",
+            "Shrapnel"
+          ],
+          "Projectile": {
+            "damage": 2,
+            "pierce": 5,
+            "radius": 0,
+            "lifespan": 2,
+            "immuneBloonProperties": 0,
+            "filterInvisible": false
+          },
+          "Shrapnel": {
+            "count": 5,
+            "damage": 1,
+            "pierce": 5,
+            "speed": 160,
+            "radius": 0.2,
+            "lifespan": 0.2,
+            "immuneBloonProperties": 17,
+            "filterInvisible": false
+          }
+        }
+      }
+    },
+    "abilities": {
+      "_order": [
+        "Ability"
+      ],
+      "Ability": {
+        "cooldown": 90
+      }
+    }
+  }
+}

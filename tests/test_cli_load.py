@@ -103,18 +103,18 @@ def test_main_load_one_tower(
     assert count_upgrades(new_db) == 64
 
 
-def test_main_load_not_a_magic_tower(
+def test_main_load_not_a_known_tower(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], new_db: Path
 ):
     install_fetch(monkeypatch, succeeding_fetch)
 
     with pytest.raises(SystemExit) as exit_info:
-        main(["--db", str(new_db), "load", "--tower", "Dart Monkey"])
+        main(["--db", str(new_db), "load", "--tower", "Glue Gunner"])
 
     captured = capsys.readouterr()
     assert exit_info.value.code == 2
     last_line = captured.err.strip().splitlines()[-1]
-    assert last_line.startswith("btd6 load: error: argument --tower: invalid choice: 'Dart Monkey'")
+    assert last_line.startswith("btd6 load: error: argument --tower: invalid choice: 'Glue Gunner'")
     assert not new_db.exists()
 
 

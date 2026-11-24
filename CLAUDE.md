@@ -44,7 +44,7 @@ Database for compiling tower stats from Bloons Tower Defense 6, as well as an ag
 - `btd6/costs.py`: `total_cost`; `btd6/db/cost_loader.py`: `load_costs`; `fetch_costs` in `btd6/etl/fetch.py`; migration `002_costs` adds the costs tables
 - `btd6/db/round_loader.py`: `load_bloons` (upsert by name, keeps ids), `load_rounds` (replaces rounds 1-100 and their groups); `fetch_bloons` in `btd6/etl/fetch.py` (paged Cargo `btd6_bloons`, spaces in keys become `_`); `btd6/rounds.py`: `get_round`, `get_round_summary`; migration `003_rounds` adds `bloons`, `rounds`, `round_groups`; `python -m btd6 rounds --round N` (or `--from A --to B`) prints a round; `load` also loads bloons and rounds unless `--no-rounds`; known data quirks in `docs/data-notes.md`
 - Planned: `btd6/db/loader.py`, refresh pipeline; `tests/` mirrors the package
-- Data covers the five magic monkeys (64 upgrades each) plus bloons and rounds 1-100; `data.csv` is Super Monkey only. 1.0 scope is magic monkeys; add towers by re-running the fetch with another tower name.
+- Data covers the five magic monkeys plus Dart Monkey, Boomerang Monkey, Bomb Shooter, Sniper Monkey and Ice Monkey (64 upgrades each; `EXTRA_TOWERS`/`KNOWN_TOWERS` in `btd6/etl/towers.py`, loaded with `load --tower NAME`, category from Cargo; `search`/`rank --tower NAME` skip the default Magic filter) plus bloons and rounds 1-100; `data.csv` is Super Monkey only. 1.0 scope is magic monkeys; add towers by re-running the fetch with another tower name.
 - Upgrade paths are written `X-Y-Z` (e.g. `0-2-3`); the wiki's `_023` codes are converted by `path_from_code`.
 
 ## Roadmap
