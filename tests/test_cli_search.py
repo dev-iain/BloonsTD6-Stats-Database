@@ -182,6 +182,19 @@ def test_main_search_non_magic_rows_excluded(
     assert captured.out == expected_table(["0-0-0", "1-1-0"])
 
 
+def test_main_search_tower_option_includes_non_magic_tower(
+    tmp_path: Path, golden_csv_path: Path, capsys: pytest.CaptureFixture[str]
+):
+    mixed_db = build_database_file(tmp_path / "mixed.db", golden_csv_path, with_dart_monkey=True)
+
+    exit_code = run_search(mixed_db, ["--tower", "Dart Monkey"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Dart Monkey" in captured.out
+    assert "Super Monkey" not in captured.out
+
+
 def write_not_a_database(path: Path) -> str:
     path.write_text("hello")
     return str(path)

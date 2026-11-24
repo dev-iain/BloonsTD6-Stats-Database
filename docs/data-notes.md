@@ -166,3 +166,39 @@ The wiki page for Prince of Darkness (BTD6) says the undead MOAB and undead BFB 
 ### damageModifierForMoabs is additive
 
 The wiki module that renders the stat tables (`Module:BTD6 stats`) prints the field as "+N" under the heading "Damage to MOAB-Class" (`insert_damage_mod` formats `"+%.4g"`), and the Arcane Spike page says "increases its damage from 3 to 6, with +10 additional MOAB-Class damage". Archmage: bolt damage 8 with "+19", Fireball 9 with "+24". The fixtures agree (Wizard 4-0-0: damage 6, modifier 10; 5-0-0: damage 8, modifier 19). So a MOAB-class hit does `damage + damageModifierForMoabs`, not `damage x modifier`.
+
+## Dart, Boomerang, Bomb Shooter, Sniper and Ice Monkey (issue #135)
+
+Checked with a real `fetch_tower_module` and `fetch_costs` on 2026-11-23. Wiki module names `Module:BTD6 stats/<tower>/new` all work for these five names. Each resolves to 64 upgrades, has a non-NULL `base_cost` (Dart 200, Boomerang 315, Bomb Shooter 375, Sniper 350, Ice 400) and 15 upgrade costs. Categories from Cargo: Primary for Dart, Boomerang, Bomb Shooter and Ice; Military for Sniper. `load_one_tower` now passes the Cargo category to `load_tower` (it used to default to `Magic`), and `fetch_costs` accepts `KNOWN_TOWERS` (the magic towers plus `EXTRA_TOWERS`). Fixtures: `tests/fixtures/<tower>_resolved_sample.json` (three upgrades each).
+
+### NULL counts (out of 64)
+
+Columns not listed have no NULLs. `ability_cooldown` NULL means no ability (expected).
+
+| Column | Dart | Boomerang | Bomb Shooter | Sniper | Ice |
+|---|---|---|---|---|---|
+| projectile_count | 49 | 64 | 57 | 57 | 64 |
+| projectile_damage | 0 | 0 | 50 | 0 | 6 |
+| projectile_speed | 0 | 0 | 7 | 57 | 58 |
+| ability_cooldown | 54 | 54 | 49 | 49 | 54 |
+
+### Causes
+
+- `projectile_count`: the wiki omits `count` when a projectile fires once, so NULL means 1 (ranking already treats it as 1). It is set only where an upgrade changes it (Dart 15 upgrades, Bomb Shooter 7, Sniper 7); Boomerang and Ice never set it.
+- Bomb Shooter `projectile_damage` (50) and `damage_type`: the first projectile is the carrier "Projectile" (pierce 1, speed 180, no damage, no `immuneBloonProperties`); damage 1 to 2 and `immuneBloonProperties` 2 (Explosion) are on the second projectile "Explosion". Those 50 rows therefore have NULL damage and `damage_type` Normal instead of Explosion (the "first entry is not the main hit" cause under "Deferred to 2.0").
+- Bomb Shooter `projectile_speed` (7: 2-0-3, 2-0-4, 2-0-5, 2-2-0, 2-3-0, 2-4-0, 2-5-0): the first projectile is "Explosion" (the carrier is dropped), and explosions have no speed.
+- Sniper `projectile_speed` (57): the shot is hitscan (lifespan 0.1, radius 0), so the wiki has no speed. NULL means "instant", not missing data; ranking by speed sorts these last.
+- Ice `projectile_speed` (58): the "Projectile" is a stationary freeze pulse (lifespan 0.05, radius 20) with no speed. The six rows with a speed are the Ice bomb upgrades.
+- Ice `projectile_damage` (6: 0-0-3, 0-0-4, 0-0-5, 2-0-3, 2-0-4, 2-0-5): the first projectile is "Ice bomb" (pierce 1, speed 300, no damage, no damage type, so `damage_type` Normal); damage 1 is on the second projectile "Projectile". Same first-entry cause as Bomb Shooter.
+
+### First-attack-only losses
+
+| Tower | More than one attack | Attack with more than one projectile | More than one ability |
+|---|---|---|---|
+| Dart Monkey | 0 | 5 | 0 |
+| Boomerang Monkey | 13 | 0 | 0 |
+| Bomb Shooter | 0 | 49 | 0 |
+| Sniper Monkey | 0 | 22 | 0 |
+| Ice Monkey | 0 | 14 | 0 |
+
+Bomb Shooter's second projectile carries its damage, so its first-projectile summary is the poorest of the five. No sentinel values appear: the largest damage across the five towers is 140 and the largest pierce 300.

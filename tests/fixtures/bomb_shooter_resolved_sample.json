@@ -1,0 +1,102 @@
+{
+  "_000": {
+    "range": 40,
+    "footprintRadius": 7,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 1.5,
+        "projectiles": {
+          "_order": [
+            "Projectile",
+            "Explosion"
+          ],
+          "Projectile": {
+            "pierce": 1,
+            "speed": 180,
+            "radius": 4,
+            "lifespan": 0.6,
+            "filterInvisible": true
+          },
+          "Explosion": {
+            "damage": 1,
+            "pierce": 22,
+            "radius": 12,
+            "lifespan": 0.1,
+            "immuneBloonProperties": 2,
+            "filterInvisible": true
+          }
+        }
+      }
+    }
+  },
+  "_200": {
+    "range": 40,
+    "footprintRadius": 7,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 1.5,
+        "projectiles": {
+          "_order": [
+            "Projectile",
+            "Explosion"
+          ],
+          "Projectile": {
+            "pierce": 1,
+            "speed": 180,
+            "radius": 5,
+            "lifespan": 0.6,
+            "filterInvisible": true
+          },
+          "Explosion": {
+            "damage": 2,
+            "pierce": 38,
+            "radius": 18,
+            "lifespan": 0.1,
+            "immuneBloonProperties": 2,
+            "filterInvisible": true
+          }
+        }
+      }
+    }
+  },
+  "_203": {
+    "range": 54,
+    "footprintRadius": 7,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 1.5,
+        "projectiles": {
+          "_order": [
+            "Explosion",
+            "Cluster explosion"
+          ],
+          "Explosion": {
+            "damage": 2,
+            "pierce": 38,
+            "radius": 12,
+            "lifespan": 0.1,
+            "immuneBloonProperties": 2,
+            "filterInvisible": true
+          },
+          "Cluster explosion": {
+            "damage": 2,
+            "pierce": 24,
+            "radius": 15,
+            "lifespan": 0.1,
+            "immuneBloonProperties": 2,
+            "filterInvisible": true
+          }
+        }
+      }
+    }
+  }
+}

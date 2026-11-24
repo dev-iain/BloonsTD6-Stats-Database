@@ -7,3 +7,13 @@ MAGIC_TOWERS: tuple[str, ...] = (
     "Alchemist",
     "Druid",
 )
+
+EXTRA_TOWERS: tuple[str, ...] = (
+    "Dart Monkey",
+    "Boomerang Monkey",
+    "Bomb Shooter",
+    "Sniper Monkey",
+    "Ice Monkey",
+)
+
+KNOWN_TOWERS: tuple[str, ...] = MAGIC_TOWERS + EXTRA_TOWERS

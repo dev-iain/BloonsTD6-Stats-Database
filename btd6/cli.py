@@ -28,7 +28,7 @@ from btd6.etl.pipeline import (
     RefreshError,
     refresh_database,
 )
-from btd6.etl.towers import MAGIC_TOWERS
+from btd6.etl.towers import KNOWN_TOWERS
 from btd6.formatting import (
     EMPTY_RESULTS_MESSAGE,
     RESULT_COLUMNS,
@@ -129,7 +129,7 @@ def add_serve_options(subparser: argparse.ArgumentParser) -> None:
 
 
 def add_load_options(subparser: argparse.ArgumentParser) -> None:
-    subparser.add_argument("--tower", action="append", choices=MAGIC_TOWERS, metavar="NAME")
+    subparser.add_argument("--tower", action="append", choices=KNOWN_TOWERS, metavar="NAME")
     subparser.add_argument(
         "--no-rounds", action="store_true", help="skip loading bloons and rounds"
     )
@@ -147,6 +147,7 @@ def add_filter_options(subparser: argparse.ArgumentParser) -> None:
         subparser.add_argument(flag, action="append", choices=POP_PROPERTIES, metavar="PROP")
     for flag in ("--min-pierce", "--min-damage", "--min-range", "--min-speed"):
         subparser.add_argument(flag, type=float)
+    subparser.add_argument("--tower", choices=KNOWN_TOWERS, metavar="NAME")
     subparser.add_argument("--damage-type")
     subparser.add_argument("--camo", action=argparse.BooleanOptionalAction, default=None)
     subparser.add_argument("--limit", type=int)
@@ -167,7 +168,8 @@ def build_filters(args: argparse.Namespace) -> UpgradeFilters:
     pop_flags = {f"can_pop_{prop}": True for prop in args.can_pop or []}
     pop_flags.update({f"can_pop_{prop}": False for prop in args.cannot_pop or []})
     return UpgradeFilters(
-        category="Magic",
+        category=None if args.tower else "Magic",
+        tower_name=args.tower,
         min_pierce=args.min_pierce,
         min_damage=args.min_damage,
         min_range=args.min_range,

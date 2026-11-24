@@ -1,0 +1,80 @@
+{
+  "_000": {
+    "range": 32,
+    "footprintRadius": 6,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 0.95,
+        "projectiles": {
+          "_order": [
+            "Projectile"
+          ],
+          "Projectile": {
+            "damage": 1,
+            "pierce": 2,
+            "speed": 300,
+            "radius": 2,
+            "lifespan": 0.25,
+            "immuneBloonProperties": 17,
+            "filterInvisible": true
+          }
+        }
+      }
+    }
+  },
+  "_100": {
+    "range": 32,
+    "footprintRadius": 6,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 0.95,
+        "projectiles": {
+          "_order": [
+            "Projectile"
+          ],
+          "Projectile": {
+            "damage": 1,
+            "pierce": 3,
+            "speed": 300,
+            "radius": 2,
+            "lifespan": 0.25,
+            "immuneBloonProperties": 17,
+            "filterInvisible": true
+          }
+        }
+      }
+    }
+  },
+  "_005": {
+    "range": 80,
+    "footprintRadius": 6,
+    "attacks": {
+      "_order": [
+        "Attack"
+      ],
+      "Attack": {
+        "rate": 0.2375,
+        "projectiles": {
+          "_order": [
+            "Projectile"
+          ],
+          "Projectile": {
+            "damage": 8,
+            "pierce": 8,
+            "speed": 600,
+            "radius": 2,
+            "lifespan": 0.2109,
+            "immuneBloonProperties": 0,
+            "filterInvisible": false
+          }
+        }
+      }
+    }
+  }
+}
