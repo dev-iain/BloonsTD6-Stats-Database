@@ -25,6 +25,8 @@ PROJECTILE_FIELDS = (
     "lifespan",
     "immuneBloonProperties",
     "filterInvisible",
+    "damageModifierForMoabs",
+    "filterOutNonMoabs",
 )
 ABILITY_FIELDS = ("cooldown",)
 MAX_ROUND = 100

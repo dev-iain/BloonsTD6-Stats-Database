@@ -3,7 +3,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 
-from btd6.etl.extract import extract_row
+from btd6.etl.extract import extract_attack_rows, extract_row
 
 UPGRADE_COLUMNS = (
     "path",
@@ -52,6 +52,60 @@ def upgrade_params(
     return (tower_id, type_id, *values)
 
 
+PROJECTILE_COLUMNS = (
+    "projectile_index",
+    "name",
+    "damage",
+    "pierce",
+    "unlimited_damage",
+    "unlimited_pierce",
+    "moab_bonus_damage",
+    "moab_only",
+    "count",
+    "speed",
+    "radius",
+    "lifespan",
+)
+INSERT_PROJECTILE_SQL = (
+    "INSERT INTO projectiles (attack_id, damage_type_id, can_hit_camo, "
+    + ", ".join(PROJECTILE_COLUMNS)
+    + ") VALUES (?, ?, ?, "
+    + ", ".join("?" * len(PROJECTILE_COLUMNS))
+    + ")"
+)
+
+
+def insert_attacks(
+    connection: sqlite3.Connection, upgrade_id: int, type_ids: dict[str, int], stats: dict[str, Any]
+) -> None:
+    for attack in extract_attack_rows(stats):
+        cursor = connection.execute(
+            "INSERT INTO attacks (upgrade_id, attack_index, name, rate) VALUES (?, ?, ?, ?)",
+            (upgrade_id, attack["attack_index"], attack["name"], attack["rate"]),
+        )
+        for projectile in attack["projectiles"]:
+            type_id = type_ids.get(projectile["damage_type"], type_ids["Unknown"])
+            values = [
+                int(projectile[key]) if isinstance(projectile[key], bool) else projectile[key]
+                for key in PROJECTILE_COLUMNS
+            ]
+            connection.execute(
+                INSERT_PROJECTILE_SQL,
+                (cursor.lastrowid, type_id, int(projectile["can_hit_camo"]), *values),
+            )
+
+
+def insert_upgrade(
+    connection: sqlite3.Connection,
+    tower_id: int,
+    type_ids: dict[str, int],
+    code: str,
+    stats: dict[str, Any],
+) -> None:
+    cursor = connection.execute(INSERT_UPGRADE_SQL, upgrade_params(tower_id, type_ids, code, stats))
+    insert_attacks(connection, cursor.lastrowid, type_ids, stats)
+
+
 def load_tower(
     connection: sqlite3.Connection,
     tower_name: str,
@@ -68,8 +122,6 @@ def load_tower(
         tower_id = ensure_tower(connection, tower_name, category)
         type_ids = damage_type_ids(connection)
         connection.execute("DELETE FROM upgrades WHERE tower_id = ?", (tower_id,))
-        connection.executemany(
-            INSERT_UPGRADE_SQL,
-            [upgrade_params(tower_id, type_ids, code, stats) for code, stats in resolved.items()],
-        )
+        for code, stats in resolved.items():
+            insert_upgrade(connection, tower_id, type_ids, code, stats)
     return len(resolved)

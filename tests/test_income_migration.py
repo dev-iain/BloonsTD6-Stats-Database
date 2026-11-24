@@ -28,7 +28,7 @@ def attempt(connection: sqlite3.Connection, sql: str, params: tuple, valid: bool
 
 
 def test_migration_004_user_version(migrated) -> None:
-    assert migrated.execute("PRAGMA user_version").fetchone()[0] == 5
+    assert migrated.execute("PRAGMA user_version").fetchone()[0] == 6
 
 
 def test_migration_004_applied_to_version_three_database() -> None:
@@ -36,7 +36,11 @@ def test_migration_004_applied_to_version_three_database() -> None:
     for script in sorted(MIGRATIONS_DIR.glob("00[123]_*.sql")):
         connection.executescript(script.read_text())
     connection.execute("PRAGMA user_version = 3")
-    assert apply_migrations(connection) == ["004_income.sql", "005_bloon_properties.sql"]
+    assert apply_migrations(connection) == [
+        "004_income.sql",
+        "005_bloon_properties.sql",
+        "006_attacks.sql",
+    ]
     connection.close()
 
 
