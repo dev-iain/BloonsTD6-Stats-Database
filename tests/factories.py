@@ -184,13 +184,14 @@ class RawBloonFactory(factory.Factory):
 
     class Meta:
         model = dict
+        rename = {"bloon_id": "id", "resistance_multiplier": "rbe"}
 
-    id = "Red"
-    name = factory.LazyAttribute(lambda row: f"{row.id} Bloon")
+    bloon_id = "Red"
+    name = factory.LazyAttribute(lambda row: f"{row.bloon_id} Bloon")
     health = "1"
     health_fort = ""
     layers = "1"
-    rbe = "1"
+    resistance_multiplier = "1"
     rbe_fort = ""
     is_moab = ""
     speed = "25"
@@ -216,41 +217,36 @@ def make_stats(*attacks: tuple, **extra: Any) -> dict[str, Any]:
     return StatsFactory(attacks=container, **extra)
 
 
-def ninja_003() -> dict[str, Any]:
-    return make_stats(
-        make_attack(
-            "Attack",
-            0.62,
-            {
-                "Flash Bomb": {
-                    "pierce": 1,
-                    "speed": 300,
-                    "radius": 5,
-                    "lifespan": 0.57,
-                    "immuneBloonProperties": 0,
-                },
-                "Explosion": {"damage": 3, "pierce": 30, "immuneBloonProperties": 0},
-                "Projectile": {
-                    "count": 1,
-                    "damage": 1,
-                    "pierce": 4,
-                    "immuneBloonProperties": 17,
-                },
+def ninja_003_attack() -> dict[str, Any]:
+    return make_attack(
+        "Attack",
+        0.62,
+        {
+            "Flash Bomb": {
+                "pierce": 1,
+                "speed": 300,
+                "radius": 5,
+                "lifespan": 0.57,
+                "immuneBloonProperties": 0,
             },
-        ),
-        make_attack(
-            "Caltrops",
-            3.9,
-            {
-                "Projectile": {
-                    "damage": 1,
-                    "pierce": 6,
-                    "lifespan": 35,
-                    "immuneBloonProperties": 17,
-                }
+            "Explosion": {"damage": 3, "pierce": 30, "immuneBloonProperties": 0},
+            "Projectile": {
+                "count": 1,
+                "damage": 1,
+                "pierce": 4,
+                "immuneBloonProperties": 17,
             },
-        ),
+        },
     )
+
+
+def ninja_003_caltrops() -> dict[str, Any]:
+    projectile = {"damage": 1, "pierce": 6, "lifespan": 35, "immuneBloonProperties": 17}
+    return make_attack("Caltrops", 3.9, {"Projectile": projectile})
+
+
+def ninja_003() -> dict[str, Any]:
+    return make_stats(ninja_003_attack(), ninja_003_caltrops())
 
 
 def wizard_005() -> dict[str, Any]:

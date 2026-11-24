@@ -64,9 +64,9 @@ def attack_totals(projectiles: list[sqlite3.Row]) -> Figures:
     for row in projectiles:
         hits = projectile_hits(row)
         target = alternatives if row["name"] in BLOON_CLASS_NAMES else fixed
-        for hit, bucket in zip(hits, target, strict=True):
-            if hit is not None:
-                bucket.append(hit)
+        for damage_hit, bucket in zip(hits, target, strict=True):
+            if damage_hit is not None:
+                bucket.append(damage_hit)
     plain = fixed[0] + ([min(alternatives[0])] if alternatives[0] else [])
     moab = fixed[1] + ([max(alternatives[1])] if alternatives[1] else [])
     return sum_or_none(plain), sum_or_none(moab)
@@ -123,7 +123,7 @@ def rows_to_frame(rows: list[sqlite3.Row]) -> pandas.DataFrame:
 
 
 def attach_dps(connection: sqlite3.Connection, frame: pandas.DataFrame) -> None:
-    ids = {
+    upgrade_ids_by_key = {
         (row["name"], row["path"]): row["id"]
         for row in connection.execute(
             "SELECT towers.name AS name, upgrades.path AS path, upgrades.id AS id"
@@ -131,7 +131,7 @@ def attach_dps(connection: sqlite3.Connection, frame: pandas.DataFrame) -> None:
         )
     }
     figures = all_upgrade_dps(connection)
-    keys = [ids[key] for key in zip(frame["tower_name"], frame["path"], strict=True)]
+    keys = [upgrade_ids_by_key[key] for key in zip(frame["tower_name"], frame["path"], strict=True)]
     frame["upgrade_dps"] = [figures[key][0] for key in keys]
     frame["upgrade_moab_dps"] = [figures[key][1] for key in keys]
 

@@ -108,14 +108,14 @@ def test_attack_index_check(migrated, index, valid) -> None:
         "INSERT INTO upgrades (id, tower_id, path, damage_type_id, can_hit_camo)"
         " VALUES (2, 1, '0-0-4', 1, 1)"
     )
-    sql = "INSERT INTO attacks (upgrade_id, attack_index, name) VALUES (2, ?, 'B')"
-    attempt(lambda: migrated.execute(sql, (index,)), valid)
+    statement = "INSERT INTO attacks (upgrade_id, attack_index, name) VALUES (2, ?, 'B')"
+    attempt(lambda: migrated.execute(statement, (index,)), valid)
 
 
 @pytest.mark.parametrize(("rate", "valid"), [(None, True), (0, True), (0.62, True), (-0.1, False)])
 def test_attack_rate_check(migrated, rate, valid) -> None:
-    sql = "INSERT INTO attacks (upgrade_id, attack_index, name, rate) VALUES (1, 5, 'B', ?)"
-    attempt(lambda: migrated.execute(sql, (rate,)), valid)
+    statement = "INSERT INTO attacks (upgrade_id, attack_index, name, rate) VALUES (1, 5, 'B', ?)"
+    attempt(lambda: migrated.execute(statement, (rate,)), valid)
 
 
 def test_attack_name_not_null(migrated) -> None:
@@ -215,8 +215,9 @@ def test_deleting_tower_cascades_to_projectiles(migrated) -> None:
     assert migrated.execute("SELECT COUNT(*) FROM projectiles").fetchone()[0] == 0
 
 
-def plan(connection: sqlite3.Connection, sql: str) -> str:
-    return " | ".join(row["detail"] for row in connection.execute("EXPLAIN QUERY PLAN " + sql))
+def plan(connection: sqlite3.Connection, statement: str) -> str:
+    steps = connection.execute("EXPLAIN QUERY PLAN " + statement)
+    return " | ".join(row["detail"] for row in steps)
 
 
 @pytest.fixture

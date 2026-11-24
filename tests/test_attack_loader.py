@@ -62,19 +62,19 @@ def test_load_tower_stores_values_and_order(database) -> None:
         " JOIN damage_types d ON d.id = p.damage_type_id"
         " ORDER BY a.attack_index, p.projectile_index"
     ).fetchall()
-    assert [(r[0], r[1], r[2], r[3], r[4]) for r in rows] == [
+    assert [(row[0], row[1], row[2], row[3], row[4]) for row in rows] == [
         (0, "Attack", 0.62, 0, "Flash Bomb"),
         (0, "Attack", 0.62, 1, "Explosion"),
         (0, "Attack", 0.62, 2, "Projectile"),
         (1, "Caltrops", 3.9, 0, "Projectile"),
     ]
-    assert [(r["damage"], r["pierce"], r["count"]) for r in rows] == [
+    assert [(row["damage"], row["pierce"], row["count"]) for row in rows] == [
         (None, 1, None),
         (3, 30, None),
         (1, 4, 1),
         (1, 6, None),
     ]
-    assert [(r["damage_type"], r["can_hit_camo"]) for r in rows] == [
+    assert [(row["damage_type"], row["can_hit_camo"]) for row in rows] == [
         ("Normal", 1),
         ("Normal", 1),
         ("Sharp", 1),
@@ -199,7 +199,8 @@ def test_reload_is_idempotent_and_counts_match(shapes) -> None:
     for attack_number, projectiles in enumerate(shapes):
         built = {}
         for number, (damage, pierce) in enumerate(projectiles):
-            fields = {k: v for k, v in (("damage", damage), ("pierce", pierce)) if v is not None}
+            pairs = (("damage", damage), ("pierce", pierce))
+            fields = {key: value for key, value in pairs if value is not None}
             built[f"P{number}"] = fields
         attacks.append(make_attack(f"A{attack_number}", 1.0, built))
     resolved = {"_000": make_stats(*attacks)}

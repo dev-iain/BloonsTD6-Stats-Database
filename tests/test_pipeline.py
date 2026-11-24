@@ -41,7 +41,7 @@ ROUNDSET = {
 
 
 def fake_fetch_bloons() -> list[dict[str, Any]]:
-    return [dict(raw) for raw in RAW_BLOONS]
+    return [dict(raw_bloon) for raw_bloon in RAW_BLOONS]
 
 
 def fake_fetch_roundset() -> dict[str, Any]:
@@ -146,7 +146,7 @@ def test_second_run_is_noop_in_effect(connection) -> None:
     second = refresh_database(connection, fetch=make_fetch())
     assert second["Round groups"] == 5
     assert {name: second[name] for name in MAGIC_TOWERS} == {
-        n: ROWS_PER_TOWER for n in MAGIC_TOWERS
+        tower_name: ROWS_PER_TOWER for tower_name in MAGIC_TOWERS
     }
     assert count_upgrades(connection) == 320
     assert snapshot_tower(connection, "Druid") == before

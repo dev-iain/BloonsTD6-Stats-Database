@@ -10,8 +10,7 @@ from btd6.etl.extract import extract_row
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures"
 
-# fixture file -> (path, damage_type, projectile_damage, projectile_pierce, projectile_speed)
-EXPECTED_ROWS = {
+EXPECTED_ROWS: dict[str, list[tuple[str, str, int, int, int]]] = {
     "dart_monkey_resolved_sample.json": [
         ("0-0-0", "Sharp", 1, 2, 300),
         ("1-0-0", "Sharp", 1, 3, 300),

@@ -16,9 +16,9 @@ pytestmark = pytest.mark.usefixtures("offline_costs_wiki")
 
 def raw_bloons() -> list[dict[str, Any]]:
     return [
-        RawBloonFactory(id="Red"),
-        RawBloonFactory(id="Blue", parent_of="[[Red Bloon (BTD6)|Red Bloon]] ×1"),
-        RawBloonFactory(id="Moab", is_moab="1"),
+        RawBloonFactory(bloon_id="Red"),
+        RawBloonFactory(bloon_id="Blue", parent_of="[[Red Bloon (BTD6)|Red Bloon]] ×1"),
+        RawBloonFactory(bloon_id="Moab", is_moab="1"),
     ]
 
 

@@ -94,7 +94,7 @@ EXPECTED = {
 
 def chain_rows() -> list[dict]:
     raw = [
-        RawBloonFactory(id=name, parent_of=text, is_moab="1" if moab else "")
+        RawBloonFactory(bloon_id=name, parent_of=text, is_moab="1" if moab else "")
         for name, text, moab in RAW_CHAIN
     ]
     return extract_bloon_rows(raw)
@@ -121,5 +121,5 @@ def test_extract_bloon_rows_pop_cash_from_cargo_fixture() -> None:
 
 
 def test_extract_bloon_rows_unknown_child_is_leaf() -> None:
-    raw = [RawBloonFactory(id="Blue", parent_of=children_text(("Red Bloon", "Red Bloon", 1)))]
+    raw = [RawBloonFactory(bloon_id="Blue", parent_of=children_text(("Red Bloon", "Red Bloon", 1)))]
     assert extract_bloon_rows(raw)[0]["pop_cash"] == 2

@@ -202,3 +202,5 @@ Columns not listed have no NULLs. `ability_cooldown` NULL means no ability (expe
 | Ice Monkey | 0 | 14 | 0 |
 
 Bomb Shooter's second projectile carries its damage, so its first-projectile summary is the poorest of the five. No sentinel values appear: the largest damage across the five towers is 140 and the largest pierce 300.
+
+Sorting by `ability_cooldown` wraps the column in `NULLIF(..., 0)`, so a cooldown of 0 (the Druid Passive Ability) sorts like NULL instead of as the shortest cooldown.
