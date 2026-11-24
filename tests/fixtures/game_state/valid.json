@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "round": 40,
+  "cash": 5123.7,
+  "lives": 150,
+  "difficulty": "Medium",
+  "mode": "Standard",
+  "map": "Monkey Meadow",
+  "towers": [
+    {"base_id": "DartMonkey", "tiers": [0, 2, 3]},
+    {"base_id": "BananaFarm", "tiers": [2, 0, 0]}
+  ]
+}

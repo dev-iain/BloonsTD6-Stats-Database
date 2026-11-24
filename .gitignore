@@ -7,3 +7,8 @@ __pycache__/
 .env
 .env.*
 .vscode
+
+game_state.json
+mod/bin/
+mod/obj/
+mod/*.user

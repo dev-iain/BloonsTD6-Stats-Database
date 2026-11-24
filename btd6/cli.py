@@ -6,6 +6,7 @@ import sqlite3
 import sys
 import traceback
 from collections.abc import Callable
+from datetime import UTC, datetime
 from itertools import accumulate
 from pathlib import Path
 
@@ -38,6 +39,15 @@ from btd6.formatting import (
     format_amount,
     format_cell,
     income_summary,
+)
+from btd6.game_state import (
+    DEFAULT_MAX_AGE_SECONDS,
+    GameState,
+    GameStateError,
+    fake_game_state,
+    load_game_state,
+    parse_tower_spec,
+    save_game_state,
 )
 from btd6.income import NoIncomeDataError, round_income, round_incomes
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
@@ -107,6 +117,11 @@ def format_ranking(frame: pd.DataFrame) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="btd6")
     parser.add_argument("--db", default=str(PROJECT_ROOT / "btd6.db"), help="SQLite database path")
+    parser.add_argument(
+        "--state-file",
+        default=str(PROJECT_ROOT / "game_state.json"),
+        help="live game state file path",
+    )
     parser.add_argument("--debug", action="store_true", help="print tracebacks for errors")
     subparsers = parser.add_subparsers(dest="command")
     load_parser = subparsers.add_parser("load", help="load resolved tower data into the database")
@@ -127,7 +142,20 @@ def build_parser() -> argparse.ArgumentParser:
     add_recommend_options(recommend_parser)
     agent_parser = subparsers.add_parser("agent", help="ask the LLM advisor what to buy")
     add_agent_options(agent_parser)
+    add_state_subparsers(subparsers)
     return parser
+
+
+def add_state_subparsers(subparsers: argparse._SubParsersAction) -> None:
+    fake_parser = subparsers.add_parser("fake-state", help="write a fake game state file")
+    add_fake_state_options(fake_parser)
+    state_parser = subparsers.add_parser("game-state", help="show the stored game state")
+    state_parser.add_argument("--max-age", type=float, default=DEFAULT_MAX_AGE_SECONDS)
+
+
+def add_fake_state_options(subparser: argparse.ArgumentParser) -> None:
+    add_round_money_options(subparser)
+    subparser.add_argument("--tower", action="append", metavar="NAME:X-Y-Z")
 
 
 def add_round_money_options(subparser: argparse.ArgumentParser) -> None:
@@ -505,6 +533,44 @@ def run_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def format_game_state(state: GameState) -> str:
+    lines = [
+        f"Round {state.round_number}",
+        f"Money ${state.money:,}",
+        f"Lives {state.lives}",
+        f"Difficulty {state.difficulty}",
+        f"Mode {state.mode}",
+        f"Map {state.map_name}",
+        f"Towers ({len(state.towers)})",
+        *(f"  {tower.tower_name or tower.base_id} {tower.path}" for tower in state.towers),
+    ]
+    return "\n".join(lines)
+
+
+def run_fake_state(args: argparse.Namespace) -> int:
+    path = Path(args.state_file)
+    try:
+        specs = [parse_tower_spec(spec) for spec in args.tower or []]
+        state = fake_game_state(args.round_number, args.money, args.difficulty, specs)
+    except GameStateError as error:
+        print(error, file=sys.stderr)
+        return 2
+    save_game_state(path, state, datetime.now(UTC))
+    print(f"Saved round {state.round_number}, ${state.money:,} to {path}")
+    return 0
+
+
+def run_game_state(args: argparse.Namespace) -> int:
+    max_age = args.max_age if args.max_age > 0 else None
+    try:
+        stored = load_game_state(Path(args.state_file), max_age)
+    except GameStateError as error:
+        print(error, file=sys.stderr)
+        return 1
+    print(format_game_state(stored.state))
+    return 0
+
+
 HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "load": run_load,
     "search": run_search,
@@ -514,6 +580,8 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "income": run_income,
     "recommend": run_recommend,
     "agent": run_agent_command,
+    "fake-state": run_fake_state,
+    "game-state": run_game_state,
 }
 
 
