@@ -9,6 +9,7 @@ import pytest
 import requests
 
 from btd6.cli import main
+from btd6.etl.towers import KNOWN_TOWERS
 from tests.factories import IncomeSetFactory
 from tests.test_pipeline import (
     fake_fetch_bloons,
@@ -17,19 +18,13 @@ from tests.test_pipeline import (
     raising,
 )
 
-ALL_LINES = (
-    "Super Monkey: 64 upgrades\n"
-    "Wizard Monkey: 64 upgrades\n"
-    "Ninja Monkey: 64 upgrades\n"
-    "Alchemist: 64 upgrades\n"
-    "Druid: 64 upgrades\n"
+ROWS_PER_TOWER = 64
+ALL_LINES = "".join(f"{name}: {ROWS_PER_TOWER} upgrades\n" for name in KNOWN_TOWERS)
+LINES_WITHOUT_ALCHEMIST = "".join(
+    f"{name}: {ROWS_PER_TOWER} upgrades\n" for name in KNOWN_TOWERS if name != "Alchemist"
 )
-LINES_WITHOUT_ALCHEMIST = (
-    "Super Monkey: 64 upgrades\n"
-    "Wizard Monkey: 64 upgrades\n"
-    "Ninja Monkey: 64 upgrades\n"
-    "Druid: 64 upgrades\n"
-)
+ALL_UPGRADES = len(KNOWN_TOWERS) * ROWS_PER_TOWER
+UPGRADES_WITHOUT_ALCHEMIST = (len(KNOWN_TOWERS) - 1) * ROWS_PER_TOWER
 
 ROUNDS_LINE = "Income: 6 multiplier thresholds\nRounds: 3 rounds, 5 groups\n"
 
@@ -86,7 +81,7 @@ def test_main_load_all_base(
     assert captured.out == ALL_LINES + ROUNDS_LINE
     assert captured.err == ""
     assert new_db.exists()
-    assert count_upgrades(new_db) == 320
+    assert count_upgrades(new_db) == ALL_UPGRADES
 
 
 def test_main_load_one_tower(
@@ -129,7 +124,7 @@ def test_main_load_one_tower_bad_data(
     assert exit_code == 1
     assert captured.out == LINES_WITHOUT_ALCHEMIST + ROUNDS_LINE
     assert captured.err == "Alchemist: failed: no upgrade data\n"
-    assert count_upgrades(new_db) == 256
+    assert count_upgrades(new_db) == UPGRADES_WITHOUT_ALCHEMIST
 
 
 def test_main_load_wiki_unreachable(
@@ -158,7 +153,7 @@ def test_main_load_already_loaded(
     assert exit_code == 0
     assert captured.out == ALL_LINES + ROUNDS_LINE
     assert captured.err == ""
-    assert count_upgrades(new_db) == 320
+    assert count_upgrades(new_db) == ALL_UPGRADES
 
 
 def count_table(database_path: Path, table: str) -> int:
@@ -213,7 +208,7 @@ def test_main_load_bloons_fetch_fails(
     assert exit_code == 1
     assert captured.err == "Bloons: failed: Wiki cargo query returned no rows\n"
     assert "Rounds:" not in captured.out
-    assert count_upgrades(new_db) == 320
+    assert count_upgrades(new_db) == ALL_UPGRADES
     assert count_table(new_db, "rounds") == 0
 
 
@@ -229,7 +224,7 @@ def test_main_load_roundset_fetch_fails(
     captured = capsys.readouterr()
     assert exit_code == 1
     assert captured.err == 'Rounds: failed: Roundset "DefaultRoundSet" not found on the wiki\n'
-    assert count_upgrades(new_db) == 320
+    assert count_upgrades(new_db) == ALL_UPGRADES
     assert count_table(new_db, "bloons") == 3
     assert count_table(new_db, "round_groups") == 0
 
@@ -248,7 +243,7 @@ def test_main_load_rounds_already_loaded(
     assert count_table(new_db, "rounds") == 3
     assert count_table(new_db, "round_groups") == 5
     assert count_table(new_db, "bloons") == 3
-    assert count_upgrades(new_db) == 320
+    assert count_upgrades(new_db) == ALL_UPGRADES
 
 
 def test_main_load_no_rounds_keeps_existing_rounds(monkeypatch: pytest.MonkeyPatch, new_db: Path):

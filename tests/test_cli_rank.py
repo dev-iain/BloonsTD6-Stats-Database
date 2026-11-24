@@ -11,6 +11,7 @@ from hypothesis import strategies as st
 
 from btd6.cli import main
 from btd6.db import connect
+from btd6.db.loader import load_tower
 from btd6.query import UpgradeFilters
 from btd6.ranking import rank_upgrades
 from tests.test_ranking import UPGRADE_STATS, build_database
@@ -46,7 +47,7 @@ def expected_frame(
 ) -> pandas.DataFrame:
     connection = connect(db_file)
     try:
-        return rank_upgrades(connection, filters or UpgradeFilters(category="Magic"), **kwargs)
+        return rank_upgrades(connection, filters or UpgradeFilters(), **kwargs)
     finally:
         connection.close()
 
@@ -164,9 +165,24 @@ def test_main_rank_can_pop_lead(db_file: str, capsys: pytest.CaptureFixture[str]
     exit_code = run_rank(db_file, ["--can-pop", "lead"])
 
     captured = capsys.readouterr()
-    filters = UpgradeFilters(category="Magic", can_pop_lead=True)
+    filters = UpgradeFilters(can_pop_lead=True)
     assert exit_code == 0
     assert_matches(captured.out, expected_frame(db_file, filters))
+
+
+def test_main_rank_tower_option_selects_military_tower(
+    db_file: str, super_monkey_resolved: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    connection = connect(db_file)
+    load_tower(connection, "Sniper Monkey", super_monkey_resolved, "Military")
+    connection.close()
+
+    exit_code = run_rank(db_file, ["--tower", "Sniper Monkey"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Sniper Monkey" in captured.out
+    assert "Super Monkey" not in captured.out
 
 
 def test_main_rank_no_match(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:

@@ -50,7 +50,7 @@ A filter set to `None` adds no restriction. Given filters combine with AND.
 | `can_hit_camo` | `upgrades.can_hit_camo` | exact match |
 
 - `0` is a valid threshold and excludes `NULL` rows. A negative threshold raises `ValueError`.
-- No filters searches every loaded tower. The CLI passes `category="Magic"` by default.
+- No filters searches every loaded tower. The CLI `search` and `rank` do the same unless `--tower` is given.
 
 ## Sorting and limit
 

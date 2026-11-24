@@ -10,7 +10,7 @@ from btd6.db.round_loader import load_bloons, load_income, load_rounds
 from btd6.db.seed import initialize_database
 from btd6.etl import fetch as wiki
 from btd6.etl.extract import extract_bloon_rows, extract_round_rows
-from btd6.etl.towers import MAGIC_TOWERS
+from btd6.etl.towers import KNOWN_TOWERS
 
 BLOONS_KEY = "Bloons"
 ROUNDS_KEY = "Rounds"
@@ -149,7 +149,7 @@ def refresh_database(
     "Bloons", "Rounds" (round count), "Round groups" and "Income" (thresholds).
     """
     if tower_names is None:
-        tower_names = MAGIC_TOWERS
+        tower_names = KNOWN_TOWERS
     initialize_database(connection)
     loaded: dict[str, int] = {}
     failures: dict[str, Exception] = {}

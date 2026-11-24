@@ -350,7 +350,7 @@ Tower name and category are stored once in `towers`, and damage type name and fl
 
 ### Loader (`btd6/db/loader.py`)
 
-`load_tower(connection, tower_name, resolved, category="Magic")` rebuilds one tower: in one transaction it ensures the `towers` row (`ensure_tower`, idempotent), deletes that tower's upgrades and inserts the new ones, so upgrades that vanished from the wiki data are removed and other towers are untouched. Any failure rolls back everything, including a newly created tower row. `damage_type` is looked up by name (falling back to `Unknown`), booleans become 0/1, `None` stays `NULL`, and `can_pop_*` are ignored. It returns the number of upgrades written (`len(resolved)`).
+`load_tower(connection, tower_name, resolved, category="Primary")` rebuilds one tower: in one transaction it ensures the `towers` row (`ensure_tower`, idempotent), deletes that tower's upgrades and inserts the new ones, so upgrades that vanished from the wiki data are removed and other towers are untouched. Any failure rolls back everything, including a newly created tower row. `damage_type` is looked up by name (falling back to `Unknown`), booleans become 0/1, `None` stays `NULL`, and `can_pop_*` are ignored. It returns the number of upgrades written (`len(resolved)`).
 
 ### Known limitations
 

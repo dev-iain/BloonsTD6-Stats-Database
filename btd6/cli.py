@@ -170,7 +170,6 @@ def build_filters(args: argparse.Namespace) -> UpgradeFilters:
     pop_flags = {f"can_pop_{prop}": True for prop in args.can_pop or []}
     pop_flags.update({f"can_pop_{prop}": False for prop in args.cannot_pop or []})
     return UpgradeFilters(
-        category=None if args.tower else "Magic",
         tower_name=args.tower,
         min_pierce=args.min_pierce,
         min_damage=args.min_damage,

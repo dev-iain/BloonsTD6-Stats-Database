@@ -37,7 +37,7 @@ Load only some towers with `--tower` (repeatable): `uv run python -m btd6 load -
 
 ## Search
 
-`search` looks through the Magic towers. Filters combine with AND.
+`search` looks through every loaded tower (use `--tower NAME` to pick one). Filters combine with AND.
 
 | Option | Meaning |
 |---|---|

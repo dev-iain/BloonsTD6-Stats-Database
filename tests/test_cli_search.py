@@ -7,6 +7,7 @@ import pytest
 
 from btd6.cli import build_filters, build_parser, format_results, main
 from btd6.db import connect
+from btd6.db.loader import load_tower
 from btd6.query import search_upgrades
 from tests.test_query import (
     build_database,
@@ -168,8 +169,8 @@ def test_main_search_lead_in_both_flags(db_file: str, capsys: pytest.CaptureFixt
     assert captured.out == ""
 
 
-def test_main_search_non_magic_rows_excluded(
-    tmp_path: Path, golden_csv_path: Path, expected_table, capsys: pytest.CaptureFixture[str]
+def test_main_search_default_scope_includes_every_category(
+    tmp_path: Path, golden_csv_path: Path, capsys: pytest.CaptureFixture[str]
 ):
     mixed_db = build_database_file(tmp_path / "mixed.db", golden_csv_path, with_dart_monkey=True)
 
@@ -178,8 +179,23 @@ def test_main_search_non_magic_rows_excluded(
     captured = capsys.readouterr()
     assert exit_code == 0
     assert captured.err == ""
-    assert "Dart Monkey" not in captured.out
-    assert captured.out == expected_table(["0-0-0", "1-1-0"])
+    assert "Dart Monkey" in captured.out
+    assert "Super Monkey" in captured.out
+
+
+def test_main_search_tower_option_selects_military_tower(
+    db_file: str, super_monkey_resolved: dict, capsys: pytest.CaptureFixture[str]
+):
+    connection = connect(db_file)
+    load_tower(connection, "Sniper Monkey", super_monkey_resolved, "Military")
+    connection.close()
+
+    exit_code = run_search(db_file, ["--tower", "Sniper Monkey"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Sniper Monkey" in captured.out
+    assert "Super Monkey" not in captured.out
 
 
 def test_main_search_tower_option_includes_non_magic_tower(
