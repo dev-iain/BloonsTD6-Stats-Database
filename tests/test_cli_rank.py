@@ -16,15 +16,16 @@ from btd6.ranking import rank_upgrades
 from tests.test_ranking import UPGRADE_STATS, build_database
 
 NO_MATCH_LINE = "No upgrades match these filters."
-HEADER_WORDS = ["rank", "tower", "path", "cost", "DPS", "damage per dollar"]
+HEADER_WORDS = ["rank", "tower", "path", "cost", "DPS", "MOAB DPS", "damage per dollar"]
 ROW_PATTERN = re.compile(
     r"^\s*(?P<rank>\d+)\s+(?P<tower>.+?)\s+(?P<path>\d-\d-\d)\s+"
-    r"(?P<cost>\S+)\s+(?P<dps>\S+)\s+(?P<per_dollar>\S+)\s*$"
+    r"(?P<cost>\S+)\s+(?P<dps>\S+)\s+(?P<moab_dps>\S+)\s+(?P<per_dollar>\S+)\s*$"
 )
 METRIC_NAMES = {
     "dps": "dps",
     "dollar": "damage_per_dollar",
     "pierce-dollar": "pierce_damage_per_dollar",
+    "moab-dps": "moab_dps",
 }
 DIFFICULTIES = ["easy", "medium", "hard", "impoppable"]
 
@@ -67,6 +68,7 @@ def assert_matches(output: str, frame: pandas.DataFrame) -> None:
         assert row["path"] == expected["path"]
         assert float(row["cost"]) == pytest.approx(expected["total_cost"], rel=1e-2)
         assert float(row["dps"]) == pytest.approx(expected["dps"], rel=1e-2)
+        assert float(row["moab_dps"]) == pytest.approx(expected["moab_dps"], rel=1e-2)
 
 
 def run_rank(db_file: str, options: list[str]) -> int:
@@ -260,3 +262,17 @@ def test_main_rank_matches_rank_upgrades_property(
     frame = expected_frame(db_file, metric=METRIC_NAMES[metric], difficulty=difficulty, limit=limit)
     assert exit_code == 0
     assert_matches(captured.out, frame)
+
+
+def test_main_rank_warns_when_attacks_not_loaded(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    connection = connect(db_file)
+    connection.execute("DELETE FROM attacks")
+    connection.commit()
+    connection.close()
+
+    exit_code = run_rank(db_file, [])
+
+    assert exit_code == 0
+    assert 'Run "python -m btd6 load"' in capsys.readouterr().err

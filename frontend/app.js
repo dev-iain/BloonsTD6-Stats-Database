@@ -20,6 +20,7 @@ const RANK_COLUMNS = [
   { key: "path", label: "Path" },
   { key: "total_cost", label: "Cost", numeric: true },
   { key: "dps", label: "DPS", numeric: true },
+  { key: "moab_dps", label: "MOAB DPS", numeric: true },
   { key: "damage_per_dollar", label: "Damage / $", numeric: true },
 ];
 
