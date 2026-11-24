@@ -1,0 +1,157 @@
+{
+  "cargoquery": [
+    {
+      "title": {
+        "id": "Red",
+        "name": "Red Bloon",
+        "immunity": "",
+        "child of": "[[Blue Bloon (BTD6)|Blue Bloon]], [[Aura Bloon]], [[Dynamite Bloon]]",
+        "parent of": ""
+      }
+    },
+    {
+      "title": {
+        "id": "Blue",
+        "name": "Blue Bloon",
+        "immunity": "",
+        "child of": "[[Green Bloon (BTD6)|Green Bloon]], [[Aura Bloon]]",
+        "parent of": "[[Red Bloon (BTD6)|Red Bloon]] ×1"
+      }
+    },
+    {
+      "title": {
+        "id": "Green",
+        "name": "Green Bloon",
+        "immunity": "",
+        "child of": "[[Yellow Bloon (BTD6)|Yellow Bloon]], [[Aura Bloon]]",
+        "parent of": "[[Blue Bloon (BTD6)|Blue Bloon]] ×1"
+      }
+    },
+    {
+      "title": {
+        "id": "Yellow",
+        "name": "Yellow Bloon",
+        "immunity": "",
+        "child of": "[[Pink Bloon (BTD6)|Pink Bloon]], [[Aura Bloon]], [[Retribution Bloon]]",
+        "parent of": "[[Green Bloon (BTD6)|Green Bloon]] ×1"
+      }
+    },
+    {
+      "title": {
+        "id": "Pink",
+        "name": "Pink Bloon",
+        "immunity": "",
+        "child of": "[[Black Bloon (BTD6)|Black Bloon]], [[White Bloon (BTD6)|White Bloon]], [[Purple Bloon (BTD6)|Purple Bloon]], [[Aura Bloon]]",
+        "parent of": "[[Yellow Bloon (BTD6)|Yellow Bloon]] ×1"
+      }
+    },
+    {
+      "title": {
+        "id": "Black",
+        "name": "Black Bloon",
+        "immunity": "[[Damage type|Explosion]]",
+        "child of": "[[Lead Bloon (BTD6)|Lead Bloon]], [[Zebra Bloon (BTD6)|Zebra Bloon]], [[Dynamite Bloon]]",
+        "parent of": "[[Pink Bloon (BTD6)|Pink Bloon]] ×2"
+      }
+    },
+    {
+      "title": {
+        "id": "White",
+        "name": "White Bloon",
+        "immunity": "[[damage type|Cold, Glacier, Frigid]]",
+        "child of": "[[Zebra Bloon (BTD6)|Zebra Bloon]]",
+        "parent of": "[[Pink Bloon (BTD6)|Pink Bloon]] ×2"
+      }
+    },
+    {
+      "title": {
+        "id": "Purple",
+        "name": "Purple Bloon",
+        "immunity": "[[damage type|Energy, Plasma, Fire, Frigid]]",
+        "child of": "[[Retribution Bloon]]",
+        "parent of": "[[Pink Bloon (BTD6)|Pink Bloon]] ×2"
+      }
+    },
+    {
+      "title": {
+        "id": "Lead",
+        "name": "Lead Bloon",
+        "immunity": "[[damage type|Sharp, Shatter, Cold, Energy]]",
+        "child of": "",
+        "parent of": "[[Black Bloon (BTD6)|Black Bloon]] ×2"
+      }
+    },
+    {
+      "title": {
+        "id": "Zebra",
+        "name": "Zebra Bloon",
+        "immunity": "[[damage type|Explosion, Cold, Glacier, Frigid]]",
+        "child of": "[[Rainbow Bloon (BTD6)|Rainbow Bloon]], [[Glass Bloon (BTD6)|Glass Bloon]]",
+        "parent of": "[[White Bloon (BTD6)|White Bloon]] ×1, [[Black Bloon (BTD6)|Black Bloon]] ×1"
+      }
+    },
+    {
+      "title": {
+        "id": "Rainbow",
+        "name": "Rainbow Bloon",
+        "immunity": "",
+        "child of": "[[Ceramic Bloon (BTD6)|Ceramic Bloon]], [[Ringleader Bloon]]",
+        "parent of": "[[Zebra Bloon (BTD6)|Zebra Bloon]] ×2"
+      }
+    },
+    {
+      "title": {
+        "id": "Ceramic",
+        "name": "Ceramic Bloon",
+        "immunity": "",
+        "child of": "[[MOAB (BTD6)|MOAB]], [[DDT (BTD6)|DDT]], [[Diamond Bloon]]",
+        "parent of": "[[Rainbow Bloon (BTD6)|Rainbow Bloon]] ×2"
+      }
+    },
+    {
+      "title": {
+        "id": "Moab",
+        "name": "MOAB",
+        "immunity": "",
+        "child of": "[[BFB (BTD6)|BFB]]",
+        "parent of": "[[Ceramic Bloon (BTD6)|Ceramic Bloon]] ×4"
+      }
+    },
+    {
+      "title": {
+        "id": "Bfb",
+        "name": "BFB",
+        "immunity": "",
+        "child of": "[[ZOMG (BTD6)|ZOMG]]",
+        "parent of": "[[MOAB (BTD6)|MOAB]] ×4"
+      }
+    },
+    {
+      "title": {
+        "id": "Zomg",
+        "name": "ZOMG",
+        "immunity": "",
+        "child of": "[[BAD (BTD6)|BAD]]",
+        "parent of": "[[BFB (BTD6)|BFB]] ×4"
+      }
+    },
+    {
+      "title": {
+        "id": "Ddt",
+        "name": "DDT",
+        "immunity": "[[damage type|Sharp, Shatter, Cold, Energy, Explosion]]",
+        "child of": "[[BAD (BTD6)|BAD]]",
+        "parent of": "[[Camo Bloon (BTD6)|Camo]] [[Regrow Bloon (BTD6)|Regrow]] [[Ceramic (BTD6)|Ceramic]] ×4"
+      }
+    },
+    {
+      "title": {
+        "id": "Bad",
+        "name": "BAD",
+        "immunity": "[[Slow]], [[blowback]], [[knockback]]",
+        "child of": "",
+        "parent of": "[[ZOMG (BTD6)|ZOMG]] ×2, [[DDT (BTD6)|DDT]] ×3"
+      }
+    }
+  ]
+}

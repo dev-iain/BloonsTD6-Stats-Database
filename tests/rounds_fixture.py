@@ -5,6 +5,8 @@ import sqlite3
 from btd6.db import apply_migrations, connect
 
 BLOONS = {"Red": 1, "Blue": 2, "Pink": 5, "Lead": 23, "Ceramic": 104, "Moab": 616}
+LAYERS = {"Red": 1, "Blue": 2, "Pink": 5, "Lead": 4, "Ceramic": 10, "Moab": 1}
+LEAD_RBE_FORT = 30
 SPECIAL_ROUNDS: dict[int, list[tuple[str, int, bool]]] = {
     1: [("Red", 20, False)],
     3: [("Red", 5, False), ("Blue", 3, False), ("Red", 2, False)],
@@ -24,8 +26,16 @@ def build_rounds_db(
     bloon_ids = {}
     for name, rbe in BLOONS.items():
         cursor = connection.execute(
-            "INSERT INTO bloons (name, rbe, is_moab) VALUES (?, ?, ?)",
-            (name, rbe, int(name == "Moab")),
+            "INSERT INTO bloons (name, rbe, rbe_fort, layers, is_moab, has_lead)"
+            " VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                name,
+                rbe,
+                LEAD_RBE_FORT if name == "Lead" else None,
+                LAYERS[name],
+                int(name == "Moab"),
+                int(name == "Lead"),
+            ),
         )
         bloon_ids[name] = cursor.lastrowid
     groups = {**SPECIAL_ROUNDS, **(extra_rounds or {})}

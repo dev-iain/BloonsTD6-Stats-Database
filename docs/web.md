@@ -16,7 +16,7 @@ All responses are JSON. Errors are `{"error": "<message>"}`: `QueryError` (inclu
 | `GET /api/rankings` | the filters above, plus `metric` (`dps`, `damage_per_dollar`, `pierce_damage_per_dollar`), `difficulty`, `limit` | `{"rows": [...]}` ranked, with `total_cost`, `dps`, `damage_per_dollar` (`null` for missing values) |
 | `GET /api/damage-types` | none | `{"damage_types": [...]}` |
 | `GET /api/rounds` | none | `{"first": 1, "last": N}` loaded round range (both `null` when empty) |
-| `GET /api/rounds/{n}` | none | `{"round", "summary", "composition", "groups", "income"}`: `summary` is `RoundSummary` (totals plus `has_moab`/`has_camo`/`has_lead`/`has_ceramic`), `composition` the bloon totals (groups merged by bloon and modifiers, with `count` and `total_rbe`, largest RBE first), `groups` the spawn order, `income` is `pop_cash`, `end_bonus`, `total`, `cumulative` or `null` when income data is not loaded |
+| `GET /api/rounds/{n}` | none | `{"round", "summary", "composition", "groups", "income", "threats"}`: `summary` is `RoundSummary` (totals plus `has_moab`/`has_camo`/`has_lead`/`has_ceramic`), `composition` the bloon totals (groups merged by bloon and modifiers, with `count` and `total_rbe`, largest RBE first), `groups` the spawn order, `income` is `pop_cash`, `end_bonus`, `total`, `cumulative` or `null` when income data is not loaded; `threats` is `RoundThreats` from `btd6/threats.py` (`total_rbe`, `unknown_groups`, `property_share` per `lead/black/white/purple/glass/frozen`, `camo_share`, `regrow_share`, `moab_share`, `mean_layers`; formulas in `docs/threats.md`) |
 
 Parameters are parsed by `btd6.api.params.form_to_filters` and `form_to_search_options`. Each request opens its own SQLite connection.
 

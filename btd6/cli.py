@@ -40,6 +40,7 @@ from btd6.income import NoIncomeDataError, round_income, round_incomes
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import METRICS, rank_upgrades
 from btd6.rounds import NoRoundDataError, RoundGroup, get_round
+from btd6.threats import RoundThreats, round_threats
 
 RANK_METRICS: dict[str, str] = dict(zip(("dps", "dollar", "pierce-dollar"), METRICS, strict=True))
 RANK_COLUMNS: dict[str, str] = {
@@ -302,6 +303,20 @@ def load_rounds_table(connection: sqlite3.Connection, args: argparse.Namespace) 
     )
 
 
+def format_threats(threats: RoundThreats) -> str:
+    lines = [
+        f"Threats (round {threats.round})",
+        f"total RBE: {threats.total_rbe}",
+        f"unknown groups: {threats.unknown_groups}",
+        *(f"{name}: {share:.1%}" for name, share in threats.property_share.items()),
+        f"camo: {threats.camo_share:.1%}",
+        f"regrow: {threats.regrow_share:.1%}",
+        f"moab: {threats.moab_share:.1%}",
+        f"mean layers: {threats.mean_layers:.2f}",
+    ]
+    return "\n".join(lines)
+
+
 def report_missing_data(error: NoRoundDataError | NoIncomeDataError) -> int:
     kind = "income" if isinstance(error, NoIncomeDataError) else "round"
     print(MISSING_DATA_MESSAGE.format(kind=kind), file=sys.stderr)
@@ -316,6 +331,8 @@ def run_rounds(args: argparse.Namespace) -> int:
     connection = connect(args.db)
     try:
         table = load_rounds_table(connection, args)
+        if args.round_number is not None:
+            table += "\n\n" + format_threats(round_threats(connection, args.round_number))
     except NoRoundDataError as error:
         return report_missing_data(error)
     except ValueError as error:

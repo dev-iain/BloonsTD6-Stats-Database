@@ -20,8 +20,13 @@ def db_path(tmp_path: Path) -> str:
     return str(path)
 
 
+def table_part(out: str) -> str:
+    return out.split("\n\nThreats", 1)[0]
+
+
 def data_lines(out: str) -> list[list[str]]:
-    return [line.split() for line in out.strip().splitlines()[1:]]
+    table = table_part(out)
+    return [line.split() for line in table.strip().splitlines()[1:]]
 
 
 def run(db_path: str, *args: str) -> int:
@@ -142,10 +147,10 @@ def test_main_rounds_reversed_range(db_path: str, capsys: pytest.CaptureFixture[
 
 def test_main_rounds_range_of_one_round(db_path: str, capsys: pytest.CaptureFixture[str]) -> None:
     run(db_path, "--round", "3")
-    single = capsys.readouterr().out
+    single = table_part(capsys.readouterr().out)
     run(db_path, "--from", "3", "--to", "3")
 
-    assert capsys.readouterr().out == single
+    assert capsys.readouterr().out.strip() == single.strip()
 
 
 def test_main_rounds_range_past_loaded_data(
@@ -185,3 +190,38 @@ def test_main_rounds_matches_query_layer(db_path: str, capsys: pytest.CaptureFix
 
     rows = data_lines(capsys.readouterr().out)
     assert [row[1] for row in rows] == [group.bloon for group in get_round(build_rounds_db(), 40)]
+
+
+def test_main_rounds_single_round_prints_threats(
+    db_path: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert run(db_path, "--round", "27") == 0
+
+    lines = capsys.readouterr().out.splitlines()
+    start = lines.index("Threats (round 27)")
+    assert lines[start + 1 :] == [
+        "total RBE: 138",
+        "unknown groups: 0",
+        "lead: 100.0%",
+        "black: 0.0%",
+        "white: 0.0%",
+        "purple: 0.0%",
+        "glass: 0.0%",
+        "frozen: 0.0%",
+        "camo: 0.0%",
+        "regrow: 0.0%",
+        "moab: 0.0%",
+        "mean layers: 4.00",
+    ]
+
+
+def test_main_rounds_moab_round_threats(db_path: str, capsys: pytest.CaptureFixture[str]) -> None:
+    assert run(db_path, "--round", "40") == 0
+
+    assert "moab: 86.0%" in capsys.readouterr().out.splitlines()
+
+
+def test_main_rounds_range_has_no_threats(db_path: str, capsys: pytest.CaptureFixture[str]) -> None:
+    assert run(db_path, "--from", "1", "--to", "3") == 0
+
+    assert "Threats" not in capsys.readouterr().out

@@ -28,7 +28,7 @@ def attempt(connection: sqlite3.Connection, sql: str, params: tuple, valid: bool
 
 
 def test_migration_004_user_version(migrated) -> None:
-    assert migrated.execute("PRAGMA user_version").fetchone()[0] == 4
+    assert migrated.execute("PRAGMA user_version").fetchone()[0] == 5
 
 
 def test_migration_004_applied_to_version_three_database() -> None:
@@ -36,7 +36,7 @@ def test_migration_004_applied_to_version_three_database() -> None:
     for script in sorted(MIGRATIONS_DIR.glob("00[123]_*.sql")):
         connection.executescript(script.read_text())
     connection.execute("PRAGMA user_version = 3")
-    assert apply_migrations(connection) == ["004_income.sql"]
+    assert apply_migrations(connection) == ["004_income.sql", "005_bloon_properties.sql"]
     connection.close()
 
 
@@ -46,7 +46,7 @@ def test_income_tables_exist(migrated) -> None:
 
 
 def test_bloons_gain_pop_cash_columns(migrated) -> None:
-    assert columns(migrated, "bloons")[-2:] == ["pop_cash", "pop_cash_super"]
+    assert columns(migrated, "bloons")[-8:-6] == ["pop_cash", "pop_cash_super"]
 
 
 def test_bloons_pop_cash_defaults_to_null(migrated) -> None:

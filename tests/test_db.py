@@ -21,7 +21,13 @@ EXPECTED_TABLES = [
     "upgrade_costs",
     "upgrades",
 ]
-ALL_MIGRATIONS = ["001_initial.sql", "002_costs.sql", "003_rounds.sql", "004_income.sql"]
+ALL_MIGRATIONS = [
+    "001_initial.sql",
+    "002_costs.sql",
+    "003_rounds.sql",
+    "004_income.sql",
+    "005_bloon_properties.sql",
+]
 
 
 def scalar(connection: sqlite3.Connection, sql: str):
@@ -96,7 +102,7 @@ def test_connect_existing_migrated_file(tmp_path):
     first.close()
     second = connect(path)
     try:
-        assert scalar(second, "PRAGMA user_version") == 4
+        assert scalar(second, "PRAGMA user_version") == 5
         assert scalar(second, "SELECT COUNT(*) FROM damage_types") == 12
         assert scalar(second, "PRAGMA foreign_keys") == 1
     finally:
@@ -137,7 +143,7 @@ def test_connect_foreign_key_cascade_delete(memory_connection):
 
 def test_apply_migrations_fresh_database(memory_connection):
     assert apply_migrations(memory_connection) == ALL_MIGRATIONS
-    assert scalar(memory_connection, "PRAGMA user_version") == 4
+    assert scalar(memory_connection, "PRAGMA user_version") == 5
     assert table_names(memory_connection) == EXPECTED_TABLES
     assert scalar(memory_connection, "SELECT COUNT(*) FROM damage_types") == 12
     assert scalar(memory_connection, "SELECT COUNT(*) FROM towers") == 0
@@ -152,7 +158,7 @@ def test_apply_migrations_already_latest(tmp_path):
     second = connect(path)
     try:
         assert apply_migrations(second) == []
-        assert scalar(second, "PRAGMA user_version") == 4
+        assert scalar(second, "PRAGMA user_version") == 5
         assert scalar(second, "SELECT COUNT(*) FROM damage_types") == 12
     finally:
         second.close()
@@ -194,7 +200,7 @@ def test_apply_migrations_newer_version(memory_connection):
 def test_apply_migrations_twice(memory_connection):
     assert apply_migrations(memory_connection) == ALL_MIGRATIONS
     assert apply_migrations(memory_connection) == []
-    assert scalar(memory_connection, "PRAGMA user_version") == 4
+    assert scalar(memory_connection, "PRAGMA user_version") == 5
     assert scalar(memory_connection, "SELECT COUNT(*) FROM damage_types") == 12
 
 
@@ -253,7 +259,7 @@ def test_apply_migrations_idempotent_property(calls):
         results = [apply_migrations(connection) for _ in range(calls)]
         assert results[0] == ALL_MIGRATIONS
         assert all(result == [] for result in results[1:])
-        assert scalar(connection, "PRAGMA user_version") == 4
+        assert scalar(connection, "PRAGMA user_version") == 5
     finally:
         connection.close()
 
@@ -280,8 +286,12 @@ def test_migration_003_upgrades_version_two_database(memory_connection):
         "INSERT INTO upgrade_costs (tower_id, path_index, tier, name, cost)"
         " VALUES (1, 1, 1, 'Laser Blasts', 300)"
     )
-    assert apply_migrations(memory_connection) == ["003_rounds.sql", "004_income.sql"]
-    assert scalar(memory_connection, "PRAGMA user_version") == 4
+    assert apply_migrations(memory_connection) == [
+        "003_rounds.sql",
+        "004_income.sql",
+        "005_bloon_properties.sql",
+    ]
+    assert scalar(memory_connection, "PRAGMA user_version") == 5
     assert scalar(memory_connection, "SELECT COUNT(*) FROM upgrades") == 1
     assert scalar(memory_connection, "SELECT cost FROM upgrade_costs") == 300
     assert scalar(memory_connection, "SELECT COUNT(*) FROM bloons") == 0
@@ -293,6 +303,7 @@ def test_bloons_columns(memory_connection):
     assert columns == [
         "id", "name", "health", "health_fort", "layers", "rbe", "rbe_fort", "is_moab", "speed",
         "pop_cash", "pop_cash_super",
+        "has_lead", "has_black", "has_white", "has_purple", "has_glass", "has_frozen",
     ]  # fmt: skip
 
 

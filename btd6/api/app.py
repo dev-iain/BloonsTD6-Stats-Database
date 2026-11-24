@@ -17,6 +17,7 @@ from btd6.income import NoIncomeDataError, cumulative_income, round_income
 from btd6.query import QueryError, search_upgrades
 from btd6.ranking import rank_upgrades
 from btd6.rounds import NoRoundDataError, get_round, get_round_summary, round_composition
+from btd6.threats import round_threats
 
 MISSING_DATABASE_MESSAGE = 'Database not found at {path}. Run "python -m btd6 load" first.'
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
@@ -101,6 +102,7 @@ def round_detail(database_path: str, round_number: int) -> dict[str, Any]:
             "composition": [asdict(total) for total in round_composition(groups)],
             "groups": [asdict(group) for group in groups],
             "income": round_income_payload(connection, round_number),
+            "threats": asdict(round_threats(connection, round_number)),
         }
 
     return run_query(database_path, work)

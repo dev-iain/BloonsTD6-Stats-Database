@@ -4,6 +4,7 @@ import sqlite3
 from typing import Any
 
 from btd6.etl.extract import (
+    BLOON_FLAG_COLUMNS,
     extract_final_multiplier,
     extract_income_thresholds,
     split_bloon_name,
@@ -19,6 +20,7 @@ BLOON_COLUMNS = (
     "pop_cash_super",
     "is_moab",
     "speed",
+    *BLOON_FLAG_COLUMNS,
 )
 UPSERT_BLOON_SQL = (
     "INSERT INTO bloons (name, "
@@ -34,8 +36,12 @@ INSERT_GROUP_SQL = (
 )
 
 
+def column_default(column: str) -> int | None:
+    return 0 if column in BLOON_FLAG_COLUMNS else None
+
+
 def bloon_params(row: dict[str, Any]) -> tuple[Any, ...]:
-    values = [row.get(column) for column in BLOON_COLUMNS]
+    values = [row.get(column, column_default(column)) for column in BLOON_COLUMNS]
     values[BLOON_COLUMNS.index("is_moab")] = (
         int(row["is_moab"]) if isinstance(row["is_moab"], bool) else row["is_moab"]
     )
