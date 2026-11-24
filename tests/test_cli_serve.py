@@ -47,3 +47,24 @@ def test_serve_without_database_fails_before_starting(
     assert captured.err.strip() == (
         f'Database not found at {missing}. Run "python -m btd6 load" first.'
     )
+
+
+def test_serve_passes_state_file_to_app(
+    tmp_path: Path, uvicorn_calls: list[dict[str, Any]], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import btd6.api
+
+    database = tmp_path / "btd6.db"
+    database.touch()
+    state_file = tmp_path / "live.json"
+    created: list[tuple[str, str]] = []
+
+    def fake_create_app(database_path: str, state_path: str) -> str:
+        created.append((database_path, state_path))
+        return "app"
+
+    monkeypatch.setattr(btd6.api, "create_app", fake_create_app)
+    code = main(["--db", str(database), "--state-file", str(state_file), "serve"])
+
+    assert code == 0
+    assert created == [(str(database), str(state_file))]

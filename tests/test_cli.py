@@ -82,7 +82,8 @@ def test_build_parser_subcommand(command):
         "search towers and upgrades by stats",
     ],
 )
-def test_format_help_texts(expected):
+def test_format_help_texts(expected, monkeypatch):
+    monkeypatch.setenv("COLUMNS", "200")
     pattern = rf"(?<!\S){re.escape(expected)}(?!\S)"
     assert re.search(pattern, build_parser().format_help())
 

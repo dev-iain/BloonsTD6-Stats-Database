@@ -9,6 +9,6 @@ __pycache__/
 .vscode
 
 game_state.json
-mod/bin/
-mod/obj/
+mod/**/bin/
+mod/**/obj/
 mod/*.user

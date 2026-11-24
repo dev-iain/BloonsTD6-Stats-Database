@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections.abc import Callable, Mapping
 from dataclasses import asdict
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +19,14 @@ from btd6.api.params import (
     form_to_search_options,
 )
 from btd6.db import connect
+from btd6.game_state import (
+    GameStateError,
+    NoGameStateError,
+    load_game_state,
+    parse_game_state,
+    save_game_state,
+    state_summary,
+)
 from btd6.income import NoIncomeDataError, cumulative_income, round_income
 from btd6.query import QueryError, search_upgrades
 from btd6.ranking import rank_upgrades
@@ -25,7 +35,10 @@ from btd6.rounds import NoRoundDataError, get_round, get_round_summary, round_co
 from btd6.threats import round_threats
 
 MISSING_DATABASE_MESSAGE = 'Database not found at {path}. Run "python -m btd6 load" first.'
-FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+FRONTEND_DIR = PROJECT_ROOT / "frontend"
+DEFAULT_STATE_PATH = PROJECT_ROOT / "game_state.json"
+NOT_AN_OBJECT_MESSAGE = "Game state must be a JSON object"
 DEFAULT_RANK_METRIC = "damage_per_dollar"
 DEFAULT_DIFFICULTY = "medium"
 
@@ -137,6 +150,55 @@ def loaded_round_range(database_path: str) -> dict[str, int | None]:
     return run_query(database_path, work)
 
 
+def utc_now() -> datetime:
+    return datetime.now(UTC)
+
+
+def decode_state_body(body: bytes) -> dict[str, Any]:
+    try:
+        payload = json.loads(body)
+    except (json.JSONDecodeError, UnicodeDecodeError) as error:
+        raise GameStateError(NOT_AN_OBJECT_MESSAGE) from error
+    if not isinstance(payload, dict):
+        raise GameStateError(NOT_AN_OBJECT_MESSAGE)
+    return payload
+
+
+def receive_game_state(
+    state_path: Path, body: bytes, clock: Callable[[], datetime]
+) -> dict[str, Any]:
+    state = parse_game_state(decode_state_body(body))
+    received_at = clock()
+    save_game_state(state_path, state, received_at)
+    return summarize_stored(state_path, received_at)
+
+
+def summarize_stored(state_path: Path, current_time: datetime) -> dict[str, Any]:
+    return state_summary(load_game_state(state_path, max_age_seconds=None), current_time)
+
+
+def register_game_state_errors(app: FastAPI) -> None:
+    @app.exception_handler(GameStateError)
+    async def game_state_error(request: Request, error: GameStateError) -> JSONResponse:
+        return JSONResponse({"error": str(error)}, status_code=422)
+
+    @app.exception_handler(NoGameStateError)
+    async def no_game_state(request: Request, error: NoGameStateError) -> JSONResponse:
+        return JSONResponse({"error": str(error)}, status_code=404)
+
+
+def register_game_state_routes(
+    app: FastAPI, state_path: Path, clock: Callable[[], datetime]
+) -> None:
+    @app.post("/api/game-state")
+    async def post_game_state(request: Request) -> dict[str, Any]:
+        return receive_game_state(state_path, await request.body(), clock)
+
+    @app.get("/api/game-state")
+    def get_game_state() -> dict[str, Any]:
+        return summarize_stored(state_path, clock())
+
+
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(QueryError)
     async def query_error(request: Request, error: QueryError) -> JSONResponse:
@@ -185,9 +247,15 @@ def register_frontend(app: FastAPI) -> None:
     app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 
-def create_app(database_path: str | Path) -> FastAPI:
+def create_app(
+    database_path: str | Path,
+    state_path: str | Path | None = None,
+    clock: Callable[[], datetime] | None = None,
+) -> FastAPI:
     app = FastAPI(title="BTD6 Tower Stats")
     register_error_handlers(app)
+    register_game_state_errors(app)
     register_routes(app, str(database_path))
+    register_game_state_routes(app, Path(state_path or DEFAULT_STATE_PATH), clock or utc_now)
     register_frontend(app)
     return app

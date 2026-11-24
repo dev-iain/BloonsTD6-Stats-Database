@@ -102,3 +102,13 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         ["tower_name", "path"],
     ),
 ]
+
+GAME_STATE_SCHEMA = function_schema(
+    "get_game_state",
+    "The live game as the mod last reported it: round, cash (money), lives, difficulty, map "
+    "and the towers already placed (tower_name, path X-Y-Z; known is false for towers that are "
+    "not in the database). Call it when cash or towers may have changed.",
+    {},
+    [],
+)
+LIVE_TOOL_SCHEMAS: list[dict[str, Any]] = [*TOOL_SCHEMAS, GAME_STATE_SCHEMA]

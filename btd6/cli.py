@@ -6,6 +6,7 @@ import sqlite3
 import sys
 import traceback
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from itertools import accumulate
 from pathlib import Path
@@ -73,6 +74,17 @@ RANK_COLUMNS: dict[str, str] = {
 MISSING_DATA_MESSAGE = 'No {kind} data loaded. Run "python -m btd6 load" first.'
 DIFFICULTY_CHOICES = tuple(DIFFICULTY_MULTIPLIERS)
 NO_RECOMMENDATION_MESSAGE = "No affordable upgrade can handle this round."
+LIVE_COMMANDS = ("recommend", "agent")
+LIVE_CONFLICT_MESSAGE = "--live cannot be combined with --round, --money or --difficulty"
+MISSING_TARGET_MESSAGE = "the following arguments are required: --round, --money (or use --live)"
+
+
+@dataclass(frozen=True)
+class Target:
+    round_number: int
+    money: int
+    difficulty: str
+    live_state: GameState | None
 
 
 def format_results(rows: list[sqlite3.Row]) -> str:
@@ -164,13 +176,28 @@ def add_round_money_options(subparser: argparse.ArgumentParser) -> None:
     subparser.add_argument("--difficulty", choices=DIFFICULTY_CHOICES, default="medium")
 
 
+def add_target_options(subparser: argparse.ArgumentParser) -> None:
+    subparser.add_argument("--round", type=int, dest="round_number", metavar="N")
+    subparser.add_argument("--money", type=int)
+    subparser.add_argument("--difficulty", choices=DIFFICULTY_CHOICES, help="default medium")
+    subparser.add_argument(
+        "--live", action="store_true", help="read round, money and difficulty from the live game"
+    )
+    subparser.add_argument(
+        "--max-age",
+        type=float,
+        default=DEFAULT_MAX_AGE_SECONDS,
+        help="with --live, oldest accepted state in seconds (0 turns the check off)",
+    )
+
+
 def add_agent_options(subparser: argparse.ArgumentParser) -> None:
-    add_round_money_options(subparser)
+    add_target_options(subparser)
     subparser.add_argument("--max-iterations", type=int, default=8)
 
 
 def add_recommend_options(subparser: argparse.ArgumentParser) -> None:
-    add_round_money_options(subparser)
+    add_target_options(subparser)
     subparser.add_argument("--limit", type=int)
 
 
@@ -478,25 +505,71 @@ def format_recommendations(results: list[Recommendation]) -> str:
         return table.to_string(index=False)
 
 
+def check_target_options(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    manual_values = (args.round_number, args.money, args.difficulty)
+    if args.live and any(value is not None for value in manual_values):
+        parser.error(LIVE_CONFLICT_MESSAGE)
+    if not args.live and (args.round_number is None or args.money is None):
+        parser.error(MISSING_TARGET_MESSAGE)
+
+
+def resolve_target(args: argparse.Namespace) -> Target:
+    if not args.live:
+        return Target(args.round_number, args.money, args.difficulty or "medium", None)
+    max_age = args.max_age if args.max_age > 0 else None
+    state = load_game_state(Path(args.state_file), max_age).state
+    return Target(state.round_number, state.money, state.difficulty, state)
+
+
+def load_target(args: argparse.Namespace) -> Target | None:
+    try:
+        return resolve_target(args)
+    except GameStateError as error:
+        print(error, file=sys.stderr)
+        return None
+
+
+def live_line(target: Target) -> str:
+    return (
+        f"Live game: round {target.round_number}, ${target.money:,}, difficulty {target.difficulty}"
+    )
+
+
 def run_recommend(args: argparse.Namespace) -> int:
     failure = check_database_exists(args)
     if failure is not None:
         return failure
+    target = load_target(args)
+    if target is None:
+        return 1
     connection = connect(args.db)
     try:
-        results = recommend(connection, args.round_number, args.money, args.difficulty, args.limit)
+        results = recommend(
+            connection, target.round_number, target.money, target.difficulty, args.limit
+        )
     except NoRoundDataError as error:
         return report_missing_data(error)
     finally:
         connection.close()
+    if target.live_state is not None:
+        print(live_line(target))
     print(format_recommendations(results))
     return 0
+
+
+def agent_live_options(args: argparse.Namespace, target: Target) -> dict[str, object]:
+    if target.live_state is None:
+        return {}
+    return {"state_path": Path(args.state_file), "owned_towers": target.live_state.towers}
 
 
 def run_agent_command(args: argparse.Namespace) -> int:
     failure = check_database_exists(args)
     if failure is not None:
         return failure
+    target = load_target(args)
+    if target is None:
+        return 1
     try:
         client = client_from_environment(os.environ)
     except MissingApiKeyError as error:
@@ -507,10 +580,11 @@ def run_agent_command(args: argparse.Namespace) -> int:
         result = run_agent(
             connection,
             client,
-            args.round_number,
-            args.money,
-            args.difficulty,
+            target.round_number,
+            target.money,
+            target.difficulty,
             args.max_iterations,
+            **agent_live_options(args, target),
         )
     except AgentError as error:
         print(error, file=sys.stderr)
@@ -529,7 +603,8 @@ def run_serve(args: argparse.Namespace) -> int:
 
     from btd6.api import create_app
 
-    uvicorn.run(create_app(args.db), host=args.host, port=args.port)
+    app = create_app(args.db, state_path=args.state_file)
+    uvicorn.run(app, host=args.host, port=args.port)
     return 0
 
 
@@ -604,4 +679,6 @@ def main(argv: list[str] | None = None) -> int:
     if args.command is None:
         parser.print_usage(sys.stderr)
         return 2
+    if args.command in LIVE_COMMANDS:
+        check_target_options(parser, args)
     return run_guarded(HANDLERS[args.command], args)
