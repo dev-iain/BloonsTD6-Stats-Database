@@ -11,7 +11,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from btd6.etl import fetch
-from btd6.etl.towers import MAGIC_TOWERS
+from btd6.etl.towers import KNOWN_TOWERS
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "costs_super_monkey_cargo.json"
 TOWER_PARAMS = {
@@ -108,7 +108,7 @@ def test_fetch_costs_exact_query_params(install_wiki: InstallWiki) -> None:
     assert UPGRADE_PARAMS in fake.calls
 
 
-@pytest.mark.parametrize("tower_name", MAGIC_TOWERS)
+@pytest.mark.parametrize("tower_name", KNOWN_TOWERS)
 def test_fetch_costs_where_clause_uses_tower_name(
     install_wiki: InstallWiki, tower_name: str
 ) -> None:
@@ -121,7 +121,7 @@ def test_fetch_costs_where_clause_uses_tower_name(
 @pytest.mark.parametrize(
     "tower_name",
     [
-        "Dart Monkey",
+        "Glue Gunner",
         "",
         "super monkey",
         "Super Monkey'",
@@ -138,7 +138,7 @@ def test_fetch_costs_rejects_bad_name_without_query(
     assert fake.calls == []
 
 
-@given(tower_name=st.text().filter(lambda name: name not in MAGIC_TOWERS))
+@given(tower_name=st.text().filter(lambda name: name not in KNOWN_TOWERS))
 def test_fetch_costs_never_queries_unknown_tower(tower_name: str) -> None:
     calls: list[dict[str, Any]] = []
     original = fetch.wiki_api

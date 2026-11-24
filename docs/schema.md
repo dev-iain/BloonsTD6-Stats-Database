@@ -7,6 +7,9 @@ Design for the SQLite database that the loader (Iain) fills and the query layer 
 ```mermaid
 erDiagram
     towers ||--o{ upgrades : "has"
+    upgrades ||--o{ attacks : "has (006, designed)"
+    attacks ||--o{ projectiles : "fires (006, designed)"
+    damage_types ||--o{ projectiles : "classifies (006, designed)"
     damage_types ||--o{ upgrades : "classifies"
     towers ||--o{ upgrade_costs : "prices"
     rounds ||--o{ round_groups : "spawns"
@@ -53,6 +56,32 @@ erDiagram
         INTEGER count "NOT NULL, > 0"
         REAL start "NOT NULL, seconds, may be slightly negative"
         REAL duration "NOT NULL, seconds, >= 0"
+    }
+
+    attacks {
+        INTEGER id PK
+        INTEGER upgrade_id FK "NOT NULL, UK with attack_index"
+        INTEGER attack_index "NOT NULL, >= 0, wiki _order position"
+        TEXT name "NOT NULL"
+        REAL rate "seconds between attacks, NULL if wiki has none"
+    }
+    projectiles {
+        INTEGER id PK
+        INTEGER attack_id FK "NOT NULL, UK with projectile_index"
+        INTEGER projectile_index "NOT NULL, >= 0"
+        TEXT name "NOT NULL"
+        REAL damage "NULL: missing or unlimited"
+        REAL pierce "NULL: missing or unlimited"
+        INTEGER unlimited_damage "NOT NULL, 0/1, 9999999 sentinel"
+        INTEGER unlimited_pierce "NOT NULL, 0/1, 9999999 sentinel"
+        REAL moab_bonus_damage "NULL: no MOAB modifier"
+        INTEGER moab_only "NOT NULL, 0/1"
+        INTEGER count "NULL: wiki omitted, read as 1"
+        REAL speed
+        REAL radius
+        REAL lifespan
+        INTEGER damage_type_id FK "NOT NULL"
+        INTEGER can_hit_camo "NOT NULL, 0/1"
     }
 
     towers {
@@ -198,6 +227,56 @@ Seeded in the migration from `DAMAGE_TYPES`: ids 1 to 11 follow `DAMAGE_TYPES` o
 | `projectile_count` | INTEGER | yes | `CHECK (projectile_count IS NULL OR projectile_count >= 0)` |
 | `can_hit_camo` | INTEGER | no | `CHECK (can_hit_camo IN (0, 1))` |
 
+### `attacks` and `projectiles` (design for migration `006_attacks.sql`, epic #131, issue #132)
+
+Designed here, not yet in a migration: #133 writes `006_attacks.sql`, the extractor and the loader from this section; `tests/isp-tables/attacks.md` is the test specification. The existing first-attack columns on `upgrades` stay unchanged, so `search_upgrades`, `data.csv` and the golden tests keep working. The new tables hold every attack and projectile, in wiki order.
+
+Why two tables: the resolved JSON is a tree `upgrade -> attacks (_order) -> projectiles (_order)`, and both levels have their own fields (`rate` belongs to the attack, `damage` to the projectile). Putting them on one table would repeat the rate per projectile and make an attack with no projectile (Alchemist 2-2-0) unrepresentable. Measured on the real resolved JSON of the four towers: at most 5 attacks per upgrade (Druid) and 3 projectiles per attack, so the tables hold roughly 64 x 4 x 2.5 rows per tower, a few thousand rows overall.
+
+| Table.column | Type | Null | Constraints |
+|---|---|---|---|
+| `attacks.id` | INTEGER | no | `PRIMARY KEY` |
+| `attacks.upgrade_id` | INTEGER | no | `REFERENCES upgrades (id) ON DELETE CASCADE` |
+| `attacks.attack_index` | INTEGER | no | `CHECK (attack_index >= 0)`; position in the wiki's `_order`; `UNIQUE (upgrade_id, attack_index)` |
+| `attacks.name` | TEXT | no | the wiki key (`Attack`, `Vine`, `Acidic Mixture Dip`); not unique across upgrades, unique within one in the data |
+| `attacks.rate` | REAL | yes | `CHECK (rate IS NULL OR rate >= 0)`; seconds between attacks, as `upgrades.attack_rate` |
+| `projectiles.id` | INTEGER | no | `PRIMARY KEY` |
+| `projectiles.attack_id` | INTEGER | no | `REFERENCES attacks (id) ON DELETE CASCADE` |
+| `projectiles.projectile_index` | INTEGER | no | `CHECK (projectile_index >= 0)`; `UNIQUE (attack_id, projectile_index)` |
+| `projectiles.name` | TEXT | no | wiki key (`Projectile`, `Explosion`, `Collidable`, `Splash`) |
+| `projectiles.damage`, `pierce` | REAL | yes | `CHECK (x IS NULL OR x >= 0)`; NULL when the wiki omits the field or the value is the unlimited sentinel (below) |
+| `projectiles.unlimited_damage`, `unlimited_pierce` | INTEGER | no | `DEFAULT 0 CHECK (x IN (0, 1))`; plus `CHECK (unlimited_damage = 0 OR damage IS NULL)` and the same for pierce |
+| `projectiles.moab_bonus_damage` | REAL | yes | `CHECK (x IS NULL OR x >= 0)`; the wiki's `damageModifierForMoabs`, NULL when absent |
+| `projectiles.moab_only` | INTEGER | no | `DEFAULT 0 CHECK (moab_only IN (0, 1))`; the wiki's `filterOutNonMoabs` |
+| `projectiles.count` | INTEGER | yes | `CHECK (count IS NULL OR count >= 0)`; NULL means the wiki omitted it, read as 1 (as `docs/ranking.md`) |
+| `projectiles.speed`, `radius`, `lifespan` | REAL | yes | `CHECK (x IS NULL OR x >= 0)` |
+| `projectiles.damage_type_id` | INTEGER | no | `REFERENCES damage_types (id)`; looked up by name from the projectile's own `immuneBloonProperties`, as for `upgrades` (an absent field reads as 0, `Normal`, which is what `extract_row` already does) |
+| `projectiles.can_hit_camo` | INTEGER | no | `CHECK (can_hit_camo IN (0, 1))`; `not filterInvisible`, default 1 when the field is absent |
+
+Extractor changes this needs (#133): add `damageModifierForMoabs` and `filterOutNonMoabs` to `PROJECTILE_FIELDS` in `btd6/etl/fetch.py` (both are in the wiki JSON and are trimmed away today), and add an `extract_attack_rows` that walks every `_order` entry instead of `first_of`. `extract_row` itself is not changed.
+
+**Sentinel `9999999`.** In the data, 9999999 appears only on Druid, in 18 projectiles across 15 upgrades: `Vine` / `Collidable` has it on both `damage` and `pierce` (9 rows), and `Ball Lightning` and `Superstorm` / `Spawning projectile` have it on `pierce` only (9 rows). The other three towers have none, and no other field holds a value above 1000. Decision: store NULL in `damage` / `pierce` and set `unlimited_damage` / `unlimited_pierce` to 1. Reasons: a raw 9999999 would wreck any `SUM`, `AVG`, `MAX` or `ORDER BY` and needs a special case in every query; NULL already means "do not count this" in every metric (`docs/ranking.md`); and the flag keeps "unlimited" distinguishable from "the wiki has no value" (Ninja `Flash Bomb`, damage NULL, `unlimited_damage` 0). This differs from the issue's single `is_unlimited` in one respect: there are two flags, because Spawning projectiles are unlimited in pierce only, and one flag could not say which field it describes. The `CHECK`s make "flag set and a number stored" impossible. `extract_row` applies the same rule to the `upgrades` columns (sentinel -> NULL), so the two representations never disagree and a `min_pierce` filter does not match a sentinel as a huge number; unlimited-pierce upgrades are therefore not found by `min_pierce` until #134 adds an `unlimited_pierce` filter (follow-up). The extractor recognises the sentinel by equality with `UNLIMITED = 9999999`, one named constant. 
+
+**Abilities.** `upgrades.ability_cooldown` stays the only ability storage: the cooldown of the first ability, `NULL` when the upgrade has none. No `abilities` table in 006. Measured: 10 upgrades per tower have an ability, and the trimmed JSON keeps only `cooldown`; Druid has 8 upgrades with two abilities (`Passive Ability` with cooldown 0, then `Vine Crush` 30), so `ability_cooldown` is 0 for those 8 and 0 means "passive first", not "no cooldown data" (`NULL` is "no ability"). A 0 would sort first and pass any max-cooldown filter, so #134 must read `NULLIF(ability_cooldown, 0)` in the cooldown sort and filter (documented in `docs/queries.md` then); cause recorded in `docs/data-notes.md` once 006 lands. Abilities can own their own attacks (Alchemist 0-4-0 `Ability` has a `Transformed attack`); `trim_ability` drops them and 006 does not add them to `attacks`, so ability damage is not in any DPS figure. Revisit with a `abilities(id, upgrade_id, ability_index, name, cooldown)` table and `attacks.ability_id` once a consumer needs ability damage; adding both later is a plain additive migration.
+
+**Indexes.** Both `UNIQUE (upgrade_id, attack_index)` and `UNIQUE (attack_id, projectile_index)` create automatic indexes whose leading column is the foreign key, so they already serve "attacks of an upgrade" and "projectiles of an attack" and the join `upgrades -> attacks -> projectiles`. The issue proposed explicit `attacks.upgrade_id` and `projectiles.attack_id` indexes; they would duplicate those prefixes, so they are not created (unlike `idx_round_groups_round`, which was kept explicit; here the uniqueness is part of the design and is tested). `tests/test_db_indexes.py` gets two `EXPLAIN QUERY PLAN` checks that the lookups use `sqlite_autoindex_attacks_1` and `sqlite_autoindex_projectiles_1`. One explicit index: `idx_projectiles_damage_type_id` (foreign key, which SQLite does not index; same reasoning as `idx_upgrades_damage_type_id`). Not indexed: `damage`, `pierce` and `moab_bonus_damage`, because every metric is a per-upgrade aggregate over the join rather than a threshold filter on projectiles.
+
+**Search filters stay first-projectile.** `search_upgrades` filters (`can_hit_camo`, `damage_type`, `can_pop_*`, `min_damage`, `min_pierce`) keep reading `upgrades`, so for Ninja 0-0-3 they still see `Flash Bomb`. "Any projectile of the upgrade" semantics are out of scope for 006: #134 may add an `EXISTS (SELECT 1 FROM attacks JOIN projectiles ...)` pattern or views; this design supports it through the foreign keys and autoindexes.
+
+**Duplication with `upgrades`.** `upgrades.attack_rate` and `projectile_*` equal `attacks.rate` and the `projectiles` columns of `attack_index 0`, `projectile_index 0`. This is a deliberate, derived summary kept for 1.0 compatibility and the cheap single-table search; the loader writes both from the same JSON in one transaction, and a test checks they agree (for all upgrades, since both apply the sentinel rule).
+
+**DPS definitions** (computed, not stored: they are functions of the stored columns, so a stored copy could drift; implemented in `btd6/ranking.py` by #134). Rate is seconds between attacks, so `1 / rate` is attacks per second.
+
+- Projectile damage per attack: `damage x COALESCE(count, 1)`. A projectile with NULL `damage` contributes 0 (it has no direct damage, such as Ninja `Flash Bomb` or Wizard `Shimmer`). A projectile with `unlimited_damage = 1` contributes 0 to every figure and is reported by a separate `has_unlimited_damage` flag (it would otherwise dominate every ranking; it is not "infinite DPS" because the wiki value is a stand-in). Projectiles with `moab_only = 1` are excluded from DPS and included in MOAB DPS.
+- Per-attack DPS: `attack_dps = (sum of projectile damage per attack) / rate`. NULL when `rate` is NULL or 0, or when the attack has no projectile with non-NULL, non-unlimited damage. Alchemist 2-2-0's only attack ("Acidic Mixture Dip") has no projectile, so its attack DPS is NULL.
+- Upgrade DPS: the sum of the non-NULL `attack_dps` values over all attacks. NULL when every attack is NULL. This replaces the first-attack-only `dps` in `docs/ranking.md` once #134 lands; the existing formula stays valid for the `upgrades` row until then.
+- MOAB hit damage of a projectile: `damage + COALESCE(moab_bonus_damage, 0)` when `damage` is not NULL and not unlimited, else NULL. The bonus is additive (confirmed on the wiki in #133: `Module:BTD6 stats` prints `damageModifierForMoabs` as "+N" under "Damage to MOAB-Class", and the Arcane Spike page says "damage from 3 to 6, with +10 additional MOAB-Class damage"; Wizard 4-0-0: base 6, modifier 10, so 16 per hit on a MOAB-class bloon). The fortified-MOAB modifier (`damageModifierForFortifiedMoabs`, Alchemist only) is not stored.
+- Siblings are summed as the wiki lists them, with one confirmed exception. Wizard 0-0-5's `MOAB` (40) and `BFB` (100) projectiles are per-summon alternatives, not simultaneous: the wiki's Prince of Darkness page gives the summon condition as graveyard count 20-2099 for the undead MOAB and 2100-3000 for the undead BFB. Rule for #134: when one attack lists projectiles named after bloon classes (`MOAB`, `BFB`), plain DPS uses the smallest of them and MOAB DPS the largest. This is a special case in the ranking code, because the JSON does not mark alternatives.
+- `rate` allows 0 in the `CHECK` (nothing in the data has it), so DPS code uses `NULLIF(rate, 0)`. `projectiles.count` stays nullable rather than defaulting to 1, so a wiki omission stays distinguishable from an explicit 1; all code reads `COALESCE(count, 1)`. `damage_type_id` and `can_hit_camo` use the `extract_row` defaults for absent fields (Normal, camo-capable); the NULL-versus-default rationale goes in `docs/data-notes.md` with #133. DPS is also exposed in bulk (`all_upgrade_dps`) so ranking avoids one query per upgrade.
+- MOAB DPS: the same sum as upgrade DPS, with MOAB hit damage in place of damage and `moab_only` projectiles included. For an upgrade with no MOAB modifiers and no `moab_only` projectile it equals DPS. It ignores `pierce`, DoT effects and armour layers, like DPS.
+
+Worked values from the real resolved JSON (2026-11-23): Ninja 0-0-3 DPS = (3 + 1) / 0.62 + 1 / 3.9 = 6.7080; Wizard 0-0-5 DPS = 1 / 0.275 + 2 / 1.5 + 40 / 3 = 18.3030 and MOAB DPS = 1 / 0.275 + 2 / 1.5 + 100 / 3 = 38.3030 (the earlier simultaneous sum of 51.6364 was wrong, see `docs/data-notes.md`); Druid 0-3-0 DPS = 8 / 1.1 + 1 / 2.6 = 7.6573 with `has_unlimited_damage` true; Alchemist 2-2-0 DPS NULL; Wizard 4-0-0 MOAB DPS = (6 + 10) / 0.275 = 58.1818 against DPS 21.8182.
+
 ### Indexes
 
 | Index | Justification |
@@ -267,7 +346,7 @@ SQLite has no boolean type. Every boolean column is `INTEGER` with `CHECK (x IN 
 
 ### Normalization
 
-Tower name and category are stored once in `towers`, and damage type name and flags once in `damage_types`, so no string is repeated per upgrade. There is no deliberate duplication: `can_hit_camo` is a fact about the upgrade's projectile and cannot be derived from another column.
+Tower name and category are stored once in `towers`, and damage type name and flags once in `damage_types`, so no string is repeated per upgrade. The one deliberate duplication is the first-attack summary on `upgrades` versus `attacks`/`projectiles` (see "Duplication with `upgrades`"); `can_hit_camo` on `upgrades` is a fact about the first projectile and cannot be derived from another column.
 
 ### Loader (`btd6/db/loader.py`)
 
@@ -275,10 +354,13 @@ Tower name and category are stored once in `towers`, and damage type name and fl
 
 ### Known limitations
 
-- `extract_row` keeps only the first attack, first projectile and first ability of each upgrade. The Super Monkey data has no upgrade with more than one attack, so nothing is lost today. Towers with several attacks need an `attacks` table (2.0, "stats per attack"); splitting later means a data migration.
+- `extract_row` keeps only the first attack, first projectile and first ability of each upgrade, and `upgrades` keeps that summary unchanged. Every other attack and projectile (Wizard 30 upgrades, Ninja 16, Alchemist 32, Druid 26 of 64, `docs/data-notes.md`) is lost until migration `006_attacks.sql` (design above, issue #132; implementation #133). Until then, per-upgrade DPS and the NULL columns for Ninja 0-0-3, Wizard 0-0-5, Druid 0-3-0 and Alchemist 2-2-0 describe only the first entry.
+- After 006, still not stored: ability-owned attacks (`trim_ability` drops them), damage-over-time and other `effects` (so Alchemist `Splash` has NULL damage), `damageModifierForFortifiedMoabs`, and buffs (`damageAdditive` on the Wizard 0-0-5 zombie). DPS and MOAB DPS do not include them. The wiki lists a projectile's children (Ninja `Explosion` on a `Flash Bomb`) as siblings, so the tables cannot say which projectile spawns which; DPS sums them as the wiki lists them.
+- A projectile with no `immuneBloonProperties` is stored as `Normal` and with no `filterInvisible` as camo-capable (the `extract_row` defaults), so an attack with no projectile does not tell us anything about camo or damage type; Alchemist 2-2-0 reads `can_hit_camo = 1` on `upgrades` for that reason, and has no `projectiles` rows.
 - `can_pop_*` are six columns on `damage_types` rather than a `bloon_properties` plus junction table. A junction table is the fully normal form, but it needs a join per flag; with six fixed properties the single join was preferred.
 - Migrations run inside one transaction, so they must not contain `BEGIN`/`COMMIT` or toggle `PRAGMA foreign_keys` (a no-op in a transaction); table rebuilds need another approach. `apply_migrations` also assumes one process at a time.
 - Seed rows for a removed `DAMAGE_TYPES` entry are not deleted, and a wrong flag in the migration is overwritten silently by the seed (the drift test guards this).
+- `attacks.name` and `projectiles.name` repeat labels (`Attack`, `Projectile`) on every row; they are display text, not an entity, so no lookup table.
 - `projectile_count` is `INTEGER` (a count); the other projectile stats are `REAL`.
 - `projectile_speed` has no index and neither do the sort columns: at a few hundred rows SQLite scans anyway, and `NULLS LAST` with a tiebreak needs a sort regardless.
 - The `path` check allows `5-5-5`; real upgrades have at most two non-zero tiers and the loader is the place to validate that.
@@ -301,7 +383,7 @@ Costs arrive in `002_costs.sql`: `towers.base_cost` (nullable until costs are lo
 
 ## Queries this must support
 
-Taken from `docs/queries.md`. Pending sign-off from Nicole.
+Taken from `docs/queries.md`. Pending sign-off from Nicole. All of them read the first-attack summary on `upgrades`; per-attack and MOAB figures come from `attacks`/`projectiles` after 006 (#134).
 
 1. Upgrades of one tower (`towers.name`) or one category (`towers.category`).
 2. Upgrades that can or cannot pop a bloon property (lead, black, white, purple, glass, frozen), through `damage_types`.

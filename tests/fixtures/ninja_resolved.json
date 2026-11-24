@@ -1,0 +1,2288 @@
+{
+    "_000": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_100": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_110": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_101": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_200": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_210": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_220": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_201": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_202": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_300": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 2,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_310": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 2,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_320": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 2,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_301": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 2,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_302": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Caltrops"
+            ],
+            "Caltrops": {
+                "rate": 2.73,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_400": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_410": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_420": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_401": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_402": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Caltrops"
+            ],
+            "Caltrops": {
+                "rate": 2.73,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_500": {
+        "range": 50,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.217,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 2,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_510": {
+        "range": 50,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.217,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 2,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_520": {
+        "range": 50,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.217,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 2,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_501": {
+        "range": 57,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.217,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 2,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_502": {
+        "range": 50,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Caltrops"
+            ],
+            "Caltrops": {
+                "rate": 2.73,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_010": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_011": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_020": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_120": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_021": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_022": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_030": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_130": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_230": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_031": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_032": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Caltrops"
+            ],
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_040": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_140": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_240": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_041": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_042": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Caltrops"
+            ],
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_050": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_150": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_250": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_051": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_052": {
+        "range": 40,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Caltrops"
+            ],
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_001": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_002": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_102": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 2.73,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_012": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_003": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Flash Bomb",
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Flash Bomb": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 5,
+                        "lifespan": 0.57
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_103": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Flash Bomb",
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Flash Bomb": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 5,
+                        "lifespan": 0.57
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 2.73,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_203": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 6,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_013": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_023": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_004": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops",
+                "Sticky Bomb"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Flash Bomb",
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Flash Bomb": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 5,
+                        "lifespan": 0.57
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Sticky Bomb": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 0,
+                        "lifespan": 1,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 100,
+                        "pierce": 10,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0
+                    }
+                }
+            }
+        }
+    },
+    "_104": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops",
+                "Sticky Bomb"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Flash Bomb",
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Flash Bomb": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 5,
+                        "lifespan": 0.57
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 2.73,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Sticky Bomb": {
+                "rate": 3.15,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 0,
+                        "lifespan": 1,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 100,
+                        "pierce": 10,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0
+                    }
+                }
+            }
+        }
+    },
+    "_204": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 6,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_014": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops",
+                "Sticky Bomb"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Sticky Bomb": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Explosion"
+                    ],
+                    "Explosion": {
+                        "damage": 100,
+                        "pierce": 10,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0
+                    }
+                }
+            }
+        }
+    },
+    "_024": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops",
+                "Sticky Bomb"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Sticky Bomb": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 0,
+                        "lifespan": 1,
+                        "filterOutNonMoabs": true
+                    }
+                }
+            }
+        }
+    },
+    "_005": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops",
+                "Sticky Bomb"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Flash Bomb",
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Flash Bomb": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 5,
+                        "lifespan": 0.57
+                    },
+                    "Explosion": {
+                        "damage": 10,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Sticky Bomb": {
+                "rate": 2.25,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 0,
+                        "lifespan": 1,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 600,
+                        "pierce": 10,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0
+                    }
+                }
+            }
+        }
+    },
+    "_105": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops",
+                "Sticky Bomb"
+            ],
+            "Attack": {
+                "rate": 0.434,
+                "projectiles": {
+                    "_order": [
+                        "Flash Bomb",
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Flash Bomb": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 5,
+                        "lifespan": 0.57
+                    },
+                    "Explosion": {
+                        "damage": 10,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 2.73,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Sticky Bomb": {
+                "rate": 1.575,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 0,
+                        "lifespan": 1,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 600,
+                        "pierce": 10,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0
+                    }
+                }
+            }
+        }
+    },
+    "_205": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 6,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            }
+        }
+    },
+    "_015": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops",
+                "Sticky Bomb"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Explosion": {
+                        "damage": 10,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Sticky Bomb": {
+                "rate": 2.25,
+                "projectiles": {
+                    "_order": [
+                        "Explosion"
+                    ],
+                    "Explosion": {
+                        "damage": 600,
+                        "pierce": 10,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0
+                    }
+                }
+            }
+        }
+    },
+    "_025": {
+        "range": 47,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Caltrops",
+                "Sticky Bomb"
+            ],
+            "Attack": {
+                "rate": 0.62,
+                "projectiles": {
+                    "_order": [
+                        "Explosion",
+                        "Projectile"
+                    ],
+                    "Explosion": {
+                        "damage": 10,
+                        "pierce": 30,
+                        "radius": 40,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0
+                    },
+                    "Projectile": {
+                        "count": 1,
+                        "damage": 1,
+                        "pierce": 4,
+                        "speed": 300,
+                        "radius": 3,
+                        "lifespan": 0.62,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Caltrops": {
+                "rate": 3.9,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 6,
+                        "radius": 4,
+                        "lifespan": 35,
+                        "immuneBloonProperties": 17
+                    }
+                }
+            },
+            "Sticky Bomb": {
+                "rate": 2.25,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 1,
+                        "speed": 300,
+                        "radius": 0,
+                        "lifespan": 1,
+                        "filterOutNonMoabs": true
+                    }
+                }
+            }
+        }
+    }
+}

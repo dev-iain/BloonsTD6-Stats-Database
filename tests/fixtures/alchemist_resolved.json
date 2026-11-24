@@ -1,0 +1,2235 @@
+{
+    "_000": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_100": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_110": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_101": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_200": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            }
+        }
+    },
+    "_210": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            }
+        }
+    },
+    "_220": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Acidic Mixture Dip"
+            ],
+            "Acidic Mixture Dip": {
+                "rate": 10
+            }
+        }
+    },
+    "_201": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 8
+            }
+        }
+    },
+    "_202": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Acidic Mixture Dip"
+            ],
+            "Acidic Mixture Dip": {
+                "rate": 8
+            }
+        }
+    },
+    "_300": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            },
+            "Berserker Brew": {
+                "rate": 8
+            }
+        }
+    },
+    "_310": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            },
+            "Berserker Brew": {
+                "rate": 8
+            }
+        }
+    },
+    "_320": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            },
+            "Berserker Brew": {
+                "rate": 8
+            }
+        }
+    },
+    "_301": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 8
+            },
+            "Berserker Brew": {
+                "rate": 6.4
+            }
+        }
+    },
+    "_302": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 10.5,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_400": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            },
+            "Berserker Brew": {
+                "rate": 8
+            }
+        }
+    },
+    "_410": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            },
+            "Berserker Brew": {
+                "rate": 8
+            }
+        }
+    },
+    "_420": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            },
+            "Berserker Brew": {
+                "rate": 8
+            }
+        }
+    },
+    "_401": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 8
+            },
+            "Berserker Brew": {
+                "rate": 6.4
+            }
+        }
+    },
+    "_402": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 10.5,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_500": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            },
+            "Berserker Brew": {
+                "rate": 8
+            }
+        }
+    },
+    "_510": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 10
+            },
+            "Berserker Brew": {
+                "rate": 8
+            }
+        }
+    },
+    "_520": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        }
+    },
+    "_501": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Acidic Mixture Dip",
+                "Berserker Brew"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Acidic Mixture Dip": {
+                "rate": 8
+            },
+            "Berserker Brew": {
+                "rate": 6.4
+            }
+        }
+    },
+    "_502": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 10.5,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_010": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_011": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_020": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        }
+    },
+    "_120": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        }
+    },
+    "_021": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        }
+    },
+    "_022": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        }
+    },
+    "_030": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Splash",
+                        "Explosion"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 3,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 0,
+                        "pierce": 50,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_130": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 4,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    }
+                }
+            }
+        }
+    },
+    "_230": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Acidic Mixture Dip"
+            ],
+            "Acidic Mixture Dip": {
+                "rate": 10
+            }
+        }
+    },
+    "_031": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 4.8,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 3,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    }
+                }
+            }
+        }
+    },
+    "_032": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        }
+    },
+    "_040": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Splash",
+                        "Explosion"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 3,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 0,
+                        "pierce": 50,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_140": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 4,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_240": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Acidic Mixture Dip"
+            ],
+            "Acidic Mixture Dip": {
+                "rate": 10
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_041": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 4.8,
+                "projectiles": {
+                    "_order": [
+                        "Splash",
+                        "Explosion"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 3,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 0,
+                        "pierce": 50,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_042": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 60
+            }
+        }
+    },
+    "_050": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Splash",
+                        "Explosion"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 3,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 0,
+                        "pierce": 50,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 40
+            }
+        }
+    },
+    "_150": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 4,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 40
+            }
+        }
+    },
+    "_250": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Acidic Mixture Dip"
+            ],
+            "Acidic Mixture Dip": {
+                "rate": 10
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 40
+            }
+        }
+    },
+    "_051": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Unstable Concoction"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Unstable Concoction": {
+                "rate": 4.8,
+                "projectiles": {
+                    "_order": [
+                        "Splash",
+                        "Explosion"
+                    ],
+                    "Splash": {
+                        "damage": 0,
+                        "pierce": 3,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true,
+                        "filterOutNonMoabs": true
+                    },
+                    "Explosion": {
+                        "damage": 0,
+                        "pierce": 50,
+                        "radius": 40,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 40
+            }
+        }
+    },
+    "_052": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 40
+            }
+        }
+    },
+    "_001": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_002": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_102": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 10.5,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_012": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_003": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_103": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 10.5,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_203": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Acidic Mixture Dip"
+            ],
+            "Acidic Mixture Dip": {
+                "rate": 8
+            }
+        }
+    },
+    "_013": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_023": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            }
+        }
+    },
+    "_004": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Rubber to Gold"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Rubber to Gold": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 15,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_104": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Rubber to Gold"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 10.5,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Rubber to Gold": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 20,
+                        "radius": 31.5,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_204": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Acidic Mixture Dip",
+                "Rubber to Gold"
+            ],
+            "Acidic Mixture Dip": {
+                "rate": 8
+            },
+            "Rubber to Gold": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 15,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_014": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Rubber to Gold"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Rubber to Gold": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 15,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_024": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Rubber to Gold"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Rubber to Gold": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 15,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_005": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Rubber to Gold",
+                "Shrink Potion"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Rubber to Gold": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 15,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Shrink Potion": {
+                "rate": 10,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 200,
+                        "radius": 25,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_105": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Rubber to Gold",
+                "Shrink Potion"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 10.5,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Rubber to Gold": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 20,
+                        "radius": 31.5,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Shrink Potion": {
+                "rate": 10,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 200,
+                        "radius": 25,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_205": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Acidic Mixture Dip"
+            ],
+            "Acidic Mixture Dip": {
+                "rate": 8
+            }
+        }
+    },
+    "_015": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Rubber to Gold",
+                "Shrink Potion"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Rubber to Gold": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 15,
+                        "radius": 21,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Shrink Potion": {
+                "rate": 10,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 200,
+                        "radius": 25,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_025": {
+        "range": 45,
+        "footprintRadius": 6,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shrink Potion"
+            ],
+            "Attack": {
+                "rate": 1.6,
+                "projectiles": {
+                    "_order": [
+                        "Acid Pool",
+                        "Splash"
+                    ],
+                    "Acid Pool": {
+                        "damage": 1,
+                        "pierce": 5,
+                        "radius": 7,
+                        "lifespan": 6.95,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    },
+                    "Splash": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.05,
+                        "immuneBloonProperties": 64,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 4
+                    }
+                }
+            },
+            "Shrink Potion": {
+                "rate": 10,
+                "projectiles": {
+                    "_order": [
+                        "Splash"
+                    ],
+                    "Splash": {
+                        "pierce": 200,
+                        "radius": 25,
+                        "lifespan": 0.05,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    }
+}

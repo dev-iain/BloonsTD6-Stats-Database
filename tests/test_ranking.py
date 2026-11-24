@@ -55,7 +55,7 @@ NULL_RATE_STATS = {
     "attack_rate": None,
     "projectile_pierce": 1,
 }
-METRICS = ("dps", "damage_per_dollar", "pierce_damage_per_dollar")
+METRICS = ("dps", "moab_dps", "damage_per_dollar", "pierce_damage_per_dollar")
 DAMAGE_TYPES = ["Sharp", "Normal", "Plasma", "Energy"]
 
 
@@ -72,6 +72,32 @@ def insert_upgrade_rows(connection: sqlite3.Connection, rows: list[dict[str, Any
     ]
     with connection:
         connection.executemany(INSERT_UPGRADE_SQL, params)
+        for row in rows:
+            mirror_first_attack(connection, tower_id, row, type_ids[row["damage_type"]])
+
+
+def mirror_first_attack(
+    connection: sqlite3.Connection, tower_id: int, row: dict[str, Any], type_id: int
+) -> None:
+    upgrade_id = connection.execute(
+        "SELECT id FROM upgrades WHERE tower_id = ? AND path = ?", (tower_id, row["path"])
+    ).fetchone()[0]
+    attack_id = connection.execute(
+        "INSERT INTO attacks (upgrade_id, attack_index, name, rate) VALUES (?, 0, 'Attack', ?)",
+        (upgrade_id, row["attack_rate"]),
+    ).lastrowid
+    connection.execute(
+        "INSERT INTO projectiles (attack_id, projectile_index, name, damage, pierce, count,"
+        " damage_type_id, can_hit_camo) VALUES (?, 0, 'Projectile', ?, ?, ?, ?, ?)",
+        (
+            attack_id,
+            row["projectile_damage"],
+            row["projectile_pierce"],
+            row["projectile_count"],
+            type_id,
+            int(row["can_hit_camo"]),
+        ),
+    )
 
 
 def build_database(specs: dict[str, dict[str, Any]], with_costs: bool = True) -> sqlite3.Connection:
@@ -102,9 +128,8 @@ def value_of(frame: pandas.DataFrame, path: str, column: str) -> float:
 
 def metric_frame(**columns: Any) -> pandas.DataFrame:
     base = {
-        "projectile_damage": [1.0],
-        "projectile_count": [1.0],
-        "attack_rate": [0.045],
+        "upgrade_dps": [22.2222222],
+        "upgrade_moab_dps": [30.0],
         "projectile_pierce": [2.0],
         "total_cost": [4500.0],
     }
@@ -115,36 +140,37 @@ def metric_frame(**columns: Any) -> pandas.DataFrame:
 def test_add_metrics_all_base() -> None:
     result = add_metrics(metric_frame())
     assert result["dps"].iloc[0] == pytest.approx(22.2222222, rel=1e-6)
+    assert result["moab_dps"].iloc[0] == pytest.approx(30.0, rel=1e-6)
     assert result["pierce_weighted_dps"].iloc[0] == pytest.approx(44.4444444, rel=1e-6)
     assert result["damage_per_dollar"].iloc[0] == pytest.approx(0.00493827, rel=1e-6)
+    assert result["pierce_damage_per_dollar"].iloc[0] == pytest.approx(0.00987654, rel=1e-6)
 
 
 def test_add_metrics_does_not_mutate_input() -> None:
     frame = metric_frame()
     add_metrics(frame)
     assert "dps" not in frame.columns
+    assert "moab_dps" not in frame.columns
 
 
 def test_add_metrics_keeps_row_order() -> None:
     frame = metric_frame(
-        projectile_damage=[1.0, 2.0, 3.0],
-        projectile_count=[1.0] * 3,
-        attack_rate=[1.0] * 3,
+        upgrade_dps=[1.0, 2.0, 3.0],
+        upgrade_moab_dps=[1.0] * 3,
         projectile_pierce=[1.0] * 3,
         total_cost=[1.0] * 3,
     )
     assert list(add_metrics(frame)["dps"]) == [1.0, 2.0, 3.0]
 
 
-ALL_METRICS = ["dps", "pierce_weighted_dps", "damage_per_dollar"]
+ALL_METRICS = ["dps", "moab_dps", "pierce_weighted_dps", "damage_per_dollar"]
 
 
 @pytest.mark.parametrize(
     ("column", "value", "null_columns", "set_columns"),
     [
-        ("projectile_damage", None, ALL_METRICS, []),
-        ("attack_rate", None, ALL_METRICS, []),
-        ("attack_rate", 0.0, ALL_METRICS, []),
+        ("upgrade_dps", None, ["dps", "pierce_weighted_dps", "damage_per_dollar"], ["moab_dps"]),
+        ("upgrade_moab_dps", None, ["moab_dps"], ["dps", "damage_per_dollar"]),
         ("projectile_pierce", None, ["pierce_weighted_dps"], ["dps", "damage_per_dollar"]),
         ("total_cost", None, ["damage_per_dollar"], ["dps", "pierce_weighted_dps"]),
         ("total_cost", 0.0, ["damage_per_dollar"], ["dps", "pierce_weighted_dps"]),
@@ -160,20 +186,15 @@ def test_add_metrics_null_and_zero_inputs(
         assert not pandas.isna(result[name].iloc[0]), name
 
 
-def test_add_metrics_count_none_means_one() -> None:
-    result = add_metrics(metric_frame(projectile_count=[None]))
-    assert result["dps"].iloc[0] == pytest.approx(22.2222222, rel=1e-6)
-
-
-def test_add_metrics_several_projectiles() -> None:
-    result = add_metrics(metric_frame(projectile_count=[3.0]))
-    assert result["dps"].iloc[0] == pytest.approx(66.6666667, rel=1e-6)
-
-
-def test_add_metrics_non_numeric_damage_is_nan() -> None:
-    result = add_metrics(metric_frame(projectile_damage=["abc"]))
-    for name in ALL_METRICS:
+def test_add_metrics_non_numeric_dps_is_nan() -> None:
+    result = add_metrics(metric_frame(upgrade_dps=["abc"]))
+    for name in ("dps", "pierce_weighted_dps", "damage_per_dollar"):
         assert pandas.isna(result[name].iloc[0]), name
+
+
+def test_add_metrics_ignores_first_projectile_columns() -> None:
+    frame = metric_frame(projectile_damage=[99.0], projectile_count=[9.0], attack_rate=[0.001])
+    assert add_metrics(frame)["dps"].iloc[0] == pytest.approx(22.2222222, rel=1e-6)
 
 
 def test_rank_upgrades_all_base(ranked_database: sqlite3.Connection) -> None:
@@ -187,6 +208,7 @@ def test_rank_upgrades_returns_metric_columns(ranked_database: sqlite3.Connectio
     expected = {
         "total_cost",
         "dps",
+        "moab_dps",
         "pierce_weighted_dps",
         "damage_per_dollar",
         "pierce_damage_per_dollar",
@@ -298,6 +320,7 @@ def test_rank_upgrades_index_is_clean_range(
 EMPTY_RESULT_COLUMNS = {
     "total_cost",
     "dps",
+    "moab_dps",
     "pierce_weighted_dps",
     "damage_per_dollar",
     "pierce_damage_per_dollar",

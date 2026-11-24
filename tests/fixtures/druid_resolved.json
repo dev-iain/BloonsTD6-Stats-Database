@@ -1,0 +1,2844 @@
+{
+    "_000": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_100": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_110": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_101": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_200": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Lightning"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_210": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_220": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Lightning"
+            ],
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_201": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Lightning"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_202": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Lightning"
+            ],
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_300": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 35,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_310": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_320": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 35,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_301": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 35,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.3889,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_302": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 35,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_400": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Ball Lightning",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Ball Lightning": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Spawning projectile",
+                        "Lightning"
+                    ],
+                    "Spawning projectile": {
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 3.75,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    },
+                    "Lightning": {
+                        "damage": 3,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 3,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 60,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_410": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_420": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Ball Lightning",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Ball Lightning": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 3,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 3,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 60,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_401": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Ball Lightning",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Ball Lightning": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Spawning projectile"
+                    ],
+                    "Spawning projectile": {
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 5,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 3,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 60,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.3889,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_402": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Ball Lightning",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Ball Lightning": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Spawning projectile",
+                        "Lightning"
+                    ],
+                    "Spawning projectile": {
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 3.75,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    },
+                    "Lightning": {
+                        "damage": 3,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 3,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 60,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_500": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Ball Lightning",
+                "Superstorm",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Ball Lightning": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Spawning projectile",
+                        "Lightning"
+                    ],
+                    "Spawning projectile": {
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 3.75,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    },
+                    "Lightning": {
+                        "damage": 10,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Superstorm": {
+                "rate": 4,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Spawning projectile",
+                        "Lightning"
+                    ],
+                    "Projectile": {
+                        "damage": 100,
+                        "pierce": 200,
+                        "speed": 35,
+                        "radius": 40,
+                        "lifespan": 12.8571,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    },
+                    "Spawning projectile": {
+                        "count": 1,
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 3.75,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    },
+                    "Lightning": {
+                        "damage": 10,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 30,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 60,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_510": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_520": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Ball Lightning",
+                "Superstorm",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Ball Lightning": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 10,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Superstorm": {
+                "rate": 4,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Lightning"
+                    ],
+                    "Projectile": {
+                        "damage": 100,
+                        "pierce": 200,
+                        "speed": 35,
+                        "radius": 40,
+                        "lifespan": 12.8571,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    },
+                    "Lightning": {
+                        "damage": 10,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 30,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 60,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_501": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Ball Lightning",
+                "Superstorm",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Ball Lightning": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Spawning projectile"
+                    ],
+                    "Spawning projectile": {
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 5,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Superstorm": {
+                "rate": 4,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Spawning projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 100,
+                        "pierce": 200,
+                        "speed": 35,
+                        "radius": 40,
+                        "lifespan": 17.1429,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    },
+                    "Spawning projectile": {
+                        "count": 1,
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 5,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 30,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 60,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.3889,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_502": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Ball Lightning",
+                "Superstorm",
+                "Lightning",
+                "Tornado"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Ball Lightning": {
+                "rate": 6,
+                "projectiles": {
+                    "_order": [
+                        "Spawning projectile",
+                        "Lightning"
+                    ],
+                    "Spawning projectile": {
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 3.75,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    },
+                    "Lightning": {
+                        "damage": 10,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Superstorm": {
+                "rate": 4,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Spawning projectile",
+                        "Lightning"
+                    ],
+                    "Projectile": {
+                        "damage": 100,
+                        "pierce": 200,
+                        "speed": 35,
+                        "radius": 40,
+                        "lifespan": 12.8571,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    },
+                    "Spawning projectile": {
+                        "count": 1,
+                        "damage": 0,
+                        "pierce": 9999999,
+                        "speed": 24,
+                        "radius": 8,
+                        "lifespan": 3.75,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    },
+                    "Lightning": {
+                        "damage": 10,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 30,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Tornado": {
+                "rate": 2.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 0,
+                        "pierce": 60,
+                        "speed": 72,
+                        "radius": 16,
+                        "lifespan": 1.0417,
+                        "immuneBloonProperties": 12,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_010": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_011": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_020": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_120": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_021": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_022": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_030": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 2,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_130": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 2,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_230": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Lightning"
+            ],
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_031": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 2,
+                        "lifespan": 6,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_032": {
+        "range": 35,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 2,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_040": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 30,
+                        "radius": 2,
+                        "lifespan": 9,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Passive Ability",
+                "Vine Crush"
+            ],
+            "Passive Ability": {
+                "cooldown": 0
+            },
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_140": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 30,
+                        "radius": 2,
+                        "lifespan": 9,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Vine Crush"
+            ],
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_240": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Lightning"
+            ],
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Passive Ability",
+                "Vine Crush"
+            ],
+            "Passive Ability": {
+                "cooldown": 0
+            },
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_041": {
+        "range": 55,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 30,
+                        "radius": 2,
+                        "lifespan": 12,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Passive Ability",
+                "Vine Crush"
+            ],
+            "Passive Ability": {
+                "cooldown": 0
+            },
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_042": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 30,
+                        "radius": 2,
+                        "lifespan": 9,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Passive Ability",
+                "Vine Crush"
+            ],
+            "Passive Ability": {
+                "cooldown": 0
+            },
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_050": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 6,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 30,
+                        "radius": 2,
+                        "lifespan": 9,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Passive Ability",
+                "Vine Crush"
+            ],
+            "Passive Ability": {
+                "cooldown": 0
+            },
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_150": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 6,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 0.65,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 30,
+                        "radius": 2,
+                        "lifespan": 9,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Vine Crush"
+            ],
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_250": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Lightning"
+            ],
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Passive Ability",
+                "Vine Crush"
+            ],
+            "Passive Ability": {
+                "cooldown": 0
+            },
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_051": {
+        "range": 55,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 6,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 30,
+                        "radius": 2,
+                        "lifespan": 12,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Passive Ability",
+                "Vine Crush"
+            ],
+            "Passive Ability": {
+                "cooldown": 0
+            },
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_052": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Vine"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 6,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.3,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Vine": {
+                "rate": 2.6,
+                "projectiles": {
+                    "_order": [
+                        "Collidable",
+                        "Projectile"
+                    ],
+                    "Collidable": {
+                        "damage": 9999999,
+                        "pierce": 9999999,
+                        "radius": 4,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    },
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 30,
+                        "radius": 2,
+                        "lifespan": 9,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Passive Ability",
+                "Vine Crush"
+            ],
+            "Passive Ability": {
+                "cooldown": 0
+            },
+            "Vine Crush": {
+                "cooldown": 30
+            }
+        }
+    },
+    "_001": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_002": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_102": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_012": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_003": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_103": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_203": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Lightning"
+            ],
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_013": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_023": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_004": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_104": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_204": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Lightning"
+            ],
+            "Lightning": {
+                "rate": 2.3,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_014": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_024": {
+        "range": 45,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_005": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.55,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 4,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_105": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.55,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 4,
+                        "pierce": 2,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_205": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Lightning"
+            ],
+            "Lightning": {
+                "rate": 1.15,
+                "projectiles": {
+                    "_order": [
+                        "Lightning"
+                    ],
+                    "Lightning": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "radius": 0,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_015": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.55,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 8,
+                        "damage": 4,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_025": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.55,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 5,
+                        "damage": 4,
+                        "pierce": 1,
+                        "speed": 340,
+                        "radius": 0,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 17,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    }
+}

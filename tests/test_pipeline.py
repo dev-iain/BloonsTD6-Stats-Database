@@ -41,7 +41,7 @@ ROUNDSET = {
 
 
 def fake_fetch_bloons() -> list[dict[str, Any]]:
-    return [dict(raw) for raw in RAW_BLOONS]
+    return [dict(raw_bloon) for raw_bloon in RAW_BLOONS]
 
 
 def fake_fetch_roundset() -> dict[str, Any]:
@@ -146,7 +146,7 @@ def test_second_run_is_noop_in_effect(connection) -> None:
     second = refresh_database(connection, fetch=make_fetch())
     assert second["Round groups"] == 5
     assert {name: second[name] for name in MAGIC_TOWERS} == {
-        n: ROWS_PER_TOWER for n in MAGIC_TOWERS
+        tower_name: ROWS_PER_TOWER for tower_name in MAGIC_TOWERS
     }
     assert count_upgrades(connection) == 320
     assert snapshot_tower(connection, "Druid") == before
@@ -293,3 +293,19 @@ def test_second_run_leaves_round_counts_unchanged(connection) -> None:
     refresh_database(connection, ("Druid",), fetch=make_fetch())
     assert count_rows(connection, "bloons") == 3
     assert count_rows(connection, "round_groups") == 5
+
+
+def test_non_magic_tower_is_stored_with_the_wiki_category(
+    connection: sqlite3.Connection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real_fetch_costs = wiki_fetch.fetch_costs
+
+    def primary_costs(name: str) -> dict[str, Any]:
+        return {**real_fetch_costs("Super Monkey"), "category": "Primary"}
+
+    monkeypatch.setattr(wiki_fetch, "fetch_costs", primary_costs)
+    refresh_database(connection, ["Dart Monkey"], fetch=make_fetch(), include_rounds=False)
+    category = connection.execute(
+        "SELECT category FROM towers WHERE name = 'Dart Monkey'"
+    ).fetchone()[0]
+    assert category == "Primary"

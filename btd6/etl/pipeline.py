@@ -47,7 +47,7 @@ def load_one_tower(
 ) -> int:
     resolved = wiki.resolve_all_codes(fetch(tower_name))
     costs = wiki.fetch_costs(tower_name)
-    written = load_tower(connection, tower_name, resolved)
+    written = load_tower(connection, tower_name, resolved, costs["category"])
     load_costs(connection, tower_name, costs)
     return written
 

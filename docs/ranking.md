@@ -8,13 +8,22 @@ All inputs are columns of a `search_upgrades` result row (`docs/queries.md`) plu
 
 | Metric | Formula | `metric=` value | CLI `--metric` |
 |---|---|---|---|
-| DPS | `projectile_damage × projectile_count / attack_rate` | `"dps"` | `dps` |
+| DPS | sum over attacks of `Σ(damage × COALESCE(count, 1)) / rate` (see below) | `"dps"` | `dps` |
+| MOAB DPS | same sum with MOAB hit damage and `moab_only` projectiles included | `"moab_dps"` | |
 | Pierce-weighted DPS | `DPS × projectile_pierce` | (column only) | |
 | Damage per dollar | `DPS / total_cost` | `"damage_per_dollar"` (default) | `dollar` |
 | Pierce damage per dollar | `pierce-weighted DPS / total_cost` | `"pierce_damage_per_dollar"` | `pierce-dollar` |
 
 - `attack_rate` is seconds between attacks, so dividing by it gives attacks per second.
 - Pierce-weighted DPS is the damage dealt when every projectile hits its full pierce of bloons. It is an upper bound: it assumes enough bloons are in the way.
+
+## Per-attack DPS
+
+Computed by `upgrade_dps`, `upgrade_moab_dps` and `all_upgrade_dps` in `btd6/ranking.py` from the `attacks` and `projectiles` tables (definitions in `docs/schema.md`), not from the first-projectile columns of `upgrades`.
+
+- Attack DPS = `Σ(damage × COALESCE(count, 1)) / rate`. NULL damage counts as 0; `unlimited_damage` projectiles are excluded; attacks with NULL or 0 `rate` or no usable projectile are skipped. Upgrade DPS is the sum of attack DPS, NULL when every attack is NULL (Alchemist 2-2-0).
+- `moab_only` projectiles are excluded from DPS and included in MOAB DPS. MOAB hit = `damage + COALESCE(moab_bonus_damage, 0)`.
+- When one attack lists projectiles named after bloon classes (`MOAB`, `BFB`), they are alternatives: DPS takes the smallest, MOAB DPS the largest (Wizard 0-0-5: 18.3030 and 38.3030).
 
 ## `projectile_speed`, `range` and `projectile_lifespan`
 
@@ -28,9 +37,8 @@ A metric is `NULL` when it cannot be computed; `NULL` metrics rank last.
 
 | Input | Effect |
 |---|---|
-| `projectile_damage` NULL | DPS and everything after it NULL |
-| `projectile_count` NULL | treated as `1` (the wiki omits it for single-projectile attacks; see `docs/data-notes.md`) |
-| `attack_rate` NULL or `0` | DPS NULL (no division by zero) |
+| every attack without usable damage or with NULL/`0` rate | DPS and everything after it NULL |
+| `count` NULL | treated as `1` (the wiki omits it for single-projectile attacks; see `docs/data-notes.md`) |
 | `projectile_pierce` NULL | pierce-weighted metrics NULL; plain DPS still computed |
 | `total_cost` NULL (costs not loaded) or `0` | per-dollar metrics NULL |
 
@@ -68,7 +76,7 @@ Difficulty, same upgrades:
 
 ## Limitations
 
-- `extract_row` reads only the first attack and its first projectile (`docs/data-notes.md`). For Wizard, Ninja, Alchemist and Druid, upgrades with several attacks are under-counted, so their DPS is a lower bound. Super Monkey is unaffected.
+- DPS ignores pierce, damage-over-time and armour layers.
 - Abilities, buffs to other towers, damage-over-time, and bonus damage to specific bloon types are not included.
 - Pierce-weighted metrics assume every projectile uses its full pierce.
 

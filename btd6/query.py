@@ -119,8 +119,8 @@ def build_where(
         clauses.append(damage_type_clause(connection, filters.damage_type))
     if not clauses:
         return "", []
-    sql = " WHERE " + " AND ".join(clause for clause, _ in clauses)
-    return sql, [param for _, params in clauses for param in params]
+    where_text = " WHERE " + " AND ".join(clause for clause, _ in clauses)
+    return where_text, [param for _, params in clauses for param in params]
 
 
 def build_order_by(sort_by: str | None, descending: bool) -> str:
@@ -131,7 +131,12 @@ def build_order_by(sort_by: str | None, descending: bool) -> str:
         allowed = ", ".join(SORT_COLUMNS)
         raise QueryError(f'Cannot sort by "{sort_by}". Allowed: {allowed}')
     direction = "DESC" if descending else "ASC"
-    return f" ORDER BY upgrades.{sort_by} {direction} NULLS LAST, {tiebreak}"
+    column = (
+        "NULLIF(upgrades.ability_cooldown, 0)"
+        if sort_by == "ability_cooldown"
+        else f"upgrades.{sort_by}"
+    )
+    return f" ORDER BY {column} {direction} NULLS LAST, {tiebreak}"
 
 
 def search_upgrades(

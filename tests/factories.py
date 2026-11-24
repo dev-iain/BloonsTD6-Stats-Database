@@ -184,16 +184,153 @@ class RawBloonFactory(factory.Factory):
 
     class Meta:
         model = dict
+        rename = {"bloon_id": "id", "resistance_multiplier": "rbe"}
 
-    id = "Red"
-    name = factory.LazyAttribute(lambda row: f"{row.id} Bloon")
+    bloon_id = "Red"
+    name = factory.LazyAttribute(lambda row: f"{row.bloon_id} Bloon")
     health = "1"
     health_fort = ""
     layers = "1"
-    rbe = "1"
+    resistance_multiplier = "1"
     rbe_fort = ""
     is_moab = ""
     speed = "25"
     immunity = ""
     parent_of = ""
     child_of = ""
+
+
+UNLIMITED = 9999999
+
+
+def make_attack(name: str, rate: float | None, projectiles: dict[str, dict[str, Any]]) -> tuple:
+    """(name, attack dict) with `projectiles` in the given order; None rate is omitted."""
+    attack: dict[str, Any] = {} if rate is None else {"rate": rate}
+    if projectiles:
+        attack["projectiles"] = {"_order": list(projectiles), **projectiles}
+    return name, attack
+
+
+def make_stats(*attacks: tuple, **extra: Any) -> dict[str, Any]:
+    """Wiki-shaped stats with every `(name, attack)` pair in `_order` (StatsFactory shell)."""
+    container = {"_order": [name for name, _ in attacks], **dict(attacks)}
+    return StatsFactory(attacks=container, **extra)
+
+
+def ninja_003_attack() -> dict[str, Any]:
+    return make_attack(
+        "Attack",
+        0.62,
+        {
+            "Flash Bomb": {
+                "pierce": 1,
+                "speed": 300,
+                "radius": 5,
+                "lifespan": 0.57,
+                "immuneBloonProperties": 0,
+            },
+            "Explosion": {"damage": 3, "pierce": 30, "immuneBloonProperties": 0},
+            "Projectile": {
+                "count": 1,
+                "damage": 1,
+                "pierce": 4,
+                "immuneBloonProperties": 17,
+            },
+        },
+    )
+
+
+def ninja_003_caltrops() -> dict[str, Any]:
+    projectile = {"damage": 1, "pierce": 6, "lifespan": 35, "immuneBloonProperties": 17}
+    return make_attack("Caltrops", 3.9, {"Projectile": projectile})
+
+
+def ninja_003() -> dict[str, Any]:
+    return make_stats(ninja_003_attack(), ninja_003_caltrops())
+
+
+def wizard_005() -> dict[str, Any]:
+    return make_stats(
+        make_attack("Attack", 0.275, {"Projectile": {"damage": 1, "pierce": 8}}),
+        make_attack("Shimmer", 1, {"Projectile": {"pierce": 500}}),
+        make_attack("Reanimate", 1.5, {"Projectile": {"damage": 2, "pierce": 1}}),
+        make_attack(
+            "MOAB",
+            3,
+            {"MOAB": {"damage": 40, "pierce": 20}, "BFB": {"damage": 100, "pierce": 50}},
+        ),
+    )
+
+
+def druid_vine_attacks() -> tuple:
+    return (
+        make_attack("Attack", 1.1, {"Projectile": {"damage": 1, "pierce": 1, "count": 8}}),
+        make_attack(
+            "Vine",
+            2.6,
+            {
+                "Collidable": {"damage": UNLIMITED, "pierce": UNLIMITED},
+                "Projectile": {"damage": 1, "pierce": 20},
+            },
+        ),
+    )
+
+
+def druid_030() -> dict[str, Any]:
+    return make_stats(*druid_vine_attacks())
+
+
+def druid_400() -> dict[str, Any]:
+    return make_stats(
+        make_attack("Attack", 1.1, {"Projectile": {"damage": 1, "pierce": 2, "count": 5}}),
+        make_attack(
+            "Ball Lightning",
+            6,
+            {
+                "Spawning projectile": {"damage": 0, "pierce": UNLIMITED},
+                "Lightning": {"damage": 3, "pierce": 5},
+            },
+        ),
+        make_attack("Lightning", 2.3, {"Lightning": {"damage": 3, "pierce": 5}}),
+        make_attack("Tornado", 2.5, {"Projectile": {"damage": 0, "pierce": 60}}),
+    )
+
+
+def alchemist_220() -> dict[str, Any]:
+    return make_stats(make_attack("Acidic Mixture Dip", 10, {}))
+
+
+def wizard_400() -> dict[str, Any]:
+    projectile = {"damage": 6, "pierce": 7, "damageModifierForMoabs": 10}
+    return make_stats(make_attack("Attack", 0.275, {"Projectile": projectile}))
+
+
+ABILITIES_PASSIVE_FIRST = {
+    "_order": ["Passive Ability", "Vine Crush"],
+    "Passive Ability": {"cooldown": 0},
+    "Vine Crush": {"cooldown": 30},
+}
+ABILITIES_ACTIVE = {"_order": ["Ability"], "Ability": {"cooldown": 60}}
+
+
+def druid_040() -> dict[str, Any]:
+    return make_stats(*druid_vine_attacks(), abilities=ABILITIES_PASSIVE_FIRST)
+
+
+def alchemist_040() -> dict[str, Any]:
+    attack = make_attack("Attack", 2, {"Splash": {"damage": 1, "pierce": 15}})
+    return make_stats(attack, abilities=ABILITIES_ACTIVE)
+
+
+def projectile_of(stats: dict[str, Any], attack: str, projectile: str) -> dict[str, Any]:
+    """The mutable projectile dict inside wiki-shaped `stats` (for building variants)."""
+    return stats["attacks"][attack]["projectiles"][projectile]
+
+
+def stored_upgrade_id(connection: Any, tower_name: str, path: str) -> int:
+    row = connection.execute(
+        "SELECT upgrades.id FROM upgrades JOIN towers ON towers.id = upgrades.tower_id"
+        " WHERE towers.name = ? AND upgrades.path = ?",
+        (tower_name, path),
+    ).fetchone()
+    return row[0]

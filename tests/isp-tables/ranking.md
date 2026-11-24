@@ -1,4 +1,4 @@
-# Ranking: `total_cost`, `dps`, `damage_per_dollar`, `rank_upgrades`
+# Ranking: `total_cost`, `add_metrics`, `damage_per_dollar`, `rank_upgrades`
 
 ## Rules for these tests
 
@@ -77,41 +77,52 @@ Base case: A1, B1, C1, D1
 
 ---
 
-## dps
+## add_metrics
 
 ```python
-def dps(projectile_damage: float | None, projectile_count: int | None, attack_rate: float | None) -> float | None
+def add_metrics(dataframe: pandas.DataFrame) -> pandas.DataFrame
 ```
 
-Returns `projectile_damage × projectile_count / attack_rate`, or `None` when it cannot be computed.
+Replaces the first-projectile `dps` function (#134). Input columns: `upgrade_dps` and `upgrade_moab_dps` (per-attack sums from `all_upgrade_dps`, `docs/schema.md` "DPS definitions"; `NULL` when no attack contributes), `projectile_pierce` and `total_cost`. Adds `dps` (= `upgrade_dps`), `moab_dps` (= `upgrade_moab_dps`), `pierce_weighted_dps`, `damage_per_dollar`, `pierce_damage_per_dollar`; the input is not mutated and row order is kept. `projectile_damage`, `projectile_count` and `attack_rate` are no longer read: the per-attack math lives in `upgrade_dps` (`attacks.md`, T1-T11).
 
-Take the function `dps`. Each input can be missing, and `attack_rate` divides, so we model a normal value, `None` for each input, more than one projectile, and a zero rate. A missing `projectile_count` means one projectile, not "unknown".
+Take the function `add_metrics`. The DPS sums can be missing, the pierce can be missing (including the `9999999` sentinel stored as `NULL`), and the cost can be missing or zero, so we model each as a normal value, `None`, and for the cost a zero. Non-numeric input coerces to `NaN`.
 
 ### ISP
 
 |Parameter|Characteristic|Partition|Value|
 |---|---|---|---|
-|`projectile_damage`|A) Damage|A1: Positive|`1`|
+|`upgrade_dps`|A) DPS sum|A1: Positive|`22.2222222`|
 |||A2: None|`None`|
-|`projectile_count`|B) Count|B1: One|`1`|
-|||B2: More than one|`3`|
-|||B3: None|`None`|
-|`attack_rate`|C) Seconds per attack|C1: Positive|`0.045`|
-|||C2: Zero|`0`|
-|||C3: None|`None`|
+|||A3: Not a number|`"abc"`|
+|`upgrade_moab_dps`|B) MOAB DPS sum|B1: Positive|`30.0`|
+|||B2: None|`None`|
+|`projectile_pierce`|C) Pierce|C1: Positive|`2.0`|
+|||C2: None (also the unlimited sentinel)|`None`|
+|`total_cost`|D) Cost|D1: Positive|`4500.0`|
+|||D2: Zero|`0.0`|
+|||D3: None|`None`|
 
-Base case: A1, B1, C1
+Base case: A1, B1, C1, D1
 
 ### Base Choice Coverage
 
-| BCC Test | A | B | C | Oracle | Test Name |
-|---|---|---|---|---|---|
-| T1 | A1 | B1 | C1 | returns `22.2222222` | `test_dps_all_base` |
-| T2 | A2 | B1 | C1 | returns `None` | `test_dps_damage_none` |
-| T3 | A1 | B2 | C1 | returns `66.6666667` | `test_dps_several_projectiles` |
-| T4 | A1 | B3 | C1 | returns `22.2222222` | `test_dps_count_none_means_one` |
-| T5 | A1 | B1 | C2 | returns `None` | `test_dps_rate_zero` |
-| T6 | A1 | B1 | C3 | returns `None` | `test_dps_rate_none` |
+| BCC Test | A | B | C | D | Oracle | Test Name |
+|---|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | D1 | `dps` 22.2222222, `moab_dps` 30, `pierce_weighted_dps` 44.4444444, `damage_per_dollar` 0.00493827, `pierce_damage_per_dollar` 0.00987654 | `test_add_metrics_all_base` |
+| T2 | A2 | B1 | C1 | D1 | `dps`, `pierce_weighted_dps`, `damage_per_dollar` `NaN`; `moab_dps` 30 | `test_add_metrics_null_and_zero_inputs` |
+| T3 | A3 | B1 | C1 | D1 | `dps`, `pierce_weighted_dps`, `damage_per_dollar` `NaN` | `test_add_metrics_non_numeric_dps_is_nan` |
+| T4 | A1 | B2 | C1 | D1 | `moab_dps` `NaN`; the rest set | `test_add_metrics_null_and_zero_inputs` |
+| T5 | A1 | B1 | C2 | D1 | `pierce_weighted_dps` `NaN`; `dps`, `damage_per_dollar` set | `test_add_metrics_null_and_zero_inputs` |
+| T6 | A1 | B1 | C1 | D2 | `damage_per_dollar` `NaN`; `dps` set | `test_add_metrics_null_and_zero_inputs` |
+| T7 | A1 | B1 | C1 | D3 | `damage_per_dollar` `NaN`; `dps` set | `test_add_metrics_null_and_zero_inputs` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T8 | old columns ignored | `projectile_damage`, `projectile_count`, `attack_rate` in the input do not change `dps` | `test_add_metrics_ignores_first_projectile_columns` |
+| T9 | input not mutated | no `dps` or `moab_dps` column added to the input | `test_add_metrics_does_not_mutate_input` |
+| T10 | row order | `dps` keeps input order | `test_add_metrics_keeps_row_order` |
 
 ---
 
@@ -152,7 +163,7 @@ Base case: A1, B1
 def rank_upgrades(connection: sqlite3.Connection, filters: UpgradeFilters | None = None, metric: str = "damage_per_dollar", difficulty: str = "medium", limit: int | None = None) -> pandas.DataFrame
 ```
 
-Runs `search_upgrades` with `filters`, adds `total_cost`, `dps`, `pierce_weighted_dps`, `damage_per_dollar` and `pierce_damage_per_dollar` columns, and sorts by `metric` (highest first; ties by lower cost, then path; `NULL` last).
+Runs `search_upgrades` with `filters`, adds `total_cost`, `dps` (per-attack sum), `moab_dps`, `pierce_weighted_dps`, `damage_per_dollar` and `pierce_damage_per_dollar` columns, and sorts by `metric` (highest first; ties by lower cost, then path; `NULL` last).
 
 Oracles list the `path` column in order. E2 only: add Super Monkey `0-1-0` with `attack_rate = NULL` (other stats from `0-0-0`; medium cost 4000).
 
@@ -165,6 +176,7 @@ Take the function `rank_upgrades`. The caller wants the best upgrades by one met
 |`metric`|A) Metric|A1: Damage per dollar|`"damage_per_dollar"`|
 |||A2: DPS|`"dps"`|
 |||A3: Pierce damage per dollar|`"pierce_damage_per_dollar"`|
+|||A5: MOAB DPS|`"moab_dps"`|
 |||A4: Unknown|`"bogus"`|
 |`difficulty`|B) Difficulty|B1: Medium|`"medium"`|
 |||B2: Hard|`"hard"`|
@@ -201,3 +213,21 @@ Base case: A1, B1, C1, D1, E1, F1
 |---|---|---|---|
 | T11 | invariant (hypothesis) | for any filters and metric, the ranked paths are a permutation of `search_upgrades` paths | `test_rank_upgrades_is_permutation` |
 | T12 | invariant (hypothesis) | of two upgrades with equal DPS, the more expensive one never ranks higher by `damage_per_dollar` | `test_rank_upgrades_cost_never_helps` |
+
+---
+
+## Per-attack data (#134)
+
+Fixtures: `tests/factories.py` (`ninja_003`, `wizard_005`, `wizard_400`, `druid_030`, `druid_400`, `druid_040`, `alchemist_220`, `alchemist_040`) loaded with `load_tower`. Those towers have no costs, so per-dollar metrics are `NULL`; the checks use `dps` and `moab_dps`. Files: `tests/test_upgrade_dps.py` (`upgrade_dps`, `upgrade_moab_dps`, `all_upgrade_dps`; ISP in `attacks.md`) and `tests/test_ranking_attacks.py`.
+
+| Upgrade | `dps` | `moab_dps` | Test |
+|---|---|---|---|
+| Ninja 0-0-3 | 6.70802 (Explosion counted; first projectile alone gives `NULL`) | 6.70802 | `test_rank_upgrades_uses_per_attack_sum`, `test_ninja_003_dps_uses_explosion_projectile` |
+| Wizard 4-0-0 | 21.81818 | 58.18182 | `test_rank_upgrades_uses_per_attack_sum` |
+| Druid 0-3-0 | 7.65734 | 7.65734 | same; `Collidable` sentinel excluded |
+| Druid 4-0-0 | 6.34980 | 6.34980 | same; `Spawning projectile` pierce sentinel unused |
+| Alchemist 2-2-0 | `NULL` | `NULL` | `test_rank_upgrades_alchemist_220_null_dps_ranks_last` (ranks last on every metric) |
+| Wizard 0-0-5, without the `MOAB` attack | `1/0.275 + 2/1.5 = 4.9697` | | `test_wizard_005_stable_part_without_moab_attack`, `test_rank_upgrades_wizard_005_stable_lower_bound` |
+| Wizard 0-0-5 | 18.30303 | 38.30303 | `test_wizard_005_moab_and_bfb_are_alternatives`, `test_rank_upgrades_wizard_005_moab_and_bfb_are_alternatives`: `MOAB` (40) and `BFB` (100) are per-summon alternatives; DPS takes the smallest (`1/0.275 + 2/1.5 + 40/3`), MOAB DPS the largest (`... + 100/3`) |
+
+Sentinel: no ranking column is infinite for Druid; a first projectile with unlimited pierce gives `NULL` `pierce_weighted_dps`. Cooldown: `search_upgrades(sort_by="ability_cooldown")` treats `0` like `NULL` (`NULLIF(ability_cooldown, 0)`): Alchemist 0-4-0 (60), then Alchemist 2-2-0 (`NULL`), Druid 0-4-0 (0), in both directions (`test_ability_cooldown_zero_sorts_like_no_ability`). Invariant (hypothesis): `dps` is `None` or finite and `moab_dps >= dps` (`test_dps_is_finite_and_moab_dps_never_lower`).

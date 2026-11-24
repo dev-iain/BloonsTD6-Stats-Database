@@ -24,6 +24,7 @@ DAMAGE_TYPES: dict[int, tuple[str, set[str]]] = {
     72: ("Plasma", {"Purple", "Glass"}),
     73: ("Energy", {"Lead", "Purple", "Glass"}),
 }
+UNLIMITED = 9999999
 BLOON_PROPERTIES = ("Lead", "Black", "White", "Purple", "Glass", "frozen")
 BLOON_FLAG_COLUMNS = tuple(f"has_{name.lower()}" for name in BLOON_PROPERTIES)
 
@@ -38,6 +39,55 @@ def first_of(container: dict[str, Any], key: str = "_order") -> tuple[str | None
 
 def path_from_code(code: str) -> str:
     return "-".join(code.lstrip("_"))
+
+
+def limited_value(value: float | None) -> float | None:
+    return None if value == UNLIMITED else value
+
+
+def extract_projectile_row(index: int, name: str, projectile: dict[str, Any]) -> dict[str, Any]:
+    damage_type, _ = DAMAGE_TYPES.get(
+        projectile.get("immuneBloonProperties", 0), ("Unknown", set())
+    )
+    damage = projectile.get("damage")
+    pierce = projectile.get("pierce")
+    return {
+        "projectile_index": index,
+        "name": name,
+        "damage": limited_value(damage),
+        "pierce": limited_value(pierce),
+        "unlimited_damage": damage == UNLIMITED,
+        "unlimited_pierce": pierce == UNLIMITED,
+        "moab_bonus_damage": projectile.get("damageModifierForMoabs"),
+        "moab_only": bool(projectile.get("filterOutNonMoabs", False)),
+        "count": projectile.get("count"),
+        "speed": projectile.get("speed"),
+        "radius": projectile.get("radius"),
+        "lifespan": projectile.get("lifespan"),
+        "damage_type": damage_type,
+        "can_hit_camo": not projectile.get("filterInvisible", False),
+    }
+
+
+def extract_attack_rows(stats: dict[str, Any]) -> list[dict[str, Any]]:
+    """Flatten every attack and its projectiles, in wiki `_order`, into plain dicts."""
+    container = stats.get("attacks", {})
+    rows: list[dict[str, Any]] = []
+    for attack_index, attack_name in enumerate(container.get("_order", [])):
+        attack = container.get(attack_name, {})
+        projectiles = attack.get("projectiles", {})
+        rows.append(
+            {
+                "attack_index": attack_index,
+                "name": attack_name,
+                "rate": attack.get("rate"),
+                "projectiles": [
+                    extract_projectile_row(index, name, projectiles.get(name, {}))
+                    for index, name in enumerate(projectiles.get("_order", []))
+                ],
+            }
+        )
+    return rows
 
 
 def extract_row(code: str, stats: dict[str, Any]) -> dict[str, Any]:
@@ -55,8 +105,8 @@ def extract_row(code: str, stats: dict[str, Any]) -> dict[str, Any]:
         "footprint_radius": stats.get("footprintRadius"),
         "attack_rate": attack.get("rate"),
         "projectile_count": projectile.get("count"),
-        "projectile_damage": projectile.get("damage"),
-        "projectile_pierce": projectile.get("pierce"),
+        "projectile_damage": limited_value(projectile.get("damage")),
+        "projectile_pierce": limited_value(projectile.get("pierce")),
         "projectile_speed": projectile.get("speed"),
         "projectile_radius": projectile.get("radius"),
         "projectile_lifespan": projectile.get("lifespan"),

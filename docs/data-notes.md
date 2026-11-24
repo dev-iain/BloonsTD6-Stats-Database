@@ -41,10 +41,10 @@ Super Monkey is the only tower with no loss. For the others, secondary attacks (
 
 | Tower | Upgrades (codes) | First projectile | Problem |
 |---|---|---|---|
-| Alchemist | 2-2-0, 2-0-2, 2-3-0, 2-4-0, 2-5-0, 2-0-3, 2-0-4, 2-0-5 | none (first attack is "Acidic Mixture Dip", which has no projectiles) | Every projectile column is NULL and `damage_type` is derived from nothing; the real "Attack" splash is the second attack |
+| Alchemist | 2-2-0, 2-0-2, 2-3-0, 2-4-0, 2-5-0, 2-0-3, 2-0-4, 2-0-5 | none (first attack is "Acidic Mixture Dip", which has no projectiles) | Every projectile column is NULL and `damage_type` is derived from nothing. Checked against the resolved JSON (2026-11-23): in seven of the eight (2-2-0, 2-0-2, 2-3-0, 2-4-0, 2-5-0, 2-0-3, 2-0-5) "Acidic Mixture Dip" is the only attack and has only a `rate`, no `projectiles` at all, so there is no second "Attack" splash to find. Only 2-0-4 has a second attack, "Rubber to Gold" (rate 2, one damage-less "Splash" projectile with pierce 15). The Alchemist has no damaging projectile in these upgrades, so NULL here is real, not an extraction miss |
 | Ninja Monkey | 0-0-3, 1-0-3, 0-0-4, 1-0-4, 0-0-5, 1-0-5 | "Flash Bomb", damage NULL, pierce 1 | Damage and pierce live on the second projectile, "Explosion" (damage 3 to 10, pierce 30) |
 | Ninja Monkey | 0-1-4, 0-2-4, 0-1-5, 0-2-5 | "Explosion" | Summary is right for the Flash Bomb attack but misses the 100 or 600 damage Sticky Bomb |
-| Wizard Monkey | 0-0-5, 1-0-5 | "Projectile" damage 1 | 100 damage MOAB-class attacks are secondary |
+| Wizard Monkey | 0-0-5, 1-0-5 | "Projectile" damage 1 | The `MOAB` attack's "MOAB" (40) and "BFB" (100) undead projectiles are secondary, and are alternatives, not simultaneous (see "Attack and projectile tables") |
 | Wizard Monkey | 0-5-0, 0-5-1, 0-5-2, 1-5-0, 5-1-0 | "Projectile" damage 1 | Another projectile deals up to 9 damage |
 | Druid | 0-3-0, 1-3-0, 0-3-1, 0-3-2, 0-4-0, 1-4-0, 0-4-1, 0-4-2, 0-5-0, 1-5-0, 0-5-1, 0-5-2 | "Projectile" damage 1 to 6 | The Vine attack uses a 9999999 damage/pierce sentinel in a "Collidable" projectile |
 | Druid | 5-0-0, 5-2-0, 5-0-1, 5-0-2 | "Projectile" damage 1 | Superstorm deals 100 damage (secondary) |
@@ -141,3 +141,66 @@ The Cargo data works, so no fallback table in `btd6/etl/bloon_properties.py` is 
 ### Round 63 has no camo
 
 The epic text expected camo in round 63, but the wiki's `DefaultRoundSet` has only Lead x75 and Ceramic x40, x40, x42 there (no `Camo` suffix), so `round_threats(63).camo_share` is 0.0. Camo groups first appear elsewhere (26 of 286 groups in rounds 1-100 are camo). Cause: wiki data, not extraction; `docs/threats.md` records the values.
+
+## Attack and projectile tables (epic #131, issues #132, #133)
+
+Counts below come from `extract_attack_rows` over the resolved JSON fixtures in `tests/fixtures/{wizard,ninja,alchemist,druid}_resolved.json` (fetched 2026-11-23; Super Monkey has exactly one attack with one projectile in all 64 upgrades). Every NULL was traced to the JSON:
+
+| Column | NULL when | Counts (attacks / projectiles) |
+|---|---|---|
+| `attacks.rate` | never in this data | 0 NULL |
+| attacks with no `projectiles` rows | the wiki entry has only a `rate` | Alchemist 33 of 110 attacks (every "Acidic Mixture Dip"; Alchemist has no projectile on them), none elsewhere |
+| `projectiles.damage` | the wiki omits `damage` (a damage-less Splash, Shimmer, Flash Bomb) or the value is the 9999999 sentinel | Wizard 8, Ninja 12, Alchemist 12, Druid 9 (the 9 Druid ones are the sentinel, with `unlimited_damage` = 1) |
+| `projectiles.pierce` | the value is the 9999999 sentinel | Druid 18 (`unlimited_pierce` = 1); the other towers always give a pierce |
+| `projectiles.count` | the wiki omits it; read as 1 | Wizard 131 of 152, Ninja 52 of 110, Alchemist 98 of 98, Druid 74 of 133 |
+| `projectiles.speed` | the wiki omits it (instant splashes, area effects) | Wizard 55, Ninja 40, Alchemist 98, Druid 52 |
+| `projectiles.lifespan` | the wiki omits it | Druid 31, none elsewhere |
+| `projectiles.moab_bonus_damage` | the projectile has no `damageModifierForMoabs`, the common case | Wizard 139 of 152 NULL (13 have a bonus), Ninja 110 of 110, Alchemist 72 of 98 (26 have a bonus), Druid 133 of 133. Do not read as 0 damage bonus unless you mean "no bonus", which is the same thing for the sum `damage + COALESCE(bonus, 0)` |
+
+`damage_type` is never "Unknown" for any projectile, and `moab_only` is set on 6 Ninja and 9 Alchemist projectiles only. `damage_type` and `can_hit_camo` are not NULL: an absent `immuneBloonProperties` reads as 0 (Normal) and an absent `filterInvisible` reads as camo-capable, the same defaults as `extract_row`.
+
+### Wizard 0-0-5 (Prince of Darkness): MOAB and BFB are alternatives
+
+The wiki page for Prince of Darkness (BTD6) says the undead MOAB and undead BFB are summoned by the graveyard count: "MOAB: graveyard count 20-2099", "BFB: graveyard count 2100-3000", and the regular undead bloon "always". Costs are 20 and 50 graveyard units. So the "MOAB" (damage 40, pierce 20) and "BFB" (damage 100, pierce 50) projectiles in the `MOAB` attack (rate 3) are mutually exclusive per summon, not fired together, and which one appears depends on a runtime counter that is not in the JSON. Summing them (46.667 damage per second from that attack) double counts. Convention for ranking: take the smaller (MOAB, 40) for plain DPS, because it is available once the graveyard holds 20; take the larger (BFB, 100) for MOAB DPS as the best case. A plain `1 / 0.275 + 2 / 1.5` of 4.9697 (ignoring both) understates the upgrade. The upgrade also adds +3 damage to all undead bloons (wiki "Buff"), which is not in the JSON.
+
+### damageModifierForMoabs is additive
+
+The wiki module that renders the stat tables (`Module:BTD6 stats`) prints the field as "+N" under the heading "Damage to MOAB-Class" (`insert_damage_mod` formats `"+%.4g"`), and the Arcane Spike page says "increases its damage from 3 to 6, with +10 additional MOAB-Class damage". Archmage: bolt damage 8 with "+19", Fireball 9 with "+24". The fixtures agree (Wizard 4-0-0: damage 6, modifier 10; 5-0-0: damage 8, modifier 19). So a MOAB-class hit does `damage + damageModifierForMoabs`, not `damage x modifier`.
+
+## Dart, Boomerang, Bomb Shooter, Sniper and Ice Monkey (issue #135)
+
+Checked with a real `fetch_tower_module` and `fetch_costs` on 2026-11-23. Wiki module names `Module:BTD6 stats/<tower>/new` all work for these five names. Each resolves to 64 upgrades, has a non-NULL `base_cost` (Dart 200, Boomerang 315, Bomb Shooter 375, Sniper 350, Ice 400) and 15 upgrade costs. Categories from Cargo: Primary for Dart, Boomerang, Bomb Shooter and Ice; Military for Sniper. `load_one_tower` now passes the Cargo category to `load_tower` (it used to default to `Magic`), and `fetch_costs` accepts `KNOWN_TOWERS` (the magic towers plus `EXTRA_TOWERS`). Fixtures: `tests/fixtures/<tower>_resolved_sample.json` (three upgrades each).
+
+### NULL counts (out of 64)
+
+Columns not listed have no NULLs. `ability_cooldown` NULL means no ability (expected).
+
+| Column | Dart | Boomerang | Bomb Shooter | Sniper | Ice |
+|---|---|---|---|---|---|
+| projectile_count | 49 | 64 | 57 | 57 | 64 |
+| projectile_damage | 0 | 0 | 50 | 0 | 6 |
+| projectile_speed | 0 | 0 | 7 | 57 | 58 |
+| ability_cooldown | 54 | 54 | 49 | 49 | 54 |
+
+### Causes
+
+- `projectile_count`: the wiki omits `count` when a projectile fires once, so NULL means 1 (ranking already treats it as 1). It is set only where an upgrade changes it (Dart 15 upgrades, Bomb Shooter 7, Sniper 7); Boomerang and Ice never set it.
+- Bomb Shooter `projectile_damage` (50) and `damage_type`: the first projectile is the carrier "Projectile" (pierce 1, speed 180, no damage, no `immuneBloonProperties`); damage 1 to 2 and `immuneBloonProperties` 2 (Explosion) are on the second projectile "Explosion". Those 50 rows therefore have NULL damage and `damage_type` Normal instead of Explosion (the "first entry is not the main hit" cause under "Deferred to 2.0").
+- Bomb Shooter `projectile_speed` (7: 2-0-3, 2-0-4, 2-0-5, 2-2-0, 2-3-0, 2-4-0, 2-5-0): the first projectile is "Explosion" (the carrier is dropped), and explosions have no speed.
+- Sniper `projectile_speed` (57): the shot is hitscan (lifespan 0.1, radius 0), so the wiki has no speed. NULL means "instant", not missing data; ranking by speed sorts these last.
+- Ice `projectile_speed` (58): the "Projectile" is a stationary freeze pulse (lifespan 0.05, radius 20) with no speed. The six rows with a speed are the Ice bomb upgrades.
+- Ice `projectile_damage` (6: 0-0-3, 0-0-4, 0-0-5, 2-0-3, 2-0-4, 2-0-5): the first projectile is "Ice bomb" (pierce 1, speed 300, no damage, no damage type, so `damage_type` Normal); damage 1 is on the second projectile "Projectile". Same first-entry cause as Bomb Shooter.
+
+### First-attack-only losses
+
+| Tower | More than one attack | Attack with more than one projectile | More than one ability |
+|---|---|---|---|
+| Dart Monkey | 0 | 5 | 0 |
+| Boomerang Monkey | 13 | 0 | 0 |
+| Bomb Shooter | 0 | 49 | 0 |
+| Sniper Monkey | 0 | 22 | 0 |
+| Ice Monkey | 0 | 14 | 0 |
+
+Bomb Shooter's second projectile carries its damage, so its first-projectile summary is the poorest of the five. No sentinel values appear: the largest damage across the five towers is 140 and the largest pierce 300.
+
+Sorting by `ability_cooldown` wraps the column in `NULLIF(..., 0)`, so a cooldown of 0 (the Druid Passive Ability) sorts like NULL instead of as the shortest cooldown.
