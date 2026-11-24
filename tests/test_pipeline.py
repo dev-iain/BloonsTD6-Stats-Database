@@ -12,7 +12,7 @@ from btd6.db.connection import connect
 from btd6.etl import fetch
 from btd6.etl import fetch as wiki_fetch
 from btd6.etl.pipeline import RefreshError, refresh_database
-from btd6.etl.towers import MAGIC_TOWERS
+from btd6.etl.towers import EXTRA_TOWERS, KNOWN_TOWERS
 from tests.factories import IncomeSetFactory
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "super_monkey_resolved.json"
@@ -104,10 +104,10 @@ def snapshot_tower(connection: sqlite3.Connection, tower_name: str) -> list[tupl
     return [tuple(row)[2:] for row in rows]
 
 
-def test_all_five_succeed_returns_counts(connection) -> None:
+def test_all_towers_succeed_returns_counts(connection) -> None:
     result = refresh_database(connection, fetch=make_fetch())
     assert result == {
-        **{name: ROWS_PER_TOWER for name in MAGIC_TOWERS},
+        **{name: ROWS_PER_TOWER for name in KNOWN_TOWERS},
         "Bloons": 3,
         "Rounds": 3,
         "Round groups": 5,
@@ -115,16 +115,35 @@ def test_all_five_succeed_returns_counts(connection) -> None:
     }
 
 
-def test_all_five_succeed_loads_320_rows(connection) -> None:
+def test_all_towers_succeed_loads_every_known_tower_rows(connection) -> None:
     refresh_database(connection, fetch=make_fetch())
-    assert count_upgrades(connection) == 320
-    assert upgrade_counts_by_tower(connection) == {name: ROWS_PER_TOWER for name in MAGIC_TOWERS}
+    assert count_upgrades(connection) == len(KNOWN_TOWERS) * ROWS_PER_TOWER
+    assert upgrade_counts_by_tower(connection) == {name: ROWS_PER_TOWER for name in KNOWN_TOWERS}
 
 
-def test_default_tower_names_uses_magic_towers(connection) -> None:
+def test_default_tower_names_uses_known_towers(connection) -> None:
     requested: list[str] = []
     refresh_database(connection, fetch=make_fetch(requested=requested))
-    assert requested == list(MAGIC_TOWERS)
+    assert requested == list(KNOWN_TOWERS)
+
+
+@pytest.mark.parametrize(
+    ("tower_name", "expected_category"),
+    [
+        ("Dart Monkey", "Primary"),
+        ("Boomerang Monkey", "Primary"),
+        ("Bomb Shooter", "Primary"),
+        ("Ice Monkey", "Primary"),
+        ("Sniper Monkey", "Military"),
+    ],
+)
+def test_extra_towers_are_stored_with_their_category(
+    connection, tower_name: str, expected_category: str
+) -> None:
+    assert tower_name in EXTRA_TOWERS
+    refresh_database(connection, fetch=make_fetch())
+    row = connection.execute("SELECT category FROM towers WHERE name = ?", (tower_name,)).fetchone()
+    assert row["category"] == expected_category
 
 
 def test_explicit_tower_names_limit_the_refresh(connection) -> None:
@@ -145,17 +164,17 @@ def test_second_run_is_noop_in_effect(connection) -> None:
     before = snapshot_tower(connection, "Druid")
     second = refresh_database(connection, fetch=make_fetch())
     assert second["Round groups"] == 5
-    assert {name: second[name] for name in MAGIC_TOWERS} == {
-        tower_name: ROWS_PER_TOWER for tower_name in MAGIC_TOWERS
+    assert {name: second[name] for name in KNOWN_TOWERS} == {
+        tower_name: ROWS_PER_TOWER for tower_name in KNOWN_TOWERS
     }
-    assert count_upgrades(connection) == 320
+    assert count_upgrades(connection) == len(KNOWN_TOWERS) * ROWS_PER_TOWER
     assert snapshot_tower(connection, "Druid") == before
 
 
 def test_one_failure_raises_refresh_error_and_loads_others(connection) -> None:
     with pytest.raises(RefreshError) as caught:
         refresh_database(connection, fetch=make_fetch(failing=("Ninja Monkey",)))
-    healthy = [name for name in MAGIC_TOWERS if name != "Ninja Monkey"]
+    healthy = [name for name in KNOWN_TOWERS if name != "Ninja Monkey"]
     assert {name: caught.value.loaded[name] for name in healthy} == {
         name: ROWS_PER_TOWER for name in healthy
     }
@@ -175,7 +194,7 @@ def test_failed_tower_previous_rows_untouched(connection) -> None:
     with pytest.raises(RefreshError):
         refresh_database(connection, fetch=make_fetch(failing=("Wizard Monkey",)))
     assert snapshot_tower(connection, "Wizard Monkey") == before
-    assert count_upgrades(connection) == 320
+    assert count_upgrades(connection) == len(KNOWN_TOWERS) * ROWS_PER_TOWER
 
 
 def test_multiple_failures_are_all_collected(connection) -> None:
@@ -184,7 +203,7 @@ def test_multiple_failures_are_all_collected(connection) -> None:
         refresh_database(connection, fetch=make_fetch(failing=failing))
     assert set(caught.value.failures) == set(failing)
     assert set(caught.value.loaded) - {"Bloons", "Rounds", "Round groups", "Income"} == (
-        set(MAGIC_TOWERS) - set(failing)
+        set(KNOWN_TOWERS) - set(failing)
     )
 
 

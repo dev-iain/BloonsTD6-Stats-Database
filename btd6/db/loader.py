@@ -111,7 +111,7 @@ def load_tower(
     connection: sqlite3.Connection,
     tower_name: str,
     resolved: dict[str, dict[str, Any]],
-    category: str = "Magic",
+    category: str = "Primary",
 ) -> int:
     """Replace one tower's upgrades with `resolved` in a single transaction.
 

@@ -48,6 +48,15 @@ def super_monkey_resolved(repo_root: Path) -> dict[str, Any]:
         return json.load(handle)
 
 
+OFFLINE_CATEGORIES = {
+    "Dart Monkey": "Primary",
+    "Boomerang Monkey": "Primary",
+    "Bomb Shooter": "Primary",
+    "Ice Monkey": "Primary",
+    "Sniper Monkey": "Military",
+}
+
+
 class OfflineCostsWiki:
     """Serves the Super Monkey Cargo fixture for any `fetch_costs` query."""
 
@@ -57,7 +66,12 @@ class OfflineCostsWiki:
 
     def __call__(self, **params: Any) -> dict[str, Any]:
         key = "towers" if params["tables"] == "btd6_towers" else "upgrades"
-        return copy.deepcopy(self.responses[key])
+        response = copy.deepcopy(self.responses[key])
+        if key == "towers":
+            tower_name = params["where"].removeprefix("name='").removesuffix("'")
+            title = response["cargoquery"][0]["title"]
+            title["category"] = OFFLINE_CATEGORIES.get(tower_name, title["category"])
+        return response
 
 
 @pytest.fixture

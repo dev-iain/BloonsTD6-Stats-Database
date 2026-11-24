@@ -148,7 +148,10 @@ def fetch_costs(tower_name: str) -> dict[str, Any]:
         where=f"tower='{tower_name}'",
         limit=CARGO_PAGE_LIMIT,
     )
-    tower_row = cargo_rows(tower_response)[0]
+    tower_rows = cargo_titles(tower_response)
+    if not tower_rows:
+        raise ValueError(f'Wiki cargo query returned no rows for tower "{tower_name}"')
+    tower_row = tower_rows[0]
     return {
         "base_cost": int(tower_row["cost"]),
         "category": tower_row["category"],

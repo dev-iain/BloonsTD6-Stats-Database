@@ -157,6 +157,12 @@ def test_fetch_costs_empty_tower_result(install_wiki: InstallWiki) -> None:
         fetch.fetch_costs("Super Monkey")
 
 
+def test_fetch_costs_missing_tower_row_names_the_tower(install_wiki: InstallWiki) -> None:
+    install_wiki(towers={"cargoquery": []})
+    with pytest.raises(ValueError, match="Super Monkey"):
+        fetch.fetch_costs("Super Monkey")
+
+
 def test_fetch_costs_empty_upgrade_result(install_wiki: InstallWiki) -> None:
     install_wiki(upgrades={"cargoquery": []})
     with pytest.raises(ValueError):

@@ -45,13 +45,18 @@ def snapshot(connection: sqlite3.Connection) -> list[tuple[Any, ...]]:
 
 
 def test_load_tower_all_base(database: sqlite3.Connection) -> None:
-    written = load_tower(database, "Super Monkey", {"_100": base_stats()})
+    written = load_tower(database, "Super Monkey", {"_100": base_stats()}, category="Magic")
     row = fetch_upgrade(database, "Super Monkey", "1-0-0")
     assert written == 1
     assert count_rows(database, "towers") == 1
     assert count_rows(database, "upgrades") == 1
     assert (row["range"], row["projectile_pierce"], row["can_hit_camo"]) == (50.0, 2.0, 0)
     assert (row["damage_type"], row["category"]) == ("Energy", "Magic")
+
+
+def test_load_tower_default_category_is_primary(database: sqlite3.Connection) -> None:
+    load_tower(database, "Dart Monkey", {"_100": base_stats()})
+    assert fetch_upgrade(database, "Dart Monkey", "1-0-0")["category"] == "Primary"
 
 
 def test_load_tower_empty_resolved(database: sqlite3.Connection) -> None:
