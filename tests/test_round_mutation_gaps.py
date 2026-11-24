@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 
 from btd6.db.connection import connect
-from btd6.db.round_loader import bloon_params, load_bloons, load_rounds
+from btd6.db.round_loader import BLOON_COLUMNS, bloon_params, load_bloons, load_rounds
 from btd6.db.seed import initialize_database
 from btd6.etl import fetch
 from btd6.etl.extract import (
@@ -155,15 +155,18 @@ def test_fetch_bloons_three_pages_offsets(monkeypatch) -> None:
     assert len(rows) == 2 * limit + 1
 
 
+IS_MOAB_INDEX = 1 + BLOON_COLUMNS.index("is_moab")
+
+
 @pytest.mark.parametrize("value", [True, 1])
 def test_bloon_params_truthy_is_moab_is_int_one(value) -> None:
-    result = bloon_params(bloon_row("Moab", 616, value))[-2]
+    result = bloon_params(bloon_row("Moab", 616, value))[IS_MOAB_INDEX]
     assert result == 1
     assert type(result) is int
 
 
 @pytest.mark.parametrize("value", [False, 0])
 def test_bloon_params_falsy_is_moab_is_int_zero(value) -> None:
-    result = bloon_params(bloon_row("Red", 1, value))[-2]
+    result = bloon_params(bloon_row("Red", 1, value))[IS_MOAB_INDEX]
     assert result == 0
     assert type(result) is int

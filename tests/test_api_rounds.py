@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -7,6 +8,7 @@ from fastapi.testclient import TestClient
 
 from btd6.api import create_app
 from btd6.income import round_income
+from btd6.threats import PROPERTY_NAMES, round_threats
 from tests.income_fixture import build_connection, save_connection
 
 LOADED_ROUNDS = 40
@@ -123,3 +125,14 @@ def test_round_composition_separates_modifiers(client: TestClient) -> None:
 def test_round_composition_is_ordered_by_total_rbe(client: TestClient) -> None:
     totals = [entry["total_rbe"] for entry in client.get("/api/rounds/40").json()["composition"]]
     assert totals == sorted(totals, reverse=True)
+
+
+def test_round_returns_threats_matching_round_threats(tmp_path: Path) -> None:
+    source = build_connection(LOADED_ROUNDS)
+    path = save_connection(source, tmp_path / "btd6.db")
+    expected = asdict(round_threats(source, 40))
+    source.close()
+    body = TestClient(create_app(path)).get("/api/rounds/40").json()
+    assert body["threats"] == expected
+    assert set(body["threats"]["property_share"]) == set(PROPERTY_NAMES)
+    assert body["threats"]["moab_share"] > 0

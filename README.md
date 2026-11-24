@@ -109,7 +109,7 @@ The table has the columns rank, tower, path, cost, DPS and damage per dollar. Fo
 
 ## Round income
 
-`income` shows the cash earned from popping every bloon in a round plus the end-of-round bonus, using the loaded round data and income multipliers. Give exactly one of `--round N` (one line) or `--up-to N` (a table for rounds 1 to N with a running total). Run `load` first; a round outside the loaded range exits with code 2.
+`rounds --round N` also prints the round's threat summary (share of RBE per bloon property, camo, regrow and MOAB, and mean layers; see `docs/threats.md`). `income` shows the cash earned from popping every bloon in a round plus the end-of-round bonus, using the loaded round data and income multipliers. Give exactly one of `--round N` (one line) or `--up-to N` (a table for rounds 1 to N with a running total). Run `load` first; a round outside the loaded range exits with code 2.
 
 ```bash
 uv run python -m btd6 income --round 40

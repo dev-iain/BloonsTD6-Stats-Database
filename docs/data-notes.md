@@ -98,3 +98,46 @@ AuraBloon, DiamondBloon, DynamiteBloon, GlassBloon, RetributionBloon, Ringleader
 - Cargo `name` is the display name ("Aura Bloon", "BFB", "MOAB Test Bloon"); the roundset uses the `id` ("AuraBloon", "Bfb"). `extract_bloon_row` stores `id` as `bloons.name`, which is what `split_bloon_name` yields from a roundset name. Display names would not match.
 - Roundset names carry modifiers as suffixes (`LeadFortified`, `CeramicCamoRegrow`); `split_bloon_name` strips `Fortified`, `Camo` and `Regrow` until none is left. No roundset name in rounds 1-100 fails to resolve to a Cargo bloon.
 - Cargo field names can contain spaces; `normalize_cargo_keys` replaces them with `_`. The current bloon query returns none, so this is a guard.
+
+## Bloon properties (issue #114)
+
+Checked with a real `fetch_bloons` on 2026-11-23 (25 Cargo rows). Fixture: `tests/fixtures/bloons_immunity_cargo_response.json` (the 17 standard bloons, `immunity`, `child of`, `parent of` only).
+
+### Source
+
+Cargo `btd6_bloons.immunity` is usable but is **not a list of bloon properties**. It is free text naming the *damage types* the bloon is immune to (`[[damage type|Sharp, Shatter, Cold, Energy]]`), or, for the MOAB-class and a few special bloons, status effects (`[[Slow]], [[blowback]], [[knockback]]`). The properties are recovered by inverting `DAMAGE_TYPES`: a bloon carries property P when every damage type whose `cannot_damage` contains P appears in its `immunity` list (Lead: Shatter, Cold, Sharp and Energy are all listed; Zebra passes for both Black and White). The wiki JSON modules were not needed.
+
+### Verified table
+
+| Bloon | `immunity` text | Properties | Cross-check against `DAMAGE_TYPES` |
+|---|---|---|---|
+| Red, Blue, Green, Yellow, Pink | empty | none | no damage type is blocked |
+| Black | Explosion | Black | Explosion is the only type with `Black` |
+| White | Cold, Glacier, Frigid | White | exactly the types with `White` |
+| Purple | Energy, Plasma, Fire, Frigid | Purple | exactly the types with `Purple` |
+| Lead | Sharp, Shatter, Cold, Energy | Lead | exactly the types with `Lead` (Shatter, Cold, Sharp, Energy) |
+| Zebra | Explosion, Cold, Glacier, Frigid | Black, White | union of Black and White types |
+| Rainbow | empty | none | |
+| Ceramic | empty | none | |
+| Moab, Bfb, Zomg | empty | none | MOAB-class; `is_moab` carries the distinction |
+| Ddt | Sharp, Shatter, Cold, Energy, Explosion | Lead, Black | union of Lead and Black types |
+| Bad | Slow, blowback, knockback | none | status effects, no damage types |
+
+Also in Cargo: GlassBloon lists `Energy, Plasma, Acid` (property Glass, plain text with no link); DiamondBloon and RetributionBloon list the same status effects as Bad, so no property.
+
+### Empty values and quirks
+
+- Empty `immunity` means "no property", not missing data: it is empty for every bloon that has none, including Rainbow and Ceramic.
+- `frozen` is a state, not a bloon type. `Sharp` is the only type with `frozen`, and it is listed for Lead and Ddt (because of `Lead`), so the inversion rule would wrongly give them `frozen`. The parser must never derive `frozen`; it is 0 for all 25 rows.
+- Camo and Regrow are round-group modifiers (`is_camo`, `is_regrow`), not Cargo properties. Fortified likewise.
+- Status-effect text (Slow, blowback, knockback) is not a damage-type immunity; the parser must ignore it.
+- The text is wiki markup with links; strip `[[...|label]]` the way `link_labels` does before splitting on commas.
+- Damage-type names are the same as in `DAMAGE_TYPES`, so a parser can map them without a second table. `Normal` is never listed.
+
+### Decision
+
+The Cargo data works, so no fallback table in `btd6/etl/bloon_properties.py` is needed. #116 should derive the six flags from `immunity` through `DAMAGE_TYPES` (a bloon has property P when every damage type with P in `cannot_damage` is listed, for Lead, Black, White, Purple and Glass only; `frozen` stays 0), and take all flags as 0 when the text is empty or only names status effects.
+
+### Round 63 has no camo
+
+The epic text expected camo in round 63, but the wiki's `DefaultRoundSet` has only Lead x75 and Ceramic x40, x40, x42 there (no `Camo` suffix), so `round_threats(63).camo_share` is 0.0. Camo groups first appear elsewhere (26 of 286 groups in rounds 1-100 are camo). Cause: wiki data, not extraction; `docs/threats.md` records the values.

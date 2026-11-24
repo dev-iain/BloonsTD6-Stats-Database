@@ -25,6 +25,7 @@ DAMAGE_TYPES: dict[int, tuple[str, set[str]]] = {
     73: ("Energy", {"Lead", "Purple", "Glass"}),
 }
 BLOON_PROPERTIES = ("Lead", "Black", "White", "Purple", "Glass", "frozen")
+BLOON_FLAG_COLUMNS = tuple(f"has_{name.lower()}" for name in BLOON_PROPERTIES)
 
 
 def first_of(container: dict[str, Any], key: str = "_order") -> tuple[str | None, dict[str, Any]]:
@@ -141,6 +142,30 @@ def parse_is_moab(raw: dict[str, str]) -> bool:
     return text == "1"
 
 
+def immune_damage_types(immunity: str | None) -> set[str]:
+    labels = link_labels(immunity or "")
+    return {part.strip().lower() for part in labels.split(",") if part.strip()}
+
+
+def parse_bloon_properties(immunity: str | None) -> dict[str, int]:
+    """Map a Cargo `immunity` text (damage types) to the six bloon property flags.
+
+    A property is set when every damage type blocked by it is listed. `frozen` is a state,
+    not something a bloon carries, so it is never set (see `docs/data-notes.md`).
+    """
+    listed = immune_damage_types(immunity)
+    flags: dict[str, int] = {}
+    for bloon_property in BLOON_PROPERTIES:
+        blocked = {
+            name.lower()
+            for name, cannot_damage in DAMAGE_TYPES.values()
+            if bloon_property in cannot_damage
+        }
+        carries = bloon_property != "frozen" and bool(blocked) and blocked <= listed
+        flags[f"has_{bloon_property.lower()}"] = int(carries)
+    return flags
+
+
 def extract_bloon_row(raw: dict[str, str]) -> dict[str, Any]:
     name = str(raw.get("id") or "").strip()
     if not name:
@@ -150,6 +175,7 @@ def extract_bloon_row(raw: dict[str, str]) -> dict[str, Any]:
         row[field] = parse_number(raw, field, int)
     row["is_moab"] = parse_is_moab(raw)
     row["speed"] = parse_number(raw, "speed", float)
+    row.update(parse_bloon_properties(raw.get("immunity")))
     return row
 
 

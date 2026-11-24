@@ -8,6 +8,7 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
+from btd6.db import apply_migrations
 from btd6.db.connection import connect
 from btd6.db.round_loader import load_bloons, load_rounds
 from btd6.db.seed import initialize_database
@@ -357,3 +358,15 @@ def test_load_rounds_reload_is_idempotent(connection, counts):
     assert load_rounds(connection, rows, ids) == len(rows)
     assert count(connection, "round_groups") == len(rows)
     assert count(connection, "rounds") == len(rows)
+
+
+def test_load_bloons_stores_property_flags() -> None:
+    connection = connect(":memory:")
+    apply_migrations(connection)
+    row = {"name": "Lead", "is_moab": False, "has_lead": 1, "has_black": 0, "has_frozen": 0}
+    load_bloons(connection, [row])
+    stored = connection.execute("SELECT has_lead, has_black, has_glass FROM bloons").fetchone()
+    assert tuple(stored) == (1, 0, 0)
+    load_bloons(connection, [{**row, "has_lead": 0, "has_glass": 1}])
+    stored = connection.execute("SELECT has_lead, has_glass FROM bloons").fetchone()
+    assert tuple(stored) == (0, 1)

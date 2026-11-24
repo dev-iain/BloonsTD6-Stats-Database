@@ -24,6 +24,12 @@ erDiagram
         REAL speed
         INTEGER pop_cash "rounds 1-80, from 004"
         INTEGER pop_cash_super "rounds 81+, from 004"
+        INTEGER has_lead "NOT NULL, 0/1, from 005"
+        INTEGER has_black "NOT NULL, 0/1"
+        INTEGER has_white "NOT NULL, 0/1"
+        INTEGER has_purple "NOT NULL, 0/1"
+        INTEGER has_glass "NOT NULL, 0/1"
+        INTEGER has_frozen "NOT NULL, 0/1"
     }
     income_thresholds {
         INTEGER max_round PK "CHECK >= 1"
@@ -120,7 +126,7 @@ Added by `002_costs.sql`, filled by `btd6/db/cost_loader.py::load_costs` (idempo
 
 ### `bloons`, `rounds`, `round_groups`
 
-Added by `003_rounds.sql`. Row keys of the loader (`extract_bloon_rows`, `tests/isp-tables/bloons.md`): `name, health, health_fort, layers, rbe, rbe_fort, is_moab, speed`.
+Added by `003_rounds.sql`. Row keys of the loader (`extract_bloon_rows`, `tests/isp-tables/bloons.md`): `name, health, health_fort, layers, rbe, rbe_fort, is_moab, speed`, then `has_lead … has_frozen` and `pop_cash`, `pop_cash_super`.
 
 | Table.column | Type | Null | Constraints |
 |---|---|---|---|
@@ -142,6 +148,18 @@ Added by `003_rounds.sql`. Row keys of the loader (`extract_bloon_rows`, `tests/
 Indexes: `idx_round_groups_round` (the per-round lookup the income and round views use; it duplicates the prefix of the `UNIQUE (round, group_index)` autoindex, kept explicit so the lookup does not depend on the uniqueness constraint) and `idx_round_groups_bloon_id` (foreign key; SQLite does not index it, and it speeds "which rounds contain bloon X" and the `bloons` delete check). Both are checked in `tests/test_db_indexes.py`.
 
 Modifier parsing rule: a roundset bloon name is a base name followed by any of the suffixes in no fixed order (`CeramicRegrowFortifiedCamo`, `DdtFortifiedCamo`). The loader strips the case-sensitive suffixes `Fortified`, `Camo` and `Regrow` from the end of the name, repeatedly and in any order, until none is left; each stripped suffix sets `is_fortified`, `is_camo` or `is_regrow` on the group. The remainder is the base name and is looked up in `bloons.name` to give `bloon_id` (it must not be empty). The rule is textual and does not check that the combination exists in the game. Example: `CeramicRegrowFortifiedCamo` -> base `Ceramic`, regrow, fortified, camo. Implemented by `split_bloon_name` in `btd6/etl/extract.py`.
+
+### `bloons.has_*` (bloon properties)
+
+Added by `005_bloon_properties.sql`. Six flags on `bloons`, one per property in `BLOON_PROPERTIES` (`btd6/etl/extract.py`): an upgrade can pop bloon B iff for every property B has, the upgrade's `can_pop_<property>` is true (`docs/threats.md`).
+
+| Column | Type | NULL | Constraint / notes |
+|---|---|---|---|
+| `bloons.has_lead`, `has_black`, `has_white`, `has_purple`, `has_glass`, `has_frozen` | INTEGER | no | `DEFAULT 0 CHECK (x IN (0, 1))`; derived from Cargo `immunity` by `parse_bloon_properties` (`docs/data-notes.md`, "Bloon properties"); `has_frozen` is always 0 |
+
+Databases migrated to version 5 keep `DEFAULT 0` on existing rows, so run `python -m btd6 load` again to fill the flags.
+
+Design: the bloon-to-property relation is 1:1 and has 25 rows and six fixed properties, so columns on `bloons` avoid a join table and match the `can_pop_*` columns on upgrades. A `bloon_properties(bloon_id, property)` table would only pay off if properties become open-ended.
 
 ### `income_thresholds`, `income_settings` and `bloons.pop_cash*`
 

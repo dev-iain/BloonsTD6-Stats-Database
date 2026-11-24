@@ -365,6 +365,10 @@ Extra tests, not BCC: `--no-rounds` on a database that already holds rounds leav
 
 ---
 
+## main: `rounds` threats (#118)
+
+With `--round N` (one round), `rounds` prints a blank line and then the `round_threats` summary after the table: `Threats (round N)`, `total RBE`, `unknown groups`, one `<property>: <share>%` line per property, `camo`, `regrow`, `moab` (shares with one decimal) and `mean layers` (two decimals). A `--from/--to` range prints no summary. Tests: `test_main_rounds_single_round_prints_threats` (round 27, Lead x6: lead 100.0%), `test_main_rounds_moab_round_threats` (round 40: moab 86.0%) and `test_main_rounds_range_has_no_threats`. Characteristic: A) selection kind (A1 `--round` **(Base)**, A2 `--from/--to`); BCC: T1 (A1) prints the summary, T2 (A2) does not.
+
 ## main: `rounds` (#87)
 
 The `rounds` subcommand (`--round N`, `--from A --to B`) has its ISP and BCC tables, with the fixture and the 10 base-choice tests, in `tests/isp-tables/round_queries.md` (section `main: rounds`), next to the `get_round` tables it prints from. Its dispatch counts as a new command in the A block of `main: dispatch and search`: `rounds` is a valid command, and `btd6 --help` lists `load, search, rank, serve, rounds`.

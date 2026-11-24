@@ -192,6 +192,29 @@ function incomeEntries(income) {
   ];
 }
 
+function formatShare(share) {
+  return `${(share * 100).toFixed(1)}%`;
+}
+
+function threatEntries(threats) {
+  const shares = [
+    ...Object.entries(threats.property_share),
+    ["camo", threats.camo_share],
+    ["regrow", threats.regrow_share],
+    ["MOAB", threats.moab_share],
+  ];
+  return [
+    { label: "Threat RBE", value: threats.total_rbe.toLocaleString("en-US") },
+    ...shares.map(([label, share]) => ({
+      label: `${label} share`,
+      value: formatShare(share),
+      tone: share > 0 ? "warn" : "dim",
+    })),
+    { label: "Mean layers", value: threats.mean_layers.toFixed(2) },
+    { label: "Unknown groups", value: String(threats.unknown_groups), tone: "dim" },
+  ];
+}
+
 function renderDefinitions(list, entries) {
   list.replaceChildren();
   for (const { label, value, tone } of entries) {
@@ -214,6 +237,7 @@ async function fetchRound(roundNumber) {
 function renderRound(body) {
   renderDefinitions(document.getElementById("round-summary"), summaryEntries(body.summary));
   renderDefinitions(document.getElementById("round-income"), incomeEntries(body.income));
+  renderDefinitions(document.getElementById("round-threats"), threatEntries(body.threats));
   renderTable(document.getElementById("round-totals"), TOTALS_COLUMNS, body.composition);
   renderTable(document.getElementById("round-table"), ROUND_COLUMNS, body.groups);
 }
