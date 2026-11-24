@@ -208,6 +208,23 @@ Limitations:
 
 Evaluations: `uv run pytest` runs the offline evals in `tests/agent_evals/` with a scripted model. `uv run pytest -m live_agent` runs the same scenarios (rounds 40, 63, a camo round, low money and no round data) against the real model. It needs `GEMINI_API_KEY` and `btd6.db`.
 
+## Live game (mod)
+
+The `mod/` folder holds a BTD6 mod (MelonLoader + BTD Mod Helper, Windows and Linux/Proton) that posts the running game's round, cash, lives, difficulty and towers to `serve`. Setup is in [mod/README.md](mod/README.md); the contract is [docs/game-state.md](docs/game-state.md).
+
+```bash
+uv run python -m btd6 serve                 # receives POST /api/game-state from the mod
+uv run python -m btd6 game-state            # show the stored state
+uv run python -m btd6 recommend --live      # round, money and difficulty from the game
+uv run --env-file .env python -m btd6 agent --live
+```
+
+- In the web UI, tick **Use live game** on the Recommend tab. It refreshes every 2 seconds and re-runs the recommendation when the round, cash or difficulty changes.
+- Without the game, `uv run python -m btd6 fake-state --round 63 --money 8000 --tower "Dart Monkey:0-2-3"` writes the same file.
+- A state older than 30 seconds is stale (the game is closed or in the menu); `--max-age S` changes the limit and `--max-age 0` turns it off.
+- `agent --live` also tells the model which towers you own and gives it a `get_game_state` tool.
+- Offline/solo play only: Ninja Kiwi can flag modded online play.
+
 ## Tests, linting and mutation testing
 
 ```bash
@@ -222,6 +239,10 @@ uv run ruff check . && uv run ruff format .
 uv run mutmut run
 ```
 
+```bash
+dotnet test mod/GameStateReporter.Tests   # C# mod logic, no game needed
+```
+
 ## Project layout
 
 | Path | Contents |
@@ -233,6 +254,7 @@ uv run mutmut run
 | `btd6/formatting.py` | result columns and cell formatting shared by the CLI and the UI |
 | `btd6/api/` | FastAPI app and request parsing behind the web UI |
 | `frontend/` | the JS web UI (HTML, CSS, ES module) |
+| `mod/` | the C# BTD6 mod that reports the live game ([mod/README.md](mod/README.md)) |
 | `tests/` | pytest suite; ISP/BCC tables in `tests/isp-tables/` |
 | `docs/` | [schema](docs/schema.md), [query contract](docs/queries.md) and [UI notes](docs/ui.md) |
 

@@ -45,6 +45,8 @@ Database for compiling tower stats from Bloons Tower Defense 6, as well as an ag
 - `btd6/db/round_loader.py`: `load_bloons` (upsert by name, keeps ids), `load_rounds` (replaces rounds 1-100 and their groups); `fetch_bloons` in `btd6/etl/fetch.py` (paged Cargo `btd6_bloons`, spaces in keys become `_`); `btd6/rounds.py`: `get_round`, `get_round_summary`; migration `003_rounds` adds `bloons`, `rounds`, `round_groups`; `python -m btd6 rounds --round N` (or `--from A --to B`) prints a round; `load` also loads bloons and rounds unless `--no-rounds`; known data quirks in `docs/data-notes.md`
 - `btd6/recommend.py`: `recommend(connection, round, money, difficulty, limit)` -> `Recommendation`s (eligibility from `round_threats`, round-fit score over `rank_upgrades`; rules in `docs/recommend.md`); `python -m btd6 recommend --round N --money X`, `GET /api/recommendations`, Recommend tab in the web UI
 - `btd6/agent/`: LLM advisor (epic #125, contract in `docs/agent.md`): `schemas.py` `TOOL_SCHEMAS`; `tools.py` `call_tool` (wrappers over threats/search/rank/recommend/costs, structured errors, no NaN); `client.py` `OpenAICompatibleClient`, `client_from_environment` (free Gemini tier by default, key in `GEMINI_API_KEY`); `picks.py` `parse_picks`; `loop.py` `run_agent` (tool loop, iteration cap). `python -m btd6 agent --round N --money X`; offline evals in `tests/agent_evals/`, live ones with `-m live_agent` (deselected by default)
+- `btd6/game_state.py`: live game state contract (`docs/game-state.md`): `parse_game_state`, `save_game_state`/`load_game_state` (30 s staleness), `state_summary`, `fake_game_state`; `POST`/`GET /api/game-state` (`create_app(db, state_path, clock)`), `recommend --live`/`agent --live` (`--max-age`), `fake-state`, `game-state`; agent tool `get_game_state` (`LIVE_TOOL_SCHEMAS`, only in live runs)
+- `mod/`: C# MelonLoader/Mod Helper mod (`docs/mod.md`, `mod/README.md`); `GameStateReporter.Core` is game-independent and tested with `dotnet test mod/GameStateReporter.Tests`; `dotnet build mod/GameStateReporter` needs the game with MelonLoader and copies the DLL into `Mods/`
 - Planned: `btd6/db/loader.py`, refresh pipeline; `tests/` mirrors the package
 - Data covers the five magic monkeys plus Dart Monkey, Boomerang Monkey, Bomb Shooter, Sniper Monkey and Ice Monkey (64 upgrades each; `EXTRA_TOWERS`/`KNOWN_TOWERS` in `btd6/etl/towers.py`, loaded with `load --tower NAME`, category from Cargo; `search`/`rank --tower NAME` skip the default Magic filter) plus bloons and rounds 1-100; `data.csv` is Super Monkey only. 1.0 scope is magic monkeys; add towers by re-running the fetch with another tower name.
 - Upgrade paths are written `X-Y-Z` (e.g. `0-2-3`); the wiki's `_023` codes are converted by `path_from_code`.
@@ -68,7 +70,8 @@ Development is test-driven (ISP/boundary tables for filter inputs).
 - [X] Expected income per round from pops (excludes monkeys that affect cash generation, positive or negative)
 - [X] Best bang for buck: highest damage per dollar
   - Must come up with formula to calculate damage per second based on attack rate, projectile speed, etc to do this.
-- [ ] Mod to capture game data for an LLM/MCP (MelonLoader): round, current money, current towers 
+- [X] Mod to capture game data for an LLM/MCP (MelonLoader): round, current money, current towers
+  - phases 1-4 done (contract, API + web autofill, CLI/agent `--live`, C# mod), checked in game under Proton; MCP server (phase 5) optional 
 
 ### 3.0: BTD6 Agent
 - [X] Takes round and total money as input

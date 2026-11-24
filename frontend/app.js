@@ -295,6 +295,66 @@ function attachRecommend() {
   });
 }
 
+const LIVE_POLL_MS = 2000;
+const LIVE_FIELDS = ["round", "money", "difficulty"];
+
+async function fetchGameState() {
+  const response = await fetch("/api/game-state");
+  if (response.status === 404) return null;
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`);
+  return body;
+}
+
+function liveStatusText(state) {
+  const age = Math.round(state.age_seconds);
+  if (state.stale) return `Game state is stale (updated ${age}s ago). Is the game running with the mod?`;
+  const towers = state.towers.length === 1 ? "1 tower" : `${state.towers.length} towers`;
+  return `Live · round ${state.round} · ${formatMoney(state.money)} · ${towers} · updated ${age}s ago`;
+}
+
+function fillFromState(form, state) {
+  let changed = false;
+  for (const field of LIVE_FIELDS) {
+    const element = form.elements[field];
+    const value = String(state[field]);
+    if (element.value !== value) {
+      element.value = value;
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+async function pollLiveState(form, liveStatus) {
+  try {
+    const state = await fetchGameState();
+    if (state === null) {
+      setStatus(liveStatus, "No game connected. Start the game with the mod, or run python -m btd6 fake-state.", true);
+      return;
+    }
+    setStatus(liveStatus, liveStatusText(state), state.stale);
+    if (!state.stale && fillFromState(form, state)) form.requestSubmit();
+  } catch (error) {
+    setStatus(liveStatus, error.message, true);
+  }
+}
+
+function attachLiveToggle() {
+  const form = document.getElementById("recommend-form");
+  const toggle = document.getElementById("recommend-live");
+  const liveStatus = document.getElementById("recommend-live-status");
+  let timer = null;
+  toggle.addEventListener("change", () => {
+    clearInterval(timer);
+    liveStatus.hidden = !toggle.checked;
+    for (const field of ["round", "money"]) form.elements[field].readOnly = toggle.checked;
+    if (!toggle.checked) return;
+    pollLiveState(form, liveStatus);
+    timer = setInterval(() => pollLiveState(form, liveStatus), LIVE_POLL_MS);
+  });
+}
+
 async function limitRoundInput() {
   const response = await fetch("/api/rounds");
   if (!response.ok) return;
@@ -326,5 +386,6 @@ attachSearch();
 attachRankings();
 attachRounds();
 attachRecommend();
+attachLiveToggle();
 limitRoundInput();
 loadDamageTypes();

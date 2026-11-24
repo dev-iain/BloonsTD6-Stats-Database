@@ -39,6 +39,23 @@ without the game.
 Booleans are not accepted where a number is expected. Missing keys, wrong types or out-of-range
 values raise `GameStateError` (HTTP 422 from the API).
 
+## HTTP endpoints
+
+Served by `create_app(database_path, state_path, clock)` (`btd6/api/app.py`); `serve` passes `--state-file`.
+
+| Endpoint | Response |
+|---|---|
+| `POST /api/game-state` | Body is a version 1 payload. It is validated, saved with `received_at = clock()` and returned as `state_summary`. Invalid payloads, and bodies that are not a JSON object, are 422 (`{"error": ...}`); nothing is written |
+| `GET /api/game-state` | The stored state as `state_summary` with the default 30 s limit. A stale state is still returned, with `stale: true`. No file is 404; a corrupt file is 422 |
+
+`state_summary(stored, now, max_age_seconds=30)` returns `round`, `money`, `lives`, `difficulty` (recommender value, e.g. `impoppable`), `mode`, `map`, `towers` (`base_id`, `tower_name`, `path`, `known`), `received_at`, `age_seconds` and `stale` (age over the limit; never with `None`). The agent's `get_game_state` tool returns the same dict.
+
+## Consumers
+
+- Web UI: the Recommend tab's **Use live game** toggle polls `GET /api/game-state` every 2 s, fills round, money and difficulty, and re-runs the recommendation when they change. It shows `Live · round N · $X · K towers · updated Ns ago`, `Game state is stale ...` or `No game connected ...`.
+- CLI: `recommend --live` and `agent --live` read round, money and difficulty from the file instead of `--round`/`--money`/`--difficulty` (combining them is a usage error, exit 2). `--max-age S` sets the staleness limit (`0` turns it off). A missing or stale state exits with code 1. `recommend --live` prints `Live game: round N, $X, difficulty D` above the usual table.
+- Agent: with `--live`, the opening request lists the owned towers and the `get_game_state` tool is offered (`docs/agent.md`).
+
 ## Normalised fields
 
 - `difficulty_from_game(difficulty, mode)` returns the recommender's difficulty: `impoppable` when

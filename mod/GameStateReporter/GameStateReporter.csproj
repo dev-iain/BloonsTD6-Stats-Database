@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>GameStateReporter</AssemblyName>
+    <RootNamespace>GameStateReporter</RootNamespace>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <DebugType>embedded</DebugType>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Compiled in (not referenced) so the mod ships as a single DLL in Mods/. -->
+    <Compile Include="../GameStateReporter.Core/*.cs" LinkBase="Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="$(MelonLoaderDir)/net6/MelonLoader.dll" Private="false" />
+    <Reference Include="$(MelonLoaderDir)/net6/0Harmony.dll" Private="false" />
+    <Reference Include="$(MelonLoaderDir)/net6/Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(MelonLoaderDir)/net6/Il2CppInterop.Common.dll" Private="false" />
+    <Reference Include="$(MelonLoaderDir)/Il2CppAssemblies/*.dll" Private="false" />
+    <Reference Include="$(ModsDir)/Btd6ModHelper.dll" Private="false" />
+  </ItemGroup>
+
+  <Target Name="CheckGameInstall" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(MelonLoaderDir)/Il2CppAssemblies')"
+           Text="No MelonLoader Il2CppAssemblies under '$(BloonsTD6)'. Install MelonLoader, start BTD6 once so it generates them, or set BloonsTD6 (see mod/README.md)." />
+    <Error Condition="!Exists('$(ModsDir)/Btd6ModHelper.dll')"
+           Text="BTD Mod Helper is not installed: '$(ModsDir)/Btd6ModHelper.dll' is missing (see mod/README.md)." />
+  </Target>
+
+  <Target Name="CopyModToGame" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsDir)" />
+    <Message Importance="high" Text="Copied $(TargetFileName) to $(ModsDir)" />
+  </Target>
+</Project>

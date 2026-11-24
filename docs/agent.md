@@ -9,7 +9,7 @@ Modules:
 - `btd6/agent/client.py`: the OpenAI-compatible chat client, `client_from_environment` and the client errors.
 - `btd6/agent/picks.py`: `Pick`, `AgentResult` and `parse_picks`.
 - `btd6/agent/loop.py`: the tool loop (`run_agent`), `ChatClient` and the system prompt.
-- CLI: `python -m btd6 agent --round N --money X [--difficulty D] [--max-iterations K]`.
+- CLI: `python -m btd6 agent --round N --money X [--difficulty D] [--max-iterations K]`, or `agent --live [--max-age S]` to take round, money and difficulty from the live game state (`docs/game-state.md`).
 
 Tests: `tests/isp-tables/agent_tools.md`, `tests/isp-tables/agent_loop.md`, and evals in `tests/agent_evals/`.
 
@@ -221,6 +221,26 @@ Description: "Total cost (base plus every tier on the path) of an upgrade at a d
 - Call: `{"tower_name": "Super Monkey", "path": "9-0-0"}`
 - Result: `{"error": {"type": "QueryError", "message": "..."}}`
 
+### `get_game_state` (live runs only)
+
+Offered only when `run_agent` gets a `state_path` (`agent --live`); the schemas are then `LIVE_TOOL_SCHEMAS` (`TOOL_SCHEMAS` plus this one).
+
+Description: "The live game as the mod last reported it: round, cash (money), lives, difficulty, map and the towers already placed (tower_name, path X-Y-Z; known is false for towers that are not in the database). Call it when cash or towers may have changed."
+
+```json
+{"type": "object", "properties": {}}
+```
+
+- Result: `state_summary` from `btd6/game_state.py`: `{"round": 63, "money": 8000, "lives": 150, "difficulty": "medium", "mode": "Standard", "map": "...", "towers": [{"base_id": "DartMonkey", "tower_name": "Dart Monkey", "path": "0-2-3", "known": true}], "received_at": "...", "age_seconds": 1.2, "stale": false}`.
+- Errors: `NoGameStateError` (no file), `StaleGameStateError` (older than 30 s), `GameStateError` (corrupt file), `TypeError` (any argument), and `LiveStateUnavailable` when the run is not live.
+
+## Live runs
+
+`run_agent(..., state_path=None, owned_towers=None)`:
+
+- With `owned_towers` (a sequence of `PlacedTower`), the user message gains `You own: Super Monkey 2-0-0, BananaFarm 2-0-0 (not in the database).` (or `You own no towers.`) before `Recommend what to buy.`
+- With `state_path`, the system message is `SYSTEM_PROMPT + "\n" + LIVE_PROMPT`, the tools are `LIVE_TOOL_SCHEMAS`, and `get_game_state` reads that file. `LIVE_PROMPT` tells the model that the owned towers are already placed, to mention upgrades to them in the explanation, and to list only new purchases under `Picks:`.
+
 ## Evaluation (`tests/agent_evals/`)
 
 - Scenarios are data in `scenarios.json`: `round`, `money`, `difficulty` and the expectations.
@@ -233,5 +253,6 @@ Description: "Total cost (base plus every tier on the path) of an upgrade at a d
   - Round 40: a pick has a non-null `moab_dps`.
   - Very low money: `picks == ()`.
   - Unloaded round: the answer mentions the error, and `picks == ()`.
+- Live game state: `test_offline_live_eval.py` runs a stub that calls `get_game_state` and then `recommend` with the state's round and money, and must pass every check above; the live suite has the same scenario (`test_live_state_scenario`).
 - Offline runs use a scripted stub client and are part of `uv run pytest`.
 - Live runs (`uv run pytest -m live_agent`) need `GEMINI_API_KEY` and the real `btd6.db`. They are skipped by default.

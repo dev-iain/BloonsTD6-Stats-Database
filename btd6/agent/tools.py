@@ -6,12 +6,15 @@ import math
 import sqlite3
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import numpy
 
 from btd6.agent.schemas import TOOL_SCHEMAS as TOOL_SCHEMAS
 from btd6.costs import total_cost
+from btd6.game_state import load_game_state, state_summary
 from btd6.query import QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import rank_upgrades
 from btd6.recommend import recommend as recommend_upgrades
@@ -121,7 +124,31 @@ def error_result(error_type: str, message: str) -> dict[str, Any]:
     return {"error": {"type": error_type, "message": message}}
 
 
-def call_tool(connection: sqlite3.Connection, name: str, arguments: dict[str, Any]) -> dict:
+NOT_LIVE_MESSAGE = "No live game in this run. Start the agent with --live to read the game state."
+
+
+def get_game_state_tool(state_path: Path) -> dict[str, Any]:
+    current_time = datetime.now(UTC)
+    return state_summary(load_game_state(state_path, now=current_time), current_time)
+
+
+def run_game_state_tool(state_path: Path | None, arguments: dict[str, Any]) -> dict:
+    if state_path is None:
+        return error_result("LiveStateUnavailable", NOT_LIVE_MESSAGE)
+    try:
+        return get_game_state_tool(state_path, **arguments)
+    except ERROR_TYPES as error:
+        return error_result(type(error).__name__, str(error))
+
+
+def call_tool(
+    connection: sqlite3.Connection,
+    name: str,
+    arguments: dict[str, Any],
+    state_path: Path | None = None,
+) -> dict:
+    if name == "get_game_state":
+        return run_game_state_tool(state_path, arguments)
     tool = TOOLS.get(name)
     if tool is None:
         return error_result("UnknownTool", f"Unknown tool: {name!r}")
@@ -146,9 +173,11 @@ def decode_arguments(raw: str) -> dict | None:
     return decoded if isinstance(decoded, dict) else None
 
 
-def execute_call(connection: sqlite3.Connection, call: Mapping[str, Any]) -> ToolCall:
+def execute_call(
+    connection: sqlite3.Connection, call: Mapping[str, Any], state_path: Path | None = None
+) -> ToolCall:
     name = call["function"]["name"]
     arguments = decode_arguments(call["function"]["arguments"])
     if arguments is None:
         return ToolCall(name, {}, error_result("ArgumentError", "Arguments must be a JSON object"))
-    return ToolCall(name, arguments, call_tool(connection, name, arguments))
+    return ToolCall(name, arguments, call_tool(connection, name, arguments, state_path))

@@ -211,6 +211,36 @@ def load_game_state(
     return StoredGameState(parse_game_state(payload), received_at)
 
 
+def tower_summary(tower: PlacedTower) -> dict[str, object]:
+    return {
+        "base_id": tower.base_id,
+        "tower_name": tower.tower_name,
+        "path": tower.path,
+        "known": tower.known,
+    }
+
+
+def state_summary(
+    stored: StoredGameState,
+    now: datetime,
+    max_age_seconds: float | None = DEFAULT_MAX_AGE_SECONDS,
+) -> dict[str, object]:
+    state = stored.state
+    age_seconds = (now - stored.received_at).total_seconds()
+    return {
+        "round": state.round_number,
+        "money": state.money,
+        "lives": state.lives,
+        "difficulty": state.difficulty,
+        "mode": state.mode,
+        "map": state.map_name,
+        "towers": [tower_summary(tower) for tower in state.towers],
+        "received_at": stored.received_at.isoformat(),
+        "age_seconds": age_seconds,
+        "stale": max_age_seconds is not None and age_seconds > max_age_seconds,
+    }
+
+
 def parse_tower_spec(spec: str) -> tuple[str, str]:
     name, separator, path = spec.partition(":")
     if not separator or not name:

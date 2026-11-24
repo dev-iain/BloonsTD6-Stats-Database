@@ -1,0 +1,15 @@
+<Project>
+  <!--
+    Where BTD6 is installed. Override it in a gitignored mod/Directory.Build.props.user:
+      <Project><PropertyGroup><BloonsTD6>/path/to/BloonsTD6</BloonsTD6></PropertyGroup></Project>
+    or on the command line: dotnet build mod/GameStateReporter -p:BloonsTD6=/path/to/BloonsTD6
+  -->
+  <Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user"
+          Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
+  <PropertyGroup>
+    <BloonsTD6 Condition="'$(BloonsTD6)' == '' And $([MSBuild]::IsOSPlatform('Windows'))">C:/Program Files (x86)/Steam/steamapps/common/BloonsTD6</BloonsTD6>
+    <BloonsTD6 Condition="'$(BloonsTD6)' == ''">$(HOME)/.local/share/Steam/steamapps/common/BloonsTD6</BloonsTD6>
+    <MelonLoaderDir>$(BloonsTD6)/MelonLoader</MelonLoaderDir>
+    <ModsDir>$(BloonsTD6)/Mods</ModsDir>
+  </PropertyGroup>
+</Project>
