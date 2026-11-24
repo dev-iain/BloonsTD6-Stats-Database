@@ -8,13 +8,15 @@ The UI is plain JS served by the same Python process that owns SQLite. The futur
 
 ## Endpoints
 
-All responses are JSON. Errors are `{"error": "<message>"}`: `QueryError` gives 422, a missing database gives 503.
+All responses are JSON. Errors are `{"error": "<message>"}`: `QueryError` (including an unloaded round number) gives 422, no round data loaded gives 404, a missing database gives 503.
 
 | Endpoint | Query parameters | Response |
 |---|---|---|
 | `GET /api/upgrades` | `name`, `min_range`, `min_pierce`, `min_damage`, `min_speed`, `damage_type`, `camo` (`either`/`yes`/`no`), one of `lead`/`black`/`white`/`purple`/`glass`/`frozen` (`any`/`can`/`cannot`), `sort`, `limit` | `{"rows": [...]}` raw `search_upgrades` columns |
 | `GET /api/rankings` | the filters above, plus `metric` (`dps`, `damage_per_dollar`, `pierce_damage_per_dollar`), `difficulty`, `limit` | `{"rows": [...]}` ranked, with `total_cost`, `dps`, `damage_per_dollar` (`null` for missing values) |
 | `GET /api/damage-types` | none | `{"damage_types": [...]}` |
+| `GET /api/rounds` | none | `{"first": 1, "last": N}` loaded round range (both `null` when empty) |
+| `GET /api/rounds/{n}` | none | `{"round", "summary", "composition", "groups", "income"}`: `summary` is `RoundSummary` (totals plus `has_moab`/`has_camo`/`has_lead`/`has_ceramic`), `composition` the bloon totals (groups merged by bloon and modifiers, with `count` and `total_rbe`, largest RBE first), `groups` the spawn order, `income` is `pop_cash`, `end_bonus`, `total`, `cumulative` or `null` when income data is not loaded |
 
 Parameters are parsed by `btd6.api.params.form_to_filters` and `form_to_search_options`. Each request opens its own SQLite connection.
 
@@ -22,4 +24,4 @@ Parameters are parsed by `btd6.api.params.form_to_filters` and `form_to_search_o
 
 - `btd6/api/app.py`: `create_app(database_path)`, routes, error handlers, static mount.
 - `frontend/`: `index.html`, `style.css`, `app.js` (ES module, no dependencies). Served at `/` and `/static/`. Table cells are set with `textContent`, never `innerHTML`.
-- Search and Rankings tabs are live; Rounds is a placeholder until round data lands.
+- Search, Rankings and Rounds tabs are live. The Rounds tab shows Summary and Income cards (money in green), then a bloon totals table and the spawn order table.

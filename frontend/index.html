@@ -71,7 +71,21 @@
     </section>
 
     <section id="tab-rounds" class="panel" role="tabpanel" hidden>
-      <p class="status">Round data is not available yet.</p>
+      <form id="round-form" class="filters">
+        <label>Round <input name="round" type="number" min="1" step="1" value="1" required></label>
+        <div class="actions"><button type="submit" class="primary">Show</button></div>
+      </form>
+      <p class="status" id="round-status" role="status"></p>
+      <div id="round-detail" hidden>
+        <div class="cards">
+          <section class="card"><h2>Summary</h2><dl id="round-summary"></dl></section>
+          <section class="card"><h2>Income</h2><dl id="round-income"></dl></section>
+        </div>
+        <h2 class="section-title">Bloon totals</h2>
+        <div class="table-wrap"><table id="round-totals"></table></div>
+        <h2 class="section-title">Spawn order</h2>
+        <div class="table-wrap"><table id="round-table"></table></div>
+      </div>
     </section>
   </main>
 

@@ -87,3 +87,27 @@ def get_round_summary(connection: sqlite3.Connection, round_number: int) -> Roun
         has_lead="Lead" in names,
         has_ceramic="Ceramic" in names,
     )
+
+
+@dataclass(frozen=True)
+class BloonTotal:
+    bloon: str
+    is_camo: bool
+    is_regrow: bool
+    is_fortified: bool
+    count: int
+    total_rbe: int
+
+
+def round_composition(groups: list[RoundGroup]) -> list[BloonTotal]:
+    counts: dict[tuple[str, bool, bool, bool], int] = {}
+    rbe_each: dict[tuple[str, bool, bool, bool], int] = {}
+    for group in groups:
+        key = (group.bloon, group.is_camo, group.is_regrow, group.is_fortified)
+        counts[key] = counts.get(key, 0) + group.count
+        rbe_each[key] = group.rbe or 0
+    totals = [
+        BloonTotal(*key, count=count, total_rbe=count * rbe_each[key])
+        for key, count in counts.items()
+    ]
+    return sorted(totals, key=lambda total: total.total_rbe, reverse=True)
