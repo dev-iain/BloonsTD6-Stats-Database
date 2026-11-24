@@ -37,4 +37,4 @@ testpaths = ["tests"]
 
 [tool.mutmut]
 source_paths = ["btd6/"]
-also_copy = ["data.csv"]
+also_copy = ["data.csv", "frontend/", "docs/"]

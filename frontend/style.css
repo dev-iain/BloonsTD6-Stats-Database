@@ -118,13 +118,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 tbody tr:nth-child(even) { background: var(--row-alt); }
 table:empty { display: none; }
 
-#round-detail { width: 44rem; max-width: 100%; margin: 1rem auto 0; }
+#round-detail, #recommend-detail { width: 44rem; max-width: 100%; margin: 1rem auto 0; }
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.25rem; }
 .card h2, .section-title { margin: 0 0 0.6rem; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
 .section-title { margin: 1.5rem 0.25rem 0.6rem; }
 #round-form { width: 44rem; max-width: 100%; margin: 0 auto; }
-#round-status { text-align: center; }
+#round-status, #recommend-status { text-align: center; }
 dl { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem 1rem; margin: 0; }
 dt::after { content: ":"; }
 dd { margin: 0; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -132,3 +132,5 @@ dd.dim { color: var(--muted); font-weight: 400; }
 dd.warn { color: var(--warn); }
 dd.money { color: var(--money); }
 dd.strong { background: var(--money-bg); border-radius: 6px; padding: 0 0.5rem; }
+
+#recommend-properties dt { text-transform: capitalize; }

@@ -17,6 +17,7 @@ All responses are JSON. Errors are `{"error": "<message>"}`: `QueryError` (inclu
 | `GET /api/damage-types` | none | `{"damage_types": [...]}` |
 | `GET /api/rounds` | none | `{"first": 1, "last": N}` loaded round range (both `null` when empty) |
 | `GET /api/rounds/{n}` | none | `{"round", "summary", "composition", "groups", "income", "threats"}`: `summary` is `RoundSummary` (totals plus `has_moab`/`has_camo`/`has_lead`/`has_ceramic`), `composition` the bloon totals (groups merged by bloon and modifiers, with `count` and `total_rbe`, largest RBE first), `groups` the spawn order, `income` is `pop_cash`, `end_bonus`, `total`, `cumulative` or `null` when income data is not loaded; `threats` is `RoundThreats` from `btd6/threats.py` (`total_rbe`, `unknown_groups`, `property_share` per `lead/black/white/purple/glass/frozen`, `camo_share`, `regrow_share`, `moab_share`, `mean_layers`; formulas in `docs/threats.md`) |
+| `GET /api/recommendations` | `round` (required int), `money` (required int, 0 or more), `difficulty` (`easy`/`medium`/`hard`/`impoppable`, default `medium`), `limit` (optional, at least 1) | `{"rows": [...]}` in rank order, each with `tower_name`, `path`, `total_cost`, `score`, `dps`, `moab_dps`, `pierce_weighted_dps`, `projectile_pierce`, `reasons` (list of reason codes; see `docs/recommend.md`). Bad input and an unloaded round are `QueryError` (422), no round data 404, missing database 503 |
 
 Parameters are parsed by `btd6.api.params.form_to_filters` and `form_to_search_options`. Each request opens its own SQLite connection.
 
@@ -24,4 +25,5 @@ Parameters are parsed by `btd6.api.params.form_to_filters` and `form_to_search_o
 
 - `btd6/api/app.py`: `create_app(database_path)`, routes, error handlers, static mount.
 - `frontend/`: `index.html`, `style.css`, `app.js` (ES module, no dependencies). Served at `/` and `/static/`. Table cells are set with `textContent`, never `innerHTML`.
-- Search, Rankings and Rounds tabs are live. The Rounds tab shows Summary and Income cards (money in green), then a bloon totals table and the spawn order table.
+- Search, Rankings, Rounds and Recommend tabs are live. The Rounds tab shows Summary and Income cards (money in green), then a bloon totals table and the spawn order table.
+- The Recommend tab takes round (bounded by `/api/rounds`), money, difficulty and an optional limit, calls `/api/recommendations` and `/api/rounds/{n}`, and shows Round threats and Bloon properties cards (shares as percentages, mean layers) above a table of rank, tower, path, cost, score and reasons. API errors show in the status line; no rows shows "No affordable upgrade can handle this round."

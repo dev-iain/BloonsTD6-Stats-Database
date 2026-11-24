@@ -13,6 +13,7 @@
       <button role="tab" data-tab="search" aria-selected="true">Search</button>
       <button role="tab" data-tab="rankings" aria-selected="false">Rankings</button>
       <button role="tab" data-tab="rounds" aria-selected="false">Rounds</button>
+      <button role="tab" data-tab="recommend" aria-selected="false">Recommend</button>
     </nav>
   </header>
 
@@ -86,6 +87,31 @@
         <div class="table-wrap"><table id="round-totals"></table></div>
         <h2 class="section-title">Spawn order</h2>
         <div class="table-wrap"><table id="round-table"></table></div>
+      </div>
+    </section>
+    <section id="tab-recommend" class="panel" role="tabpanel" hidden>
+      <form id="recommend-form" class="filters" autocomplete="off">
+        <label>Round <input id="recommend-round" name="round" type="number" min="1" step="1" value="1" required></label>
+        <label>Money <input id="recommend-money" name="money" type="number" min="0" step="1" value="650" required></label>
+        <label>Difficulty
+          <select id="recommend-difficulty" name="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+            <option value="impoppable">Impoppable</option>
+          </select>
+        </label>
+        <label>Limit <input id="recommend-limit" name="limit" type="number" min="1" step="1" value="10"></label>
+        <div class="actions"><button type="submit" class="primary">Recommend</button></div>
+      </form>
+      <p class="status" id="recommend-status" role="status"></p>
+      <div id="recommend-detail" hidden>
+        <div class="cards">
+          <section class="card"><h2>Round threats</h2><dl id="recommend-threats"></dl></section>
+          <section class="card"><h2>Bloon properties</h2><dl id="recommend-properties"></dl></section>
+        </div>
+        <h2 class="section-title">Recommended upgrades</h2>
+        <div class="table-wrap"><table id="recommend-table"></table></div>
       </div>
     </section>
   </main>
