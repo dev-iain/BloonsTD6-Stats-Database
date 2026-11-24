@@ -46,12 +46,14 @@ RANK_METRICS: dict[str, str] = {
     "dps": "dps",
     "dollar": "damage_per_dollar",
     "pierce-dollar": "pierce_damage_per_dollar",
+    "moab-dps": "moab_dps",
 }
 RANK_COLUMNS: dict[str, str] = {
     "tower_name": "tower",
     "path": "path",
     "total_cost": "cost",
     "dps": "DPS",
+    "moab_dps": "MOAB DPS",
     "damage_per_dollar": "damage per dollar",
 }
 MISSING_DATA_MESSAGE = 'No {kind} data loaded. Run "python -m btd6 load" first.'
@@ -237,12 +239,23 @@ def check_database_exists(args: argparse.Namespace) -> int | None:
     return None
 
 
+def warn_if_attacks_missing(connection: sqlite3.Connection) -> None:
+    has_upgrades = connection.execute("SELECT 1 FROM upgrades LIMIT 1").fetchone()
+    has_attacks = connection.execute("SELECT 1 FROM attacks LIMIT 1").fetchone()
+    if has_upgrades and not has_attacks:
+        print(
+            'No attack data stored, so DPS is empty. Run "python -m btd6 load" to fill it.',
+            file=sys.stderr,
+        )
+
+
 def run_rank(args: argparse.Namespace) -> int:
     failure = check_request(args)
     if failure is not None:
         return failure
     connection = connect(args.db)
     try:
+        warn_if_attacks_missing(connection)
         frame = rank_upgrades(
             connection,
             build_filters(args),

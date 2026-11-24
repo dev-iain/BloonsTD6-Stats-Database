@@ -46,11 +46,15 @@ def add_metrics(dataframe: pandas.DataFrame) -> pandas.DataFrame:
 
 
 def projectile_hits(row: sqlite3.Row) -> Figures:
-    if row["damage"] is None or row["unlimited_damage"]:
+    if row["unlimited_damage"]:
+        return None, None
+    bonus = row["moab_bonus_damage"]
+    if row["damage"] is None and bonus is None:
         return None, None
     count = 1 if row["count"] is None else row["count"]
-    moab_hit = (row["damage"] + (row["moab_bonus_damage"] or 0)) * count
-    plain_hit = None if row["moab_only"] else row["damage"] * count
+    base_damage = row["damage"] or 0
+    moab_hit = (base_damage + (bonus or 0)) * count
+    plain_hit = None if row["moab_only"] or row["damage"] is None else base_damage * count
     return plain_hit, moab_hit
 
 

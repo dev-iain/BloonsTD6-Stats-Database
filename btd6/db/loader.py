@@ -29,9 +29,10 @@ INSERT_UPGRADE_SQL = (
 
 
 def ensure_tower(connection: sqlite3.Connection, name: str, category: str) -> int:
-    """Return the id of the tower called `name`, inserting it first if missing."""
+    """Return the id of the tower called `name`, inserting it or refreshing its category."""
     connection.execute(
-        "INSERT INTO towers (name, category) VALUES (?, ?) ON CONFLICT (name) DO NOTHING",
+        "INSERT INTO towers (name, category) VALUES (?, ?)"
+        " ON CONFLICT (name) DO UPDATE SET category = excluded.category",
         (name, category),
     )
     row = connection.execute("SELECT id FROM towers WHERE name = ?", (name,)).fetchone()

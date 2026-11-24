@@ -214,3 +214,10 @@ def test_reload_is_idempotent_and_counts_match(shapes) -> None:
     sql = "SELECT COUNT(*) FROM projectiles WHERE damage = ? OR pierce = ?"
     assert connection.execute(sql, (UNLIMITED, UNLIMITED)).fetchone()[0] == 0
     connection.close()
+
+
+def test_load_tower_reload_updates_category(database) -> None:
+    load_tower(database, "Dart Monkey", {"_000": ninja_003()})
+    load_tower(database, "Dart Monkey", {"_000": ninja_003()}, "Primary")
+    row = database.execute("SELECT category FROM towers WHERE name = 'Dart Monkey'").fetchone()
+    assert row["category"] == "Primary"

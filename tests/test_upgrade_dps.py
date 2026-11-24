@@ -224,3 +224,14 @@ def test_dps_is_finite_and_moab_dps_never_lower(attacks) -> None:
     if dps is not None:
         assert 0 <= dps < 1e6
         assert moab_dps >= dps - 1e-9
+
+
+def test_damageless_projectile_with_moab_bonus_counts_for_moab_dps(database) -> None:
+    stats = make_stats(
+        make_attack(
+            "Attack",
+            1.0,
+            {"Shimmer": {"pierce": 1, "damageModifierForMoabs": 5, "damage_type": "Normal"}},
+        )
+    )
+    assert_figures(figures_of(database, stats), (None, 5.0))
