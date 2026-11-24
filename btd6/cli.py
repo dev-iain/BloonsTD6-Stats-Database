@@ -38,11 +38,15 @@ from btd6.formatting import (
 )
 from btd6.income import NoIncomeDataError, round_income, round_incomes
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
-from btd6.ranking import METRICS, rank_upgrades
+from btd6.ranking import rank_upgrades
 from btd6.rounds import NoRoundDataError, RoundGroup, get_round
 from btd6.threats import RoundThreats, round_threats
 
-RANK_METRICS: dict[str, str] = dict(zip(("dps", "dollar", "pierce-dollar"), METRICS, strict=True))
+RANK_METRICS: dict[str, str] = {
+    "dps": "dps",
+    "dollar": "damage_per_dollar",
+    "pierce-dollar": "pierce_damage_per_dollar",
+}
 RANK_COLUMNS: dict[str, str] = {
     "tower_name": "tower",
     "path": "path",

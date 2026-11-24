@@ -1,0 +1,3109 @@
+{
+    "_000": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_100": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_110": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_101": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_200": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_210": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 2,
+                        "pierce": 15,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_220": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Explosion"
+                    ],
+                    "Explosion": {
+                        "damage": 2,
+                        "pierce": 15,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_201": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 6,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_202": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_300": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.55,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 3,
+                        "pierce": 7,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_310": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 2,
+                        "pierce": 19,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_320": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Wall of Fire"
+            ],
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 15,
+                        "lifespan": 6.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_301": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.55,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 3,
+                        "pierce": 12,
+                        "speed": 400,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_302": {
+        "range": 70,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.55,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 3,
+                        "pierce": 7,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_400": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.275,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 6,
+                        "pierce": 7,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 10
+                    }
+                }
+            }
+        }
+    },
+    "_410": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 2,
+                        "pierce": 19,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 6
+                    }
+                }
+            }
+        }
+    },
+    "_420": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Wall of Fire"
+            ],
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 15,
+                        "lifespan": 6.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 2
+                    }
+                }
+            }
+        }
+    },
+    "_401": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.275,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 6,
+                        "pierce": 12,
+                        "speed": 400,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 10
+                    }
+                }
+            }
+        }
+    },
+    "_402": {
+        "range": 70,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.275,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 6,
+                        "pierce": 7,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false,
+                        "damageModifierForMoabs": 10
+                    }
+                }
+            }
+        }
+    },
+    "_500": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shimmer",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 0.1375,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 8,
+                        "pierce": 11,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 19
+                    }
+                }
+            },
+            "Shimmer": {
+                "rate": 1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 500,
+                        "radius": 75,
+                        "lifespan": 0.05,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.0675,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 8
+                    }
+                }
+            }
+        }
+    },
+    "_510": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 9,
+                        "pierce": 23,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 24
+                    }
+                }
+            }
+        }
+    },
+    "_520": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Wall of Fire"
+            ],
+            "Wall of Fire": {
+                "rate": 3.25,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 15,
+                        "lifespan": 6.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 6
+                    }
+                }
+            }
+        }
+    },
+    "_501": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 0.1375,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 8,
+                        "pierce": 16,
+                        "speed": 400,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 19
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.0675,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "speed": 250,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true,
+                        "damageModifierForMoabs": 8
+                    }
+                }
+            }
+        }
+    },
+    "_502": {
+        "range": 70,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shimmer",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 0.1375,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 8,
+                        "pierce": 11,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false,
+                        "damageModifierForMoabs": 19
+                    }
+                }
+            },
+            "Shimmer": {
+                "rate": 1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 500,
+                        "radius": 87.5,
+                        "lifespan": 0.05,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.0675,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 1.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false,
+                        "damageModifierForMoabs": 8
+                    }
+                }
+            }
+        }
+    },
+    "_010": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_011": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_020": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_120": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 10,
+                        "radius": 15,
+                        "lifespan": 6.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_021": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_022": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Wall of Fire"
+            ],
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_030": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_130": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 6.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_230": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Explosion"
+                    ],
+                    "Explosion": {
+                        "damage": 4,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_031": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 20,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 25,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 5,
+                        "speed": 250,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_032": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_040": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 2,
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_140": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 6.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 2,
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_240": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Explosion"
+                    ],
+                    "Explosion": {
+                        "damage": 4,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_041": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 20,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 25,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 2,
+                        "damage": 2,
+                        "pierce": 5,
+                        "speed": 250,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_042": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    },
+                    "Explosion": {
+                        "damage": 3,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 2,
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_050": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 9,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 2,
+                        "pierce": 15,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_150": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 6.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 2,
+                        "pierce": 15,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_250": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Explosion"
+                    ],
+                    "Explosion": {
+                        "damage": 10,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_051": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    },
+                    "Explosion": {
+                        "damage": 9,
+                        "pierce": 20,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 25,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": true
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 2,
+                        "pierce": 17,
+                        "speed": 250,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_052": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Fireball",
+                "Wall of Fire",
+                "Dragon's Breath"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 3,
+                        "speed": 200,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 200,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    },
+                    "Explosion": {
+                        "damage": 9,
+                        "pierce": 15,
+                        "radius": 14,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Wall of Fire": {
+                "rate": 4.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 5,
+                        "pierce": 20,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Dragon's Breath": {
+                "rate": 0.135,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "count": 3,
+                        "damage": 2,
+                        "pierce": 15,
+                        "speed": 125,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 72,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        },
+        "abilities": {
+            "_order": [
+                "Ability"
+            ],
+            "Ability": {
+                "cooldown": 45
+            }
+        }
+    },
+    "_001": {
+        "range": 40,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": true
+                    }
+                }
+            }
+        }
+    },
+    "_002": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_102": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_012": {
+        "range": 50,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    },
+                    "Explosion": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_003": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shimmer"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Shimmer": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 500,
+                        "radius": 75,
+                        "lifespan": 0.05,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_103": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shimmer"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Shimmer": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 500,
+                        "radius": 75,
+                        "lifespan": 0.05,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_203": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_013": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    },
+                    "Explosion": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_023": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Wall of Fire"
+            ],
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_004": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shimmer",
+                "Reanimate"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Shimmer": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 500,
+                        "radius": 75,
+                        "lifespan": 0.05,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Reanimate": {
+                "rate": 1.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 1,
+                        "speed": 25,
+                        "radius": 3,
+                        "lifespan": 7,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_104": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shimmer",
+                "Reanimate"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Shimmer": {
+                "rate": 2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 500,
+                        "radius": 75,
+                        "lifespan": 0.05,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Reanimate": {
+                "rate": 1.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 1,
+                        "speed": 25,
+                        "radius": 3,
+                        "lifespan": 10,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_204": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 1.1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_014": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    },
+                    "Explosion": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_024": {
+        "range": 60,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Wall of Fire"
+            ],
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_005": {
+        "range": 80,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shimmer",
+                "Reanimate",
+                "MOAB"
+            ],
+            "Attack": {
+                "rate": 0.275,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Shimmer": {
+                "rate": 1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 500,
+                        "radius": 100,
+                        "lifespan": 0.05,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Reanimate": {
+                "rate": 1.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 1,
+                        "speed": 25,
+                        "radius": 3,
+                        "lifespan": 7,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "MOAB": {
+                "rate": 3,
+                "projectiles": {
+                    "_order": [
+                        "MOAB",
+                        "BFB"
+                    ],
+                    "MOAB": {
+                        "damage": 40,
+                        "pierce": 20,
+                        "speed": 15,
+                        "radius": 10,
+                        "lifespan": 15,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    },
+                    "BFB": {
+                        "damage": 100,
+                        "pierce": 50,
+                        "speed": 15,
+                        "radius": 20,
+                        "lifespan": 10,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_105": {
+        "range": 80,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack",
+                "Shimmer",
+                "Reanimate",
+                "MOAB"
+            ],
+            "Attack": {
+                "rate": 0.275,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 4,
+                        "lifespan": 0.8,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Shimmer": {
+                "rate": 1,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "pierce": 500,
+                        "radius": 100,
+                        "lifespan": 0.05,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "Reanimate": {
+                "rate": 1.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 1,
+                        "speed": 25,
+                        "radius": 3,
+                        "lifespan": 10,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            },
+            "MOAB": {
+                "rate": 3,
+                "projectiles": {
+                    "_order": [
+                        "MOAB",
+                        "BFB"
+                    ],
+                    "MOAB": {
+                        "damage": 40,
+                        "pierce": 20,
+                        "speed": 15,
+                        "radius": 10,
+                        "lifespan": 20,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    },
+                    "BFB": {
+                        "damage": 100,
+                        "pierce": 50,
+                        "speed": 15,
+                        "radius": 20,
+                        "lifespan": 15,
+                        "immuneBloonProperties": 0,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_205": {
+        "range": 80,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Attack"
+            ],
+            "Attack": {
+                "rate": 0.275,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 2,
+                        "pierce": 8,
+                        "speed": 400,
+                        "radius": 6,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 73,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_015": {
+        "range": 80,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Fireball"
+            ],
+            "Fireball": {
+                "rate": 2.2,
+                "projectiles": {
+                    "_order": [
+                        "Projectile",
+                        "Explosion"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 1,
+                        "speed": 400,
+                        "radius": 3,
+                        "lifespan": 0.4,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    },
+                    "Explosion": {
+                        "damage": 1,
+                        "pierce": 20,
+                        "radius": 10,
+                        "lifespan": 0.1,
+                        "immuneBloonProperties": 2,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    },
+    "_025": {
+        "range": 80,
+        "footprintRadius": 7,
+        "attacks": {
+            "_order": [
+                "Wall of Fire"
+            ],
+            "Wall of Fire": {
+                "rate": 6.5,
+                "projectiles": {
+                    "_order": [
+                        "Projectile"
+                    ],
+                    "Projectile": {
+                        "damage": 1,
+                        "pierce": 15,
+                        "radius": 15,
+                        "lifespan": 4.5,
+                        "immuneBloonProperties": 8,
+                        "filterInvisible": false
+                    }
+                }
+            }
+        }
+    }
+}

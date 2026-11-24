@@ -131,7 +131,12 @@ def build_order_by(sort_by: str | None, descending: bool) -> str:
         allowed = ", ".join(SORT_COLUMNS)
         raise QueryError(f'Cannot sort by "{sort_by}". Allowed: {allowed}')
     direction = "DESC" if descending else "ASC"
-    return f" ORDER BY upgrades.{sort_by} {direction} NULLS LAST, {tiebreak}"
+    column = (
+        "NULLIF(upgrades.ability_cooldown, 0)"
+        if sort_by == "ability_cooldown"
+        else f"upgrades.{sort_by}"
+    )
+    return f" ORDER BY {column} {direction} NULLS LAST, {tiebreak}"
 
 
 def search_upgrades(

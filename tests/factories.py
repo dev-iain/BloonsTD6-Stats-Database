@@ -307,3 +307,34 @@ def alchemist_220() -> dict[str, Any]:
 def wizard_400() -> dict[str, Any]:
     projectile = {"damage": 6, "pierce": 7, "damageModifierForMoabs": 10}
     return make_stats(make_attack("Attack", 0.275, {"Projectile": projectile}))
+
+
+ABILITIES_PASSIVE_FIRST = {
+    "_order": ["Passive Ability", "Vine Crush"],
+    "Passive Ability": {"cooldown": 0},
+    "Vine Crush": {"cooldown": 30},
+}
+ABILITIES_ACTIVE = {"_order": ["Ability"], "Ability": {"cooldown": 60}}
+
+
+def druid_040() -> dict[str, Any]:
+    return make_stats(*druid_vine_attacks(), abilities=ABILITIES_PASSIVE_FIRST)
+
+
+def alchemist_040() -> dict[str, Any]:
+    attack = make_attack("Attack", 2, {"Splash": {"damage": 1, "pierce": 15}})
+    return make_stats(attack, abilities=ABILITIES_ACTIVE)
+
+
+def projectile_of(stats: dict[str, Any], attack: str, projectile: str) -> dict[str, Any]:
+    """The mutable projectile dict inside wiki-shaped `stats` (for building variants)."""
+    return stats["attacks"][attack]["projectiles"][projectile]
+
+
+def stored_upgrade_id(connection: Any, tower_name: str, path: str) -> int:
+    row = connection.execute(
+        "SELECT upgrades.id FROM upgrades JOIN towers ON towers.id = upgrades.tower_id"
+        " WHERE towers.name = ? AND upgrades.path = ?",
+        (tower_name, path),
+    ).fetchone()
+    return row[0]

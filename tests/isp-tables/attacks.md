@@ -189,7 +189,7 @@ Oracle is `(upgrade_dps, upgrade_moab_dps)`, compared with `pytest.approx`. The 
 | Upgrade | `upgrade_dps` | `upgrade_moab_dps` | Notes |
 |---|---|---|---|
 | Ninja 0-0-3 | 6.70802 | 6.70802 | `(3 + 1) / 0.62 + 1 / 3.9`; the `extract_row` summary gives NULL |
-| Wizard 0-0-5 | 51.63636 (provisional) | 51.63636 (provisional) | `1 / 0.275 + 2 / 1.5 + (40 + 100) / 3`; `Shimmer` skipped (no damage); the `MOAB` attack is 46.667 of it. Provisional: `MOAB` and `BFB` may be per-target alternatives rather than simultaneous projectiles; confirm on the wiki in #133 before freezing, and if so use the larger one for MOAB DPS and neither for plain DPS |
+| Wizard 0-0-5 | 18.30303 | 38.30303 | Confirmed on the wiki (#133): `MOAB` (40) and `BFB` (100) are per-summon alternatives by graveyard count. Plain DPS `1 / 0.275 + 2 / 1.5 + 40 / 3`, MOAB DPS with the larger, `100 / 3`; `Shimmer` skipped (no damage). The old simultaneous sum was 51.63636 |
 | Druid 0-3-0 | 7.65734 | 7.65734 | `8 / 1.1 + 1 / 2.6`; `Collidable` excluded; `has_unlimited_damage` true |
 | Druid 4-0-0 | 6.34980 | 6.34980 | `5 / 1.1 + 3 / 6 + 3 / 2.3`; `Spawning projectile` damage 0 and `Tornado` damage 0 add nothing; pierce is unlimited but not used by DPS |
 | Alchemist 2-2-0 | `None` | `None` | one attack, no projectile |
