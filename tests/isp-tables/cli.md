@@ -372,3 +372,92 @@ The `rounds` subcommand (`--round N`, `--from A --to B`) has its ISP and BCC tab
 | Test | Covers | Oracle | Test Name |
 |---|---|---|---|
 | T1 | help text | `btd6 --help` stdout names `rounds` among the commands | `test_main_help_lists_rounds_command` |
+
+---
+
+## main: `income` (#93)
+
+```python
+def main(argv: list[str] | None = None) -> int
+def income_summary(income: RoundIncome, round_number: int) -> str   # btd6/formatting.py
+```
+
+`income --round N` prints `income_summary(round_income(connection, N), N)`. `income --up-to N` prints a pandas table (`to_string(index=False)`, display limits off) with one row per round 1..N and columns `round`, `pop cash`, `end bonus`, `total`, `running total` (`running total` is `cumulative_income` up to that round). Table cells are plain numbers with no `$` and no thousands separators, whole numbers without `.0`, otherwise rounded to 1 decimal (`1220.2`). Exactly one of `--round` / `--up-to` is required (argparse mutually exclusive group, `required=True`). Spec: `docs/income.md`.
+
+Errors: `validate_round` `ValueError` (round out of range) returns 2 with the message `Round <n> is not loaded; loaded rounds are 1-<last>`; `NoRoundDataError` returns 1 with `No round data loaded. Run "python -m btd6 load" first.` (same as `rounds`); a `ValueError` for missing income data (no thresholds or settings) returns 1 with one stderr line that mentions income and ends `Run "python -m btd6 load" first.` The source must tell these apart (e.g. the CLI checks for income tables before computing).
+
+### income_summary format
+
+`Round <n>: $<pop cash> pop cash + $<end bonus> end bonus = $<total>`. Each amount is rounded to 1 decimal, grouped with commas, and a trailing `.0` is dropped: `$20`, `$1,220.2`, `$2,663`, `$0.3` (float noise such as `0.30000000000000004` is rounded away).
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`argv` (selection)|A) Which selector|A1: `--round` only **(Base)**|`"--round", "1"`|
+|||A2: `--up-to` only|`"--up-to", "5"`|
+|||A3: Neither|none|
+|||A4: Both|`"--round", "1", "--up-to", "5"`|
+|`--round` / `--up-to` (value)|B) Round value|B1: In range **(Base)**|`1`|
+|||B2: Last loaded round|`100`|
+|||B3: Zero|`0`|
+|||B4: Above last loaded|`101`|
+|||B5: Negative (`--round` only)|`-1`|
+|||B6: Not an integer|`"abc"`|
+|`--db` (state)|C) State before the call|C1: Rounds 1-100 and income loaded **(Base)**|`income_db` fixture saved to a file|
+|||C2: Missing|`tmp_path / "missing.db"`|
+|||C3: Schema only, no rounds|migrations applied, no rows|
+|||C4: Rounds but no income thresholds|`build_connection(5, with_income=False)`|
+|||C5: Rounds 1-5 only|`build_connection(5)`|
+
+Base case: A1, B1, C1
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | returns `0`; stdout is `Round 1: $20 pop cash + $101 end bonus = $121`; stderr empty | `test_main_income_round_one` |
+| T2 | A2 | B1 | C1 | returns `0`; header `round, pop cash, end bonus, total, running total`; one row `1 20 101 121 121` | `test_main_income_up_to_one` |
+| T3 | A3 | B1 | C1 | `SystemExit.code == 2`; last stderr line `btd6 income: error: one of the arguments --round --up-to is required` | `test_main_income_argparse_errors` |
+| T4 | A4 | B1 | C1 | `SystemExit.code == 2`; last stderr line `btd6 income: error: argument --up-to: not allowed with argument --round` | `test_main_income_argparse_errors` |
+| T5 | A1 | B2 | C1 | returns `0`; stdout `Round 100: $1,334.6 pop cash + $200 end bonus = $1,534.6` | `test_main_income_round_prints_income_summary` |
+| T6 | A1 | B3 | C1 | returns `2`; stderr `Round 0 is not loaded; loaded rounds are 1-100`; stdout empty | `test_main_income_out_of_range` |
+| T7 | A1 | B4 | C1 | returns `2`; stderr `Round 101 is not loaded; loaded rounds are 1-100` | `test_main_income_out_of_range` |
+| T8 | A1 | B5 | C1 | returns `2`; stderr `Round -1 is not loaded; loaded rounds are 1-100` | `test_main_income_out_of_range` |
+| T9 | A1 | B6 | C1 | `SystemExit.code == 2`; last stderr line `btd6 income: error: argument --round: invalid int value: 'abc'` | `test_main_income_argparse_errors` |
+| T10 | A1 | B1 | C2 | returns `1`; stderr `Database not found at <path>. Run "python -m btd6 load" first.`; file not created | `test_main_income_database_missing` |
+| T11 | A1 | B1 | C3 | returns `1`; stderr `No round data loaded. Run "python -m btd6 load" first.`; stdout empty | `test_main_income_no_round_data` |
+| T12 | A1 | B1 | C4 | returns `1`; one stderr line mentioning income and `Run "python -m btd6 load" first.`; stdout empty | `test_main_income_no_income_data` |
+| T13 | A2 | B4 | C1 | returns `2`; stderr `Round 101 is not loaded; loaded rounds are 1-100` | `test_main_income_out_of_range` |
+| T14 | A2 | B3 | C1 | returns `2`; stderr `Round 0 is not loaded; loaded rounds are 1-100` | `test_main_income_out_of_range` |
+| T15 | A2 | B2 | C1 | returns `0`; 100 data rows; last running total `178994.4` | `test_main_income_up_to_last_round` |
+| T16 | A2 | B6 | C1 | `SystemExit.code == 2`; last stderr line `btd6 income: error: argument --up-to: invalid int value: 'x'` | `test_main_income_argparse_errors` |
+| T17 | A2 | B1 | C5 | `--up-to 6` returns `2`; stderr `Round 6 is not loaded; loaded rounds are 1-5` | `test_main_income_short_database_bounds` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T18 | worked examples | `--up-to 5` rows `1 20 101 121 121` ... `5 59 105 164 735` | `test_main_income_up_to_five` |
+| T19 | epic example | `--up-to 40` has 40 rows, last `40 381 140 521 16856` | `test_main_income_up_to_forty` |
+| T20 | fractional cells | `--up-to 80` last row starts `80 1220.2 180 1400.2` | `test_main_income_up_to_fractional_cells` |
+| T21 | `--round 80` | `Round 80: $1,220.2 pop cash + $180 end bonus = $1,400.2` | `test_main_income_round_fractional` |
+| T22 | table agrees with summary | `--up-to 63` last row `63 2663 163 2826`; `--round 63` shows `$2,663 pop cash` and `$2,826` | `test_main_income_up_to_row_agrees_with_round` |
+| T23 | property | for any `up_to` in 1..100: rows are rounds `1..up_to`, last running total equals `cumulative_income`, running totals never decrease, `total = pop cash + end bonus` | `test_main_income_up_to_matches_income_functions` |
+| T24 | `--round` equals `income_summary` | for rounds 40, 63, 80, 100 stdout is `income_summary(round_income(...), n)` plus newline | `test_main_income_round_prints_income_summary` |
+| T25 | help | `income --help` lists `--round`, `--up-to`; `btd6 --help` lists `income` | `test_main_income_help_lists_options`, `test_main_help_lists_income_command` |
+
+### income_summary (`tests/test_formatting_income.py`)
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`income.pop_cash`|A) Shape|A1: Whole **(Base)**|`381.0`|
+|||A2: One decimal|`1220.2`|
+|||A3: Zero|`0.0`|
+|||A4: Float noise|`0.1 + 0.2`|
+|||A5: Integer type|`20`|
+|`income` (size)|B) Thousands|B1: Below 1,000 **(Base)**|`381.0`|
+|||B2: Exactly 1,000|`1000.0`|
+|||B3: Above 1,000|`2663.0`, `1334.6`|
+
+Base case: A1, B1. Cases: `test_income_summary` (parametrized, 9 rows listed in the file) and `test_income_summary_properties` (hypothesis: prefix `Round <n>: $`, one line, no `.0` suffix, total round-trips within 0.05).

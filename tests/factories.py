@@ -140,3 +140,60 @@ class ResultRowFactory(factory.Factory):
     can_pop_purple = 1
     can_pop_glass = 1
     can_pop_frozen = 1
+
+
+DEFAULT_THRESHOLDS = [(50, 1), (60, 0.5), (85, 0.2), (100, 0.1), (120, 0.05), (140, 0.04)]
+
+
+class ThresholdItemFactory(factory.Factory):
+    """One `{"threshold", "multiplier"}` entry of the wiki income set."""
+
+    class Meta:
+        model = dict
+
+    threshold = factory.Sequence(lambda index: 50 * (index + 1))
+    multiplier = 1
+
+
+class IncomeSetFactory(factory.Factory):
+    """Wiki `DefaultIncomeSet` shape; pass `thresholds=[...]` items to override."""
+
+    class Meta:
+        model = dict
+
+    finalMultiplier = 0.02  # noqa: N815
+    thresholds = factory.LazyAttribute(
+        lambda _: {
+            "items": [
+                ThresholdItemFactory(threshold=limit, multiplier=value)
+                for limit, value in DEFAULT_THRESHOLDS
+            ]
+        }
+    )
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        items = kwargs.pop("items", None)
+        if items is not None:
+            kwargs["thresholds"] = {"items": items}
+        return model_class(*args, **kwargs)
+
+
+class RawBloonFactory(factory.Factory):
+    """Normalised Cargo bloon row (underscore keys) as returned by `fetch_bloons`."""
+
+    class Meta:
+        model = dict
+
+    id = "Red"
+    name = factory.LazyAttribute(lambda row: f"{row.id} Bloon")
+    health = "1"
+    health_fort = ""
+    layers = "1"
+    rbe = "1"
+    rbe_fort = ""
+    is_moab = ""
+    speed = "25"
+    immunity = ""
+    parent_of = ""
+    child_of = ""

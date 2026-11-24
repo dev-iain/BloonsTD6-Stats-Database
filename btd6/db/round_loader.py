@@ -3,7 +3,11 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 
-from btd6.etl.extract import split_bloon_name
+from btd6.etl.extract import (
+    extract_final_multiplier,
+    extract_income_thresholds,
+    split_bloon_name,
+)
 
 BLOON_COLUMNS = (
     "health",
@@ -11,6 +15,8 @@ BLOON_COLUMNS = (
     "layers",
     "rbe",
     "rbe_fort",
+    "pop_cash",
+    "pop_cash_super",
     "is_moab",
     "speed",
 )
@@ -87,4 +93,25 @@ def load_rounds(
             "INSERT INTO rounds (round) VALUES (?)", [(n,) for n in round_numbers]
         )
         connection.executemany(INSERT_GROUP_SQL, [group_params(row, bloon_ids) for row in rows])
+    return len(rows)
+
+
+def load_income(connection: sqlite3.Connection, income_set: dict[str, Any]) -> int:
+    """Replace the income thresholds and the final multiplier in one transaction.
+
+    Returns the number of thresholds written.
+    """
+    rows = extract_income_thresholds(income_set)
+    final_multiplier = extract_final_multiplier(income_set)
+    with connection:
+        connection.execute("DELETE FROM income_thresholds")
+        connection.executemany(
+            "INSERT INTO income_thresholds (max_round, multiplier) VALUES (?, ?)",
+            [(row["max_round"], row["multiplier"]) for row in rows],
+        )
+        connection.execute(
+            "INSERT INTO income_settings (id, final_multiplier) VALUES (1, ?) "
+            "ON CONFLICT (id) DO UPDATE SET final_multiplier = excluded.final_multiplier",
+            (final_multiplier,),
+        )
     return len(rows)

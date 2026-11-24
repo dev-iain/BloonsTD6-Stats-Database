@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -8,6 +9,7 @@ from typing import Any
 import pandas as pd
 
 from btd6.etl.fetch import MAX_ROUND, PROJECT_ROOT
+from btd6.etl.pop_cash import bloon_pop_cash
 
 DAMAGE_TYPES: dict[int, tuple[str, set[str]]] = {
     0: ("Normal", set()),
@@ -113,6 +115,9 @@ def build_group_rows(round_number: int, round_data: dict[str, Any]) -> list[dict
 
 BLOON_INTEGER_FIELDS = ("health", "health_fort", "layers", "rbe", "rbe_fort")
 MODIFIER_SUFFIXES = ("Fortified", "Camo", "Regrow")
+CHILD_NOISE_WORDS = frozenset({"Bloon", *MODIFIER_SUFFIXES})
+LINK_PATTERN = re.compile(r"\[\[([^\]|]*)(?:\|([^\]]*))?\]\]")
+CHILD_PATTERN = re.compile(r"\u00d7\s*(\d+)")
 
 
 def parse_number(
@@ -148,8 +153,53 @@ def extract_bloon_row(raw: dict[str, str]) -> dict[str, Any]:
     return row
 
 
+def link_labels(text: str) -> str:
+    return LINK_PATTERN.sub(lambda match: match.group(2) or match.group(1), text)
+
+
+def parse_child_name(text: str) -> str:
+    words = [word for word in text.split() if word not in CHILD_NOISE_WORDS]
+    return " ".join(words).title()
+
+
+def parse_bloon_children(parent_of: str) -> list[tuple[str, int]]:
+    """Parse a Cargo `parent of` text into ordered (child name, count) pairs, one per entry."""
+    children: list[tuple[str, int]] = []
+    for segment in link_labels(parent_of).split(","):
+        match = CHILD_PATTERN.search(segment)
+        if match:
+            children.append((parse_child_name(segment[: match.start()]), int(match.group(1))))
+    return children
+
+
 def extract_bloon_rows(raw: list[dict[str, str]]) -> list[dict[str, Any]]:
-    return [extract_bloon_row(entry) for entry in raw]
+    rows = [extract_bloon_row(entry) for entry in raw]
+    children = {
+        row["name"]: parse_bloon_children(str(entry.get("parent_of") or ""))
+        for row, entry in zip(rows, raw, strict=True)
+    }
+    moab_names = frozenset(row["name"] for row in rows if row["is_moab"])
+    for row in rows:
+        row["pop_cash"] = bloon_pop_cash(row["name"], children, moab_names, False)
+        row["pop_cash_super"] = bloon_pop_cash(row["name"], children, moab_names, True)
+    return rows
+
+
+def extract_income_thresholds(income_set: dict[str, Any]) -> list[dict[str, Any]]:
+    thresholds = income_set.get("thresholds")
+    items = thresholds.get("items") if isinstance(thresholds, dict) else None
+    if not isinstance(items, list):
+        raise ValueError('income set has no "thresholds.items" list')
+    return [
+        {"max_round": int(item["threshold"]), "multiplier": float(item["multiplier"])}
+        for item in items
+    ]
+
+
+def extract_final_multiplier(income_set: dict[str, Any]) -> float:
+    if "finalMultiplier" not in income_set:
+        raise ValueError('income set has no "finalMultiplier"')
+    return income_set["finalMultiplier"]
 
 
 def split_bloon_name(name: str) -> tuple[str, bool, bool, bool]:

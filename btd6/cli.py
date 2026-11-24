@@ -5,6 +5,7 @@ import sqlite3
 import sys
 import traceback
 from collections.abc import Callable
+from itertools import accumulate
 from pathlib import Path
 
 import pandas as pd
@@ -12,8 +13,15 @@ import requests
 
 from btd6.costs import DIFFICULTY_MULTIPLIERS
 from btd6.db import connect
-from btd6.etl.fetch import PROJECT_ROOT, fetch_bloons, fetch_roundset, fetch_tower_module
+from btd6.etl.fetch import (
+    PROJECT_ROOT,
+    fetch_bloons,
+    fetch_income_set,
+    fetch_roundset,
+    fetch_tower_module,
+)
 from btd6.etl.pipeline import (
+    INCOME_KEY,
     ROUND_GROUPS_KEY,
     ROUND_KEYS,
     ROUNDS_KEY,
@@ -21,7 +29,14 @@ from btd6.etl.pipeline import (
     refresh_database,
 )
 from btd6.etl.towers import MAGIC_TOWERS
-from btd6.formatting import EMPTY_RESULTS_MESSAGE, RESULT_COLUMNS, format_cell
+from btd6.formatting import (
+    EMPTY_RESULTS_MESSAGE,
+    RESULT_COLUMNS,
+    format_amount,
+    format_cell,
+    income_summary,
+)
+from btd6.income import NoIncomeDataError, round_income, round_incomes
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import METRICS, rank_upgrades
 from btd6.rounds import NoRoundDataError, RoundGroup, get_round
@@ -34,6 +49,7 @@ RANK_COLUMNS: dict[str, str] = {
     "dps": "DPS",
     "damage_per_dollar": "damage per dollar",
 }
+MISSING_DATA_MESSAGE = 'No {kind} data loaded. Run "python -m btd6 load" first.'
 DIFFICULTY_CHOICES = tuple(DIFFICULTY_MULTIPLIERS)
 
 
@@ -91,7 +107,15 @@ def build_parser() -> argparse.ArgumentParser:
     add_serve_options(serve_parser)
     rounds_parser = subparsers.add_parser("rounds", help="show the bloons in a round or range")
     add_rounds_options(rounds_parser)
+    income_parser = subparsers.add_parser("income", help="show income from popping bloons")
+    add_income_options(income_parser)
     return parser
+
+
+def add_income_options(subparser: argparse.ArgumentParser) -> None:
+    group = subparser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--round", type=int, dest="round_number", metavar="N")
+    group.add_argument("--up-to", type=int, dest="up_to_round", metavar="N")
 
 
 def add_serve_options(subparser: argparse.ArgumentParser) -> None:
@@ -151,8 +175,10 @@ def build_filters(args: argparse.Namespace) -> UpgradeFilters:
 
 def print_loaded(loaded: dict[str, int]) -> None:
     for tower_name, upgrade_count in loaded.items():
-        if tower_name not in ROUND_KEYS:
+        if tower_name not in (*ROUND_KEYS, INCOME_KEY):
             print(f"{tower_name}: {upgrade_count} upgrades")
+    if INCOME_KEY in loaded:
+        print(f"Income: {loaded[INCOME_KEY]} multiplier thresholds")
     if ROUNDS_KEY in loaded and ROUND_GROUPS_KEY in loaded:
         print(f"Rounds: {loaded[ROUNDS_KEY]} rounds, {loaded[ROUND_GROUPS_KEY]} groups")
 
@@ -178,6 +204,7 @@ def run_load(args: argparse.Namespace) -> int:
             include_rounds=not args.no_rounds,
             fetch_bloon_rows=fetch_bloons,
             fetch_roundset=fetch_roundset,
+            fetch_income_set=fetch_income_set,
         )
     except RefreshError as error:
         return report_refresh_error(error)
@@ -275,6 +302,12 @@ def load_rounds_table(connection: sqlite3.Connection, args: argparse.Namespace) 
     )
 
 
+def report_missing_data(error: NoRoundDataError | NoIncomeDataError) -> int:
+    kind = "income" if isinstance(error, NoIncomeDataError) else "round"
+    print(MISSING_DATA_MESSAGE.format(kind=kind), file=sys.stderr)
+    return 1
+
+
 def run_rounds(args: argparse.Namespace) -> int:
     check_rounds_selection(args)
     failure = check_database_exists(args)
@@ -283,15 +316,58 @@ def run_rounds(args: argparse.Namespace) -> int:
     connection = connect(args.db)
     try:
         table = load_rounds_table(connection, args)
-    except NoRoundDataError:
-        print('No round data loaded. Run "python -m btd6 load" first.', file=sys.stderr)
-        return 1
+    except NoRoundDataError as error:
+        return report_missing_data(error)
     except ValueError as error:
         print(error, file=sys.stderr)
         return 2
     finally:
         connection.close()
     print(table)
+    return 0
+
+
+def format_income_table(connection: sqlite3.Connection, up_to_round: int) -> str:
+    incomes = round_incomes(connection, up_to_round)
+    running_totals = accumulate(income.total for income in incomes)
+    records = [
+        {
+            "round": number,
+            "pop cash": format_amount(income.pop_cash),
+            "end bonus": format_amount(income.end_bonus),
+            "total": format_amount(income.total),
+            "running total": format_amount(running),
+        }
+        for number, income, running in zip(
+            range(1, up_to_round + 1), incomes, running_totals, strict=True
+        )
+    ]
+    with pd.option_context("display.max_rows", None, "display.max_columns", None):
+        return pd.DataFrame(records).to_string(index=False)
+
+
+def build_income_output(connection: sqlite3.Connection, args: argparse.Namespace) -> str:
+    if args.round_number is not None:
+        income = round_income(connection, args.round_number)
+        return income_summary(income, args.round_number)
+    return format_income_table(connection, args.up_to_round)
+
+
+def run_income(args: argparse.Namespace) -> int:
+    failure = check_database_exists(args)
+    if failure is not None:
+        return failure
+    connection = connect(args.db)
+    try:
+        output = build_income_output(connection, args)
+    except (NoRoundDataError, NoIncomeDataError) as error:
+        return report_missing_data(error)
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return 2
+    finally:
+        connection.close()
+    print(output)
     return 0
 
 
@@ -313,6 +389,7 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "rank": run_rank,
     "serve": run_serve,
     "rounds": run_rounds,
+    "income": run_income,
 }
 
 

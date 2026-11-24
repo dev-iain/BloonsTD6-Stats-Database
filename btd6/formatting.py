@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from btd6.income import RoundIncome
+
 RESULT_COLUMNS: dict[str, str] = {
     "tower_name": "tower",
     "path": "path",
@@ -43,14 +45,38 @@ TABLE_CELL_COLUMNS = (
 )
 
 
+def whole_float_to_int(value: float) -> float | int:
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    return value
+
+
 def format_cell(column: str, value: object) -> str:
     if value is None:
         return "-"
     if column in FLAG_COLUMNS:
         return "yes" if value else "no"
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
+    if isinstance(value, float):
+        return str(whole_float_to_int(value))
     return str(value)
+
+
+def format_amount(amount: float) -> str:
+    return str(whole_float_to_int(round(amount, 1)))
+
+
+def format_money(amount: float) -> str:
+    rounded = whole_float_to_int(round(amount, 1))
+    if isinstance(rounded, int):
+        return f"${rounded:,}"
+    return f"${rounded:,.1f}"
+
+
+def income_summary(income: RoundIncome, round_number: int) -> str:
+    return (
+        f"Round {round_number}: {format_money(income.pop_cash)} pop cash + "
+        f"{format_money(income.end_bonus)} end bonus = {format_money(income.total)}"
+    )
 
 
 def pops_summary(result_row: Mapping[str, Any]) -> str:

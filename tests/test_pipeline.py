@@ -13,6 +13,7 @@ from btd6.etl import fetch
 from btd6.etl import fetch as wiki_fetch
 from btd6.etl.pipeline import RefreshError, refresh_database
 from btd6.etl.towers import MAGIC_TOWERS
+from tests.factories import IncomeSetFactory
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "super_monkey_resolved.json"
 ROWS_PER_TOWER = 64
@@ -58,6 +59,7 @@ def raising(error: Exception):
 def offline_rounds_wiki(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(wiki_fetch, "fetch_bloons", fake_fetch_bloons)
     monkeypatch.setattr(wiki_fetch, "fetch_roundset", fake_fetch_roundset)
+    monkeypatch.setattr(wiki_fetch, "fetch_income_set", IncomeSetFactory)
 
 
 def load_tower_data() -> dict[str, Any]:
@@ -109,6 +111,7 @@ def test_all_five_succeed_returns_counts(connection) -> None:
         "Bloons": 3,
         "Rounds": 3,
         "Round groups": 5,
+        "Income": 6,
     }
 
 
@@ -180,7 +183,7 @@ def test_multiple_failures_are_all_collected(connection) -> None:
     with pytest.raises(RefreshError) as caught:
         refresh_database(connection, fetch=make_fetch(failing=failing))
     assert set(caught.value.failures) == set(failing)
-    assert set(caught.value.loaded) - {"Bloons", "Rounds", "Round groups"} == (
+    assert set(caught.value.loaded) - {"Bloons", "Rounds", "Round groups", "Income"} == (
         set(MAGIC_TOWERS) - set(failing)
     )
 
@@ -271,7 +274,7 @@ def test_bloons_failure_skips_rounds_but_keeps_towers(connection) -> None:
             connection, ("Druid",), fetch=make_fetch(), fetch_bloon_rows=raising(error)
         )
     assert list(caught.value.failures) == ["Bloons"]
-    assert caught.value.loaded == {"Druid": ROWS_PER_TOWER}
+    assert caught.value.loaded == {"Druid": ROWS_PER_TOWER, "Income": 6}
     assert count_rows(connection, "rounds") == 0
 
 
@@ -280,7 +283,7 @@ def test_roundset_failure_keeps_bloons_and_towers(connection) -> None:
     with pytest.raises(RefreshError) as caught:
         refresh_database(connection, ("Druid",), fetch=make_fetch(), fetch_roundset=raising(error))
     assert list(caught.value.failures) == ["Rounds"]
-    assert caught.value.loaded == {"Druid": ROWS_PER_TOWER, "Bloons": 3}
+    assert caught.value.loaded == {"Druid": ROWS_PER_TOWER, "Bloons": 3, "Income": 6}
     assert count_rows(connection, "bloons") == 3
     assert count_rows(connection, "round_groups") == 0
 
