@@ -46,6 +46,15 @@ const ROUND_COLUMNS = [
   { key: "duration", label: "Duration (s)", numeric: true },
 ];
 
+const RECOMMEND_COLUMNS = [
+  { key: "rank", label: "#", numeric: true },
+  { key: "tower_name", label: "Tower" },
+  { key: "path", label: "Path" },
+  { key: "total_cost", label: "Cost", numeric: true },
+  { key: "score", label: "Score", numeric: true },
+  { key: "reasons", label: "Reasons", format: (row) => (row.reasons || []).join(", ") },
+];
+
 function formatValue(value) {
   if (value === null || value === undefined) return "-";
   if (typeof value === "number") return String(Math.round(value * 10000) / 10000);
@@ -237,12 +246,64 @@ function attachRounds() {
   form.requestSubmit();
 }
 
+function formatShare(value) {
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function threatEntries(threats) {
+  return [
+    { label: "Total RBE", value: threats.total_rbe.toLocaleString("en-US") },
+    { label: "MOAB share", value: formatShare(threats.moab_share), tone: threats.moab_share ? "warn" : "dim" },
+    { label: "Camo share", value: formatShare(threats.camo_share), tone: threats.camo_share ? "warn" : "dim" },
+    { label: "Regrow share", value: formatShare(threats.regrow_share), tone: threats.regrow_share ? "warn" : "dim" },
+    { label: "Mean layers", value: formatValue(Math.round(threats.mean_layers * 100) / 100) },
+  ];
+}
+
+function propertyEntries(threats) {
+  return POP_PROPERTIES.map((prop) => {
+    const share = threats.property_share[prop] || 0;
+    return { label: prop, value: formatShare(share), tone: share ? "warn" : "dim" };
+  });
+}
+
+function renderRecommendations(threats, rows) {
+  renderDefinitions(document.getElementById("recommend-threats"), threatEntries(threats));
+  renderDefinitions(document.getElementById("recommend-properties"), propertyEntries(threats));
+  const ranked = rows.map((row, index) => ({ ...row, rank: index + 1 }));
+  renderTable(document.getElementById("recommend-table"), RECOMMEND_COLUMNS, ranked);
+  return ranked.length;
+}
+
+function attachRecommend() {
+  const form = document.getElementById("recommend-form");
+  const status = document.getElementById("recommend-status");
+  const detail = document.getElementById("recommend-detail");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      const params = formParams(form);
+      const rows = await fetchRows("/api/recommendations", params);
+      const round = await fetchRound(params.get("round"));
+      const count = renderRecommendations(round.threats, rows);
+      detail.hidden = false;
+      setStatus(status, count ? "" : "No affordable upgrade can handle this round.");
+    } catch (error) {
+      detail.hidden = true;
+      setStatus(status, error.message, true);
+    }
+  });
+}
+
 async function limitRoundInput() {
   const response = await fetch("/api/rounds");
   if (!response.ok) return;
   const { first, last } = await response.json();
-  const input = document.querySelector("#round-form [name=round]");
-  if (last !== null) { input.min = first; input.max = last; }
+  if (last === null) return;
+  for (const input of document.querySelectorAll("#round-form [name=round], #recommend-form [name=round]")) {
+    input.min = first;
+    input.max = last;
+  }
 }
 
 function attachTabs() {
@@ -264,5 +325,6 @@ attachTabs();
 attachSearch();
 attachRankings();
 attachRounds();
+attachRecommend();
 limitRoundInput();
 loadDamageTypes();

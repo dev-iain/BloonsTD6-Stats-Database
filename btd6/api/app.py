@@ -11,11 +11,16 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from btd6.api.params import form_to_filters, form_to_search_options
+from btd6.api.params import (
+    form_to_filters,
+    form_to_recommend_options,
+    form_to_search_options,
+)
 from btd6.db import connect
 from btd6.income import NoIncomeDataError, cumulative_income, round_income
 from btd6.query import QueryError, search_upgrades
 from btd6.ranking import rank_upgrades
+from btd6.recommend import recommend
 from btd6.rounds import NoRoundDataError, get_round, get_round_summary, round_composition
 from btd6.threats import round_threats
 
@@ -64,6 +69,22 @@ def ranking_rows(database_path: str, params: Mapping[str, Any]) -> list[dict[str
     def work(connection: sqlite3.Connection) -> list[dict[str, Any]]:
         frame = rank_upgrades(connection, filters, metric, difficulty, limit)
         return frame_to_records(frame)
+
+    return run_query(database_path, work)
+
+
+def recommendation_rows(database_path: str, params: Mapping[str, Any]) -> list[dict[str, Any]]:
+    options = form_to_recommend_options(params)
+
+    def work(connection: sqlite3.Connection) -> list[dict[str, Any]]:
+        results = recommend(
+            connection,
+            options.round_number,
+            options.money,
+            options.difficulty,
+            options.limit,
+        )
+        return [asdict(result) for result in results]
 
     return run_query(database_path, work)
 
@@ -138,6 +159,10 @@ def register_routes(app: FastAPI, database_path: str) -> None:
     @app.get("/api/rankings")
     def rankings(request: Request) -> dict[str, Any]:
         return {"rows": ranking_rows(database_path, request.query_params)}
+
+    @app.get("/api/recommendations")
+    def recommendations(request: Request) -> dict[str, Any]:
+        return {"rows": recommendation_rows(database_path, request.query_params)}
 
     @app.get("/api/damage-types")
     def damage_types() -> dict[str, list[str]]:

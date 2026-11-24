@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Any
 
 from btd6.formatting import format_row
@@ -88,3 +89,32 @@ def form_to_search_options(form: Mapping[str, Any]) -> tuple[str | None, int | N
 
 def rows_to_cells(rows: Sequence[Mapping[str, Any]]) -> list[tuple[str, ...]]:
     return [format_row(result_row) for result_row in rows]
+
+
+@dataclass(frozen=True)
+class RecommendOptions:
+    round_number: int
+    money: int
+    difficulty: str
+    limit: int | None
+
+
+def parse_required_int(field: str, value: object) -> int:
+    text = str(value or "").strip()
+    if not text:
+        raise QueryError(f"{field} is required")
+    try:
+        return int(text)
+    except ValueError:
+        raise QueryError(f"{field} must be a whole number, got {text!r}") from None
+
+
+def form_to_recommend_options(form: Mapping[str, Any]) -> RecommendOptions:
+    round_number = parse_required_int("round", form.get("round"))
+    money = parse_required_int("money", form.get("money"))
+    if money < 0:
+        raise QueryError(f"money must be 0 or more, got {money}")
+    difficulty = str(form.get("difficulty") or "").strip() or "medium"
+    return RecommendOptions(
+        round_number, money, difficulty, parse_limit(str(form.get("limit") or ""))
+    )

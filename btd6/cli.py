@@ -39,6 +39,7 @@ from btd6.formatting import (
 from btd6.income import NoIncomeDataError, round_income, round_incomes
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import rank_upgrades
+from btd6.recommend import Recommendation, recommend
 from btd6.rounds import NoRoundDataError, RoundGroup, get_round
 from btd6.threats import RoundThreats, round_threats
 
@@ -58,6 +59,7 @@ RANK_COLUMNS: dict[str, str] = {
 }
 MISSING_DATA_MESSAGE = 'No {kind} data loaded. Run "python -m btd6 load" first.'
 DIFFICULTY_CHOICES = tuple(DIFFICULTY_MULTIPLIERS)
+NO_RECOMMENDATION_MESSAGE = "No affordable upgrade can handle this round."
 
 
 def format_results(rows: list[sqlite3.Row]) -> str:
@@ -116,7 +118,18 @@ def build_parser() -> argparse.ArgumentParser:
     add_rounds_options(rounds_parser)
     income_parser = subparsers.add_parser("income", help="show income from popping bloons")
     add_income_options(income_parser)
+    recommend_parser = subparsers.add_parser(
+        "recommend", help="recommend affordable upgrades for a round"
+    )
+    add_recommend_options(recommend_parser)
     return parser
+
+
+def add_recommend_options(subparser: argparse.ArgumentParser) -> None:
+    subparser.add_argument("--round", type=int, dest="round_number", required=True, metavar="N")
+    subparser.add_argument("--money", type=int, required=True)
+    subparser.add_argument("--difficulty", choices=DIFFICULTY_CHOICES, default="medium")
+    subparser.add_argument("--limit", type=int)
 
 
 def add_income_options(subparser: argparse.ArgumentParser) -> None:
@@ -406,6 +419,38 @@ def run_income(args: argparse.Namespace) -> int:
     return 0
 
 
+def format_recommendations(results: list[Recommendation]) -> str:
+    if not results:
+        return NO_RECOMMENDATION_MESSAGE
+    table = pd.DataFrame(
+        {
+            "rank": range(1, len(results) + 1),
+            "tower": [result.tower_name for result in results],
+            "path": [result.path for result in results],
+            "cost": [format_rank_value(result.total_cost) for result in results],
+            "score": [format_rank_value(result.score) for result in results],
+            "reasons": [", ".join(result.reasons) for result in results],
+        }
+    )
+    with pd.option_context("display.max_rows", None, "display.max_columns", None):
+        return table.to_string(index=False)
+
+
+def run_recommend(args: argparse.Namespace) -> int:
+    failure = check_database_exists(args)
+    if failure is not None:
+        return failure
+    connection = connect(args.db)
+    try:
+        results = recommend(connection, args.round_number, args.money, args.difficulty, args.limit)
+    except NoRoundDataError as error:
+        return report_missing_data(error)
+    finally:
+        connection.close()
+    print(format_recommendations(results))
+    return 0
+
+
 def run_serve(args: argparse.Namespace) -> int:
     if not Path(args.db).exists():
         print(f'Database not found at {args.db}. Run "python -m btd6 load" first.', file=sys.stderr)
@@ -425,6 +470,7 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "serve": run_serve,
     "rounds": run_rounds,
     "income": run_income,
+    "recommend": run_recommend,
 }
 
 

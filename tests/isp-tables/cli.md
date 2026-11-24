@@ -465,3 +465,71 @@ Base case: A1, B1, C1
 |||B3: Above 1,000|`2663.0`, `1334.6`|
 
 Base case: A1, B1. Cases: `test_income_summary` (parametrized, 9 rows listed in the file) and `test_income_summary_properties` (hypothesis: prefix `Round <n>: $`, one line, no `.0` suffix, total round-trips within 0.05).
+
+---
+
+## main: `recommend` (#123)
+
+```python
+def main(argv: list[str] | None = None) -> int
+```
+
+`recommend --round N --money X [--difficulty D] [--limit N]` calls `recommend(connection, N, X, difficulty, limit)` (`docs/recommend.md`) and prints a pandas table (`to_string(index=False)`, display limits off) with columns `rank`, `tower`, `path`, `cost`, `score`, `reasons` (rank starts at 1; `reasons` joined with `", "`; a NULL score prints `-`). An empty result prints `No affordable upgrade can handle this round.`
+
+Rules for these tests:
+- `--round` and `--money` are required `int` options; `--difficulty` uses the `rank` choices (default `medium`); `--limit` is an `int`.
+- Tests parse each data line into rank, tower, path, cost, score and compare against `recommend` on the same database. Number formatting is not pinned: compare the score with `pytest.approx(abs=1e-4)`.
+- `QueryError` returns 2 with its message on one stderr line; `NoRoundDataError` returns 1 with `No round data loaded. Run "python -m btd6 load" first.`
+
+Fixture: the recommender fixture (`tests/recommend_fixture.py`: four Super Monkey upgrades with costs, rounds 1-101) saved to `tmp_path / "btd6.db"`.
+
+Base input: `main(["--db", DB, "recommend", "--round", "63", "--money", "100000"])`.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`--round`|A) Value|A1: Loaded round|`"63"`|
+|||A2: Not loaded|`"150"`|
+|||A3: Missing|none|
+|||A4: Not an integer|`"abc"`|
+|`--money`|B) Value|B1: Above every cost|`"100000"`|
+|||B2: Below the cheapest|`"100"`|
+|||B3: Negative|`"-1"`|
+|||B4: Missing|none|
+|`--difficulty`|C) Value|C1: Not given|none|
+|||C2: `hard`|`"hard"`|
+|||C3: Not a choice|`"nightmare"`|
+|`--limit`|D) Value|D1: Not given|none|
+|||D2: One|`"1"`|
+|||D3: Zero|`"0"`|
+|`--db` (state)|E) State before the call|E1: Loaded|recommender fixture|
+|||E2: Missing|`tmp_path / "missing.db"`|
+|||E3: No rounds loaded|fixture with `rounds`/`round_groups` emptied|
+
+Base case: A1, B1, C1, D1, E1
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | D | E | Oracle | Test Name |
+|---|---|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | D1 | E1 | returns `0`; rows `3-0-0` then `0-0-4`; `3-0-0` reasons `affordable, pops_lead, high_pierce`; header `rank tower path cost score reasons` | `test_main_recommend_all_base` |
+| T2 | A2 | B1 | C1 | D1 | E1 | returns `2`; stderr `Round 150 is not loaded; loaded rounds are 1-101` | `test_main_recommend_round_not_loaded` |
+| T3 | A3 | B1 | C1 | D1 | E1 | `SystemExit.code == 2`; last stderr line mentions `--round` | `test_main_recommend_round_missing` |
+| T4 | A4 | B1 | C1 | D1 | E1 | `SystemExit.code == 2`; last stderr line `btd6 recommend: error: argument --round: invalid int value: 'abc'` | `test_main_recommend_round_not_integer` |
+| T5 | A1 | B2 | C1 | D1 | E1 | returns `0`; stdout `No affordable upgrade can handle this round.` | `test_main_recommend_nothing_affordable` |
+| T6 | A1 | B3 | C1 | D1 | E1 | returns `2`; stderr `money must be 0 or more, got -1` | `test_main_recommend_negative_money` |
+| T7 | A1 | B4 | C1 | D1 | E1 | `SystemExit.code == 2`; last stderr line mentions `--money` | `test_main_recommend_money_missing` |
+| T8 | A1 | B1 | C2 | D1 | E1 | `3-0-0` cost printed is `recommend(..., "hard")` cost (`29160`) | `test_main_recommend_hard` |
+| T9 | A1 | B1 | C3 | D1 | E1 | `SystemExit.code == 2`; last stderr line starts `btd6 recommend: error: argument --difficulty: invalid choice: 'nightmare'` | `test_main_recommend_difficulty_invalid` |
+| T10 | A1 | B1 | C1 | D2 | E1 | one data row, `3-0-0` | `test_main_recommend_limit_one` |
+| T11 | A1 | B1 | C1 | D3 | E1 | returns `2`; stderr `limit must be at least 1, got 0` | `test_main_recommend_limit_zero` |
+| T12 | A1 | B1 | C1 | D1 | E2 | returns `1`; stderr `Database not found at <path>. Run "python -m btd6 load" first.` | `test_main_recommend_database_missing` |
+| T13 | A1 | B1 | C1 | D1 | E3 | returns `1`; stderr `No round data loaded. Run "python -m btd6 load" first.` | `test_main_recommend_no_round_data` |
+
+### Extra non-BCC tests
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T14 | help | `btd6 --help` stdout names `recommend` | `test_main_help_lists_recommend` |
+| T15 | MOAB round | round 40: first row `0-0-0`, every reasons cell ends in `high_single_target` | `test_main_recommend_moab_round` |
