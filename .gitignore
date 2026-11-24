@@ -4,3 +4,6 @@
 mutants/
 *.db
 __pycache__/
+.env
+.env.*
+.vscode
