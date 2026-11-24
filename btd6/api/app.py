@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 from collections.abc import Callable, Mapping
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
@@ -12,8 +13,10 @@ from fastapi.staticfiles import StaticFiles
 
 from btd6.api.params import form_to_filters, form_to_search_options
 from btd6.db import connect
+from btd6.income import NoIncomeDataError, cumulative_income, round_income
 from btd6.query import QueryError, search_upgrades
 from btd6.ranking import rank_upgrades
+from btd6.rounds import NoRoundDataError, get_round, get_round_summary, round_composition
 
 MISSING_DATABASE_MESSAGE = 'Database not found at {path}. Run "python -m btd6 load" first.'
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
@@ -72,10 +75,53 @@ def damage_type_names(database_path: str) -> list[str]:
     return run_query(database_path, work)
 
 
+def round_income_payload(
+    connection: sqlite3.Connection, round_number: int
+) -> dict[str, Any] | None:
+    try:
+        income = round_income(connection, round_number)
+        cumulative = cumulative_income(connection, round_number)
+    except NoIncomeDataError:
+        return None
+    return {**asdict(income), "cumulative": cumulative}
+
+
+def round_detail(database_path: str, round_number: int) -> dict[str, Any]:
+    def work(connection: sqlite3.Connection) -> dict[str, Any]:
+        try:
+            groups = get_round(connection, round_number)
+        except NoRoundDataError:
+            raise
+        except ValueError as error:
+            raise QueryError(str(error)) from error
+        summary = asdict(get_round_summary(connection, round_number))
+        return {
+            "round": round_number,
+            "summary": summary,
+            "composition": [asdict(total) for total in round_composition(groups)],
+            "groups": [asdict(group) for group in groups],
+            "income": round_income_payload(connection, round_number),
+        }
+
+    return run_query(database_path, work)
+
+
+def loaded_round_range(database_path: str) -> dict[str, int | None]:
+    def work(connection: sqlite3.Connection) -> dict[str, int | None]:
+        first, last = connection.execute("SELECT MIN(round), MAX(round) FROM rounds").fetchone()
+        return {"first": first, "last": last}
+
+    return run_query(database_path, work)
+
+
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(QueryError)
     async def query_error(request: Request, error: QueryError) -> JSONResponse:
         return JSONResponse({"error": str(error)}, status_code=422)
+
+    @app.exception_handler(NoRoundDataError)
+    async def no_round_data(request: Request, error: NoRoundDataError) -> JSONResponse:
+        return JSONResponse({"error": str(error)}, status_code=404)
 
     @app.exception_handler(DatabaseMissingError)
     async def missing_database(request: Request, error: DatabaseMissingError) -> JSONResponse:
@@ -94,6 +140,14 @@ def register_routes(app: FastAPI, database_path: str) -> None:
     @app.get("/api/damage-types")
     def damage_types() -> dict[str, list[str]]:
         return {"damage_types": damage_type_names(database_path)}
+
+    @app.get("/api/rounds")
+    def rounds() -> dict[str, int | None]:
+        return loaded_round_range(database_path)
+
+    @app.get("/api/rounds/{round_number}")
+    def round_by_number(round_number: int) -> dict[str, Any]:
+        return round_detail(database_path, round_number)
 
 
 def register_frontend(app: FastAPI) -> None:

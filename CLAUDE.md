@@ -63,8 +63,8 @@ Development is test-driven (ISP/boundary tables for filter inputs).
 - [X] Implement web UI (FastAPI + JS frontend, replaced Tkinter)
 - [X] Round data in the database (up to round 40)
   - only stores count and bloon type; needs to have income data calculations (how much each round makes in total when popping all bloons)
-- [ ] Expected income per round from pops (excludes monkeys that affect cash generation, positive or negative)
-- [ ] Best bang for buck: highest damage per dollar
+- [X] Expected income per round from pops (excludes monkeys that affect cash generation, positive or negative)
+- [X] Best bang for buck: highest damage per dollar
   - Must come up with formula to calculate damage per second based on attack rate, projectile speed, etc to do this.
 - [ ] Mod to capture game data for an LLM/MCP (MelonLoader): round, current money, current towers 
 

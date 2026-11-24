@@ -3,7 +3,6 @@ const SORT_COLUMNS = [
   "range", "attack_rate", "projectile_damage", "projectile_pierce",
   "projectile_speed", "projectile_count", "ability_cooldown", "path",
 ];
-const POP_CODES = { lead: "Ld", black: "Bk", white: "Wh", purple: "Pu", glass: "Gl", frozen: "Fr" };
 
 const SEARCH_COLUMNS = [
   { key: "tower_name", label: "Tower" },
@@ -13,7 +12,6 @@ const SEARCH_COLUMNS = [
   { key: "projectile_damage", label: "Damage", numeric: true },
   { key: "projectile_pierce", label: "Pierce", numeric: true },
   { key: "projectile_speed", label: "Speed", numeric: true },
-  { key: "pops", label: "Pops", format: popsSummary },
 ];
 
 const RANK_COLUMNS = [
@@ -25,16 +23,32 @@ const RANK_COLUMNS = [
   { key: "damage_per_dollar", label: "Damage / $", numeric: true },
 ];
 
+const TOTALS_COLUMNS = [
+  { key: "bloon", label: "Bloon", format: bloonLabel },
+  { key: "count", label: "Count", numeric: true },
+  { key: "total_rbe", label: "Total RBE", numeric: true },
+];
+
+const SPECIAL_FLAGS = [
+  ["has_moab", "MOAB-class"],
+  ["has_camo", "Camo"],
+  ["has_lead", "Lead"],
+  ["has_ceramic", "Ceramic"],
+];
+
+const ROUND_COLUMNS = [
+  { key: "group_index", label: "#", numeric: true },
+  { key: "bloon", label: "Bloon", format: bloonLabel },
+  { key: "count", label: "Count", numeric: true },
+  { key: "rbe", label: "RBE", numeric: true },
+  { key: "start", label: "Start (s)", numeric: true },
+  { key: "duration", label: "Duration (s)", numeric: true },
+];
+
 function formatValue(value) {
   if (value === null || value === undefined) return "-";
   if (typeof value === "number") return String(Math.round(value * 10000) / 10000);
   return String(value);
-}
-
-function popsSummary(row) {
-  const popped = POP_PROPERTIES.filter((prop) => row[`can_pop_${prop}`]);
-  if (popped.length === POP_PROPERTIES.length) return "All";
-  return popped.length ? popped.map((prop) => POP_CODES[prop]).join(" ") : "-";
 }
 
 function cellText(column, row) {
@@ -145,6 +159,91 @@ function attachRankings() {
   form.requestSubmit();
 }
 
+function bloonLabel(row) {
+  const modifiers = [
+    row.is_camo && "Camo", row.is_regrow && "Regrow", row.is_fortified && "Fortified",
+  ].filter(Boolean);
+  return modifiers.length ? `${modifiers.join(" ")} ${row.bloon}` : row.bloon;
+}
+
+function formatMoney(value) {
+  return `$${Math.round(value).toLocaleString("en-US")}`;
+}
+
+function summaryEntries(summary) {
+  return [
+    { label: "Total bloons", value: summary.total_bloons.toLocaleString("en-US") },
+    { label: "Total RBE", value: summary.total_rbe.toLocaleString("en-US") },
+    ...SPECIAL_FLAGS.map(([key, label]) => ({
+      label,
+      value: summary[key] ? "Yes" : "No",
+      tone: summary[key] ? "warn" : "dim",
+    })),
+  ];
+}
+
+function incomeEntries(income) {
+  if (!income) return [{ label: "Income", value: "not loaded", tone: "dim" }];
+  return [
+    { label: "Pop cash", value: formatMoney(income.pop_cash), tone: "money" },
+    { label: "End bonus", value: formatMoney(income.end_bonus), tone: "money" },
+    { label: "Round total", value: formatMoney(income.total), tone: "money strong" },
+    { label: "Cumulative", value: formatMoney(income.cumulative), tone: "money" },
+  ];
+}
+
+function renderDefinitions(list, entries) {
+  list.replaceChildren();
+  for (const { label, value, tone } of entries) {
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const detail = document.createElement("dd");
+    detail.textContent = value;
+    if (tone) detail.className = tone;
+    list.append(term, detail);
+  }
+}
+
+async function fetchRound(roundNumber) {
+  const response = await fetch(`/api/rounds/${encodeURIComponent(roundNumber)}`);
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`);
+  return body;
+}
+
+function renderRound(body) {
+  renderDefinitions(document.getElementById("round-summary"), summaryEntries(body.summary));
+  renderDefinitions(document.getElementById("round-income"), incomeEntries(body.income));
+  renderTable(document.getElementById("round-totals"), TOTALS_COLUMNS, body.composition);
+  renderTable(document.getElementById("round-table"), ROUND_COLUMNS, body.groups);
+}
+
+function attachRounds() {
+  const form = document.getElementById("round-form");
+  const status = document.getElementById("round-status");
+  const detail = document.getElementById("round-detail");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      renderRound(await fetchRound(new FormData(form).get("round")));
+      detail.hidden = false;
+      setStatus(status, "");
+    } catch (error) {
+      detail.hidden = true;
+      setStatus(status, error.message, true);
+    }
+  });
+  form.requestSubmit();
+}
+
+async function limitRoundInput() {
+  const response = await fetch("/api/rounds");
+  if (!response.ok) return;
+  const { first, last } = await response.json();
+  const input = document.querySelector("#round-form [name=round]");
+  if (last !== null) { input.min = first; input.max = last; }
+}
+
 function attachTabs() {
   const tabs = document.querySelectorAll(".tabs button");
   for (const tab of tabs) {
@@ -163,4 +262,6 @@ buildSortOptions();
 attachTabs();
 attachSearch();
 attachRankings();
+attachRounds();
+limitRoundInput();
 loadDamageTypes();

@@ -141,7 +141,7 @@ uv run python -m btd6 --db path/to/btd6.db serve --port 9000
 
 Then open `http://127.0.0.1:8000`. `--db PATH` works the same as for `search`; `--host` and `--port` default to `127.0.0.1` and `8000`.
 
-- **Search**: the same filters as the `search` command, plus a name box (case-insensitive substring), a damage type dropdown, a sort dropdown and a limit. The Pops column abbreviates the bloon types an upgrade can pop.
+- **Search**: the same filters as the `search` command, plus a name box (case-insensitive substring), a damage type dropdown, a sort dropdown and a limit.
 - **Rankings**: rank upgrades by damage per dollar, DPS or pierce-weighted damage per dollar, for any difficulty.
 - **Rounds**: placeholder until the round-data work lands.
 - Follows your system light or dark setting.

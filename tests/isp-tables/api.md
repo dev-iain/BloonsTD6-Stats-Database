@@ -16,5 +16,11 @@ Endpoints are tested with `TestClient` against a database file copied from an in
 | unknown `metric` | 422 | `error` starts `Cannot rank by` |
 | unknown `difficulty` | 422 | `error` set |
 | `/api/damage-types` | 200 | seeded names |
+| `/api/rounds/10` | 200 | `round`, `summary` flags, ordered `groups`, `income` |
+| `/api/rounds/10`, no income data | 200 | `income` is `null` |
+| round 0, -3 or past the last loaded | 422 | `error` set |
+| round not an integer | 422 | validation error |
+| `/api/rounds/1`, no round data | 404 | `error` starts `No round data` |
+| `/api/rounds` | 200 | `first`/`last` loaded rounds, `null` when empty |
 | database file missing | 503 | `error` mentions `python -m btd6 load` |
 | `/` and `/static/*` | 200 | frontend files |
