@@ -1,0 +1,12 @@
+[
+  {"id": "round63_pierce", "round": 63, "money": 100000, "difficulty": "medium",
+   "expectation": "lead_pierce", "database": "full", "live": true},
+  {"id": "round40_moab", "round": 40, "money": 100000, "difficulty": "medium",
+   "expectation": "moab", "database": "full", "live": true},
+  {"id": "low_money", "round": 63, "money": 100, "difficulty": "medium",
+   "expectation": "nothing_affordable", "database": "full", "live": true},
+  {"id": "unloaded_round", "round": 40, "money": 100000, "difficulty": "medium",
+   "expectation": "round_data_error", "database": "no_rounds", "live": true},
+  {"id": "round101_camo", "round": 101, "money": 100000, "difficulty": "medium",
+   "expectation": "camo", "database": "full", "live": false}
+]

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sqlite3
 import sys
 import traceback
@@ -11,6 +12,8 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+from btd6.agent.client import AgentError, MissingApiKeyError, client_from_environment
+from btd6.agent.loop import run_agent
 from btd6.costs import DIFFICULTY_MULTIPLIERS
 from btd6.db import connect
 from btd6.etl.fetch import (
@@ -122,13 +125,24 @@ def build_parser() -> argparse.ArgumentParser:
         "recommend", help="recommend affordable upgrades for a round"
     )
     add_recommend_options(recommend_parser)
+    agent_parser = subparsers.add_parser("agent", help="ask the LLM advisor what to buy")
+    add_agent_options(agent_parser)
     return parser
 
 
-def add_recommend_options(subparser: argparse.ArgumentParser) -> None:
+def add_round_money_options(subparser: argparse.ArgumentParser) -> None:
     subparser.add_argument("--round", type=int, dest="round_number", required=True, metavar="N")
     subparser.add_argument("--money", type=int, required=True)
     subparser.add_argument("--difficulty", choices=DIFFICULTY_CHOICES, default="medium")
+
+
+def add_agent_options(subparser: argparse.ArgumentParser) -> None:
+    add_round_money_options(subparser)
+    subparser.add_argument("--max-iterations", type=int, default=8)
+
+
+def add_recommend_options(subparser: argparse.ArgumentParser) -> None:
+    add_round_money_options(subparser)
     subparser.add_argument("--limit", type=int)
 
 
@@ -451,6 +465,34 @@ def run_recommend(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_agent_command(args: argparse.Namespace) -> int:
+    failure = check_database_exists(args)
+    if failure is not None:
+        return failure
+    try:
+        client = client_from_environment(os.environ)
+    except MissingApiKeyError as error:
+        print(error, file=sys.stderr)
+        return 2
+    connection = connect(args.db)
+    try:
+        result = run_agent(
+            connection,
+            client,
+            args.round_number,
+            args.money,
+            args.difficulty,
+            args.max_iterations,
+        )
+    except AgentError as error:
+        print(error, file=sys.stderr)
+        return 1
+    finally:
+        connection.close()
+    print(result.answer)
+    return 0
+
+
 def run_serve(args: argparse.Namespace) -> int:
     if not Path(args.db).exists():
         print(f'Database not found at {args.db}. Run "python -m btd6 load" first.', file=sys.stderr)
@@ -471,6 +513,7 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "rounds": run_rounds,
     "income": run_income,
     "recommend": run_recommend,
+    "agent": run_agent_command,
 }
 
 

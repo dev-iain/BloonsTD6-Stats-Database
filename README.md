@@ -148,6 +148,66 @@ Then open `http://127.0.0.1:8000`. `--db PATH` works the same as for `search`; `
 
 The page is served by a small JSON API (`/api/upgrades`, `/api/rankings`, `/api/damage-types`). The endpoints and layout are in [docs/web.md](docs/web.md).
 
+## Agent (LLM advisor)
+
+`agent` asks an LLM for advice on what to buy for a round. The model can only answer through tools backed by this database: round threats, search, rankings, the recommender and costs. Every number it states comes from a tool result. The design, tool schemas and system prompt are in [docs/agent.md](docs/agent.md).
+
+It uses the **free tier of the Gemini API** through Google's OpenAI-compatible endpoint, so no paid key is needed.
+
+1. Install and build the database:
+
+   ```bash
+   uv sync
+   uv run python -m btd6 load
+   ```
+
+2. Get a free key at <https://aistudio.google.com/apikey> (a Google account is enough, no card). Put it in a `.env` file in the repo root. `.env` is gitignored; never put the key in a tracked file.
+
+   ```bash
+   printf 'GEMINI_API_KEY=your-key-here\n' > .env
+   chmod 600 .env
+   ```
+
+   The key is read from the environment only. `uv run --env-file .env` loads the file for one command. To skip the flag, run `set -Ux UV_ENV_FILE .env` (fish) or `export UV_ENV_FILE=.env` (bash/zsh) once. Exporting `GEMINI_API_KEY` in your shell also works.
+
+3. Ask for a recommendation:
+
+   ```bash
+   uv run --env-file .env python -m btd6 agent --round 63 --money 5000
+   uv run --env-file .env python -m btd6 agent --round 40 --money 20000 --difficulty hard
+   ```
+
+   The output is a short explanation of the round's threats and why the picks fit, ending with a `Picks:` block (`- <tower> <X-Y-Z> $<cost>`, or `- none` when nothing affordable can handle the round). A real run (`gemini-3.5-flash-lite`, about 2 seconds):
+
+   ```text
+   Round 63 features heavy ceramic rushes with a high total Red Bloon Equivalent (14,413) and some lead
+   properties, but no camo, regrow, or MOAB-class bloons. High pierce and lead-popping power are essential
+   to clean up the massive density of bloons. The Boomerang Monkey (4-0-2) fits this exceptionally well
+   with its high projectile pierce of 60.0 and ability to pop lead within your $5000 budget.
+
+   Picks:
+   - Boomerang Monkey 4-0-2 $3795
+   ```
+
+Options:
+
+- `--difficulty`: `easy`, `medium` (the default), `hard` or `impoppable`.
+- `--max-iterations K`: stop after K model calls without a final answer. The default is 8.
+- Optional environment variables:
+  - `BTD6_AGENT_MODEL`: the model. The default is `gemini-3.5-flash-lite`. `gemini-3.8-flash` is also free but is often overloaded (HTTP 503).
+  - `BTD6_AGENT_BASE_URL`: any other OpenAI-compatible provider, such as Groq or OpenRouter free models. Put that provider's key in `GEMINI_API_KEY`.
+- A missing key exits with code 2 and a message saying how to get one.
+
+Cost per run is **$0** on the free tier. A run makes about 3 to 5 model calls. The free tier is rate-limited per project. A busy or rate-limited model (HTTP 429 or 503) or a timeout is retried twice. If it still fails, the CLI says so and exits with code 1. Wait a minute or switch `BTD6_AGENT_MODEL`. Google may use free-tier prompts to improve its products, so do not send anything private.
+
+Limitations:
+
+- Stats come from each upgrade's first (main) attack only. Abilities, buffs and sub-towers are not modelled.
+- Only the towers loaded into the database can be picked (the ten in `KNOWN_TOWERS`).
+- The model chooses and explains, but it can still word things badly. Check the `Picks:` block against `recommend`.
+
+Evaluations: `uv run pytest` runs the offline evals in `tests/agent_evals/` with a scripted model. `uv run pytest -m live_agent` runs the same scenarios (rounds 40, 63, a camo round, low money and no round data) against the real model. It needs `GEMINI_API_KEY` and `btd6.db`.
+
 ## Tests, linting and mutation testing
 
 ```bash
