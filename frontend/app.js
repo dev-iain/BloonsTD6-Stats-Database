@@ -50,8 +50,10 @@ const RECOMMEND_COLUMNS = [
   { key: "rank", label: "#", numeric: true },
   { key: "tower_name", label: "Tower" },
   { key: "path", label: "Path" },
+  { key: "upgrade_from", label: "Upgrade from" },
   { key: "total_cost", label: "Cost", numeric: true },
   { key: "score", label: "Score", numeric: true },
+  { key: "first_leak_round", label: "Leaks at", numeric: true },
   { key: "reasons", label: "Reasons", format: (row) => (row.reasons || []).join(", ") },
 ];
 
@@ -275,6 +277,23 @@ function renderRecommendations(threats, rows) {
   return ranked.length;
 }
 
+let latestGameState = null;
+
+function appendOwnedTowers(params) {
+  const toggle = document.getElementById("recommend-live");
+  if (!toggle.checked || latestGameState === null || latestGameState.stale) return 0;
+  const known = latestGameState.towers.filter((tower) => tower.known);
+  for (const tower of known) params.append("owned", `${tower.tower_name} ${tower.path}`);
+  return known.length;
+}
+
+function ownedStatus(ownedCount, count) {
+  if (ownedCount === 0) return count ? "" : "No affordable upgrade can handle this round.";
+  const noun = ownedCount === 1 ? "owned tower" : "owned towers";
+  const note = `Counting ${ownedCount} ${noun}.`;
+  return count ? note : `${note} No affordable upgrade can handle this round.`;
+}
+
 function attachRecommend() {
   const form = document.getElementById("recommend-form");
   const status = document.getElementById("recommend-status");
@@ -283,11 +302,12 @@ function attachRecommend() {
     event.preventDefault();
     try {
       const params = formParams(form);
+      const ownedCount = appendOwnedTowers(params);
       const rows = await fetchRows("/api/recommendations", params);
       const round = await fetchRound(params.get("round"));
       const count = renderRecommendations(round.threats, rows);
       detail.hidden = false;
-      setStatus(status, count ? "" : "No affordable upgrade can handle this round.");
+      setStatus(status, ownedStatus(ownedCount, count));
     } catch (error) {
       detail.hidden = true;
       setStatus(status, error.message, true);
@@ -329,6 +349,7 @@ function fillFromState(form, state) {
 async function pollLiveState(form, liveStatus) {
   try {
     const state = await fetchGameState();
+    latestGameState = state;
     if (state === null) {
       setStatus(liveStatus, "No game connected. Start the game with the mod, or run python -m btd6 fake-state.", true);
       return;
@@ -347,6 +368,7 @@ function attachLiveToggle() {
   let timer = null;
   toggle.addEventListener("change", () => {
     clearInterval(timer);
+    latestGameState = null;
     liveStatus.hidden = !toggle.checked;
     for (const field of ["round", "money"]) form.elements[field].readOnly = toggle.checked;
     if (!toggle.checked) return;

@@ -54,7 +54,7 @@ from btd6.game_state import (
 from btd6.income import NoIncomeDataError, round_income, round_incomes
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import rank_upgrades
-from btd6.recommend import Recommendation, recommend
+from btd6.recommend import DEFAULT_HORIZON, OwnedTower, Recommendation, recommend
 from btd6.rounds import NoRoundDataError, RoundGroup, get_round
 from btd6.threats import RoundThreats, round_threats
 
@@ -204,6 +204,8 @@ def add_agent_options(subparser: argparse.ArgumentParser) -> None:
 def add_recommend_options(subparser: argparse.ArgumentParser) -> None:
     add_target_options(subparser)
     subparser.add_argument("--limit", type=int)
+    subparser.add_argument("--horizon", type=int, default=DEFAULT_HORIZON)
+    subparser.add_argument("--one-per-tower", action="store_true")
 
 
 def add_income_options(subparser: argparse.ArgumentParser) -> None:
@@ -511,8 +513,13 @@ def format_recommendations(results: list[Recommendation]) -> str:
             "rank": range(1, len(results) + 1),
             "tower": [result.tower_name for result in results],
             "path": [result.path for result in results],
+            "upgrade from": [result.upgrade_from or "" for result in results],
             "cost": [format_rank_value(result.total_cost) for result in results],
             "score": [format_rank_value(result.score) for result in results],
+            "leaks at": [
+                "" if result.first_leak_round is None else str(result.first_leak_round)
+                for result in results
+            ],
             "reasons": [", ".join(result.reasons) for result in results],
         }
     )
@@ -550,6 +557,22 @@ def live_line(target: Target) -> str:
     )
 
 
+def owned_from_target(target: Target) -> list[OwnedTower]:
+    if target.live_state is None:
+        return []
+    return [
+        OwnedTower(tower.tower_name, tower.path)
+        for tower in target.live_state.towers
+        if tower.known
+    ]
+
+
+def owned_line(owned: list[OwnedTower]) -> str:
+    if not owned:
+        return "Owned: none"
+    return "Owned: " + ", ".join(f"{entry.tower_name} {entry.path}" for entry in owned)
+
+
 def run_recommend(args: argparse.Namespace) -> int:
     failure = check_database_exists(args)
     if failure is not None:
@@ -557,10 +580,18 @@ def run_recommend(args: argparse.Namespace) -> int:
     target = load_target(args)
     if target is None:
         return 1
+    owned = owned_from_target(target)
     connection = connect(args.db)
     try:
         results = recommend(
-            connection, target.round_number, target.money, target.difficulty, args.limit
+            connection,
+            target.round_number,
+            target.money,
+            target.difficulty,
+            args.limit,
+            args.horizon,
+            owned,
+            args.one_per_tower,
         )
     except NoRoundDataError as error:
         return report_missing_data(error)
@@ -568,6 +599,7 @@ def run_recommend(args: argparse.Namespace) -> int:
         connection.close()
     if target.live_state is not None:
         print(live_line(target))
+        print(owned_line(owned))
     print(format_recommendations(results))
     return 0
 

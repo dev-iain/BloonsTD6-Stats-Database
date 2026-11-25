@@ -21,8 +21,8 @@ from btd6.agent.client import (
     OpenAICompatibleClient,
     client_from_environment,
 )
-from btd6.agent.loop import SYSTEM_PROMPT, run_agent
-from btd6.agent.picks import AgentResult, Pick, parse_picks
+from btd6.agent.loop import LIVE_PROMPT, SYSTEM_PROMPT, run_agent
+from btd6.agent.picks import MAX_PICKS, AgentResult, Pick, parse_picks
 from btd6.agent.tools import TOOL_SCHEMAS, ToolCall, call_tool
 from tests.agent_stub import ScriptedClient, final_message, tool_call_message
 from tests.recommend_fixture import build_recommend_database
@@ -220,10 +220,46 @@ def test_dataclasses_are_frozen() -> None:
 
 @pytest.mark.parametrize(
     "fragment",
-    ["get_round_threats", "recommend", "Picks:", "- none", "Never state a number"],
+    [
+        "get_round_threats",
+        "recommend",
+        "Picks:",
+        "- none",
+        "Never state a number",
+        "one_per_tower true",
+        "limit 10",
+        "Pick up to 5 different towers",
+        "alternatives",
+        "affordable on its own",
+        "- <tower name> <X-Y-Z> $<total cost>: <reason>",
+        "one sentence",
+        "leaks in later rounds",
+    ],
 )
 def test_system_prompt_mentions(fragment: str) -> None:
     assert fragment in SYSTEM_PROMPT
+
+
+@pytest.mark.parametrize(
+    "fragment",
+    [
+        "This is a live game",
+        "get_game_state",
+        'as owned ("<tower name> <X-Y-Z>")',
+        "upgrades to them are offered",
+        "needs they already cover are dropped",
+        "A pick may be an upgrade of an owned tower",
+        "upgrade price from the tool result",
+        'start its reason with "Upgrade from <X-Y-Z>"',
+    ],
+)
+def test_live_prompt_mentions(fragment: str) -> None:
+    assert fragment in LIVE_PROMPT
+
+
+def test_live_prompt_no_longer_limits_picks_to_new_purchases() -> None:
+    assert "only new purchases" not in LIVE_PROMPT
+    assert "list only new purchases" not in LIVE_PROMPT
 
 
 # endregion
@@ -279,6 +315,75 @@ def test_parse_picks(answer: str, expected: tuple[Pick, ...]) -> None:
     assert parse_picks(answer) == expected
 
 
+def test_max_picks_is_five() -> None:
+    assert MAX_PICKS == 5
+
+
+def test_pick_reason_defaults_to_empty() -> None:
+    assert Pick("Super Monkey", "3-0-0", 27000).reason == ""
+
+
+@pytest.mark.parametrize(
+    ("line", "reason"),
+    [
+        ("- Super Monkey 3-0-0 $27000: Pops lead.", "Pops lead."),
+        ("- Super Monkey 3-0-0 $27,000: Pops lead.", "Pops lead."),
+        ("- Super Monkey 3-0-0 $27000 - Pops lead.", "Pops lead."),
+        ("- Super Monkey 3-0-0 $27000:   padded reason   ", "padded reason"),
+        ("- Super Monkey 3-0-0 $27000 -   padded reason  ", "padded reason"),
+        (
+            "- Super Monkey 3-0-0 $24500: Upgrade from 0-0-0: pops lead",
+            "Upgrade from 0-0-0: pops lead",
+        ),
+        ("- Super Monkey 3-0-0 $27000: camo - lead", "camo - lead"),
+        ("- Super Monkey 3-0-0 $27000", ""),
+    ],
+    ids=[
+        "colon",
+        "colon_comma_cost",
+        "dash",
+        "colon_padded",
+        "dash_padded",
+        "reason_with_colon",
+        "reason_with_dash",
+        "no_reason",
+    ],
+)
+def test_parse_picks_reason(line: str, reason: str) -> None:
+    picks = parse_picks(f"Text.\nPicks:\n{line}")
+
+    assert len(picks) == 1
+    assert (picks[0].tower_name, picks[0].path) == ("Super Monkey", "3-0-0")
+    assert picks[0].reason == reason
+
+
+def test_parse_picks_reason_keeps_cost_and_order() -> None:
+    answer = "Picks:\n- Dart Monkey 0-2-3 $1,234: First.\n- Ninja Monkey 1-0-0 $100 - Second."
+
+    assert parse_picks(answer) == (
+        Pick("Dart Monkey", "0-2-3", 1234, "First."),
+        Pick("Ninja Monkey", "1-0-0", 100, "Second."),
+    )
+
+
+def test_parse_picks_text_after_cost_without_separator_is_not_a_pick() -> None:
+    assert parse_picks("Picks:\n- Super Monkey 3-0-0 $27000 extra words") == ()
+
+
+def test_parse_picks_keeps_first_five() -> None:
+    lines = [f"- Super Monkey {tier}-0-0 ${tier * 100}: reason {tier}" for tier in range(6)]
+    picks = parse_picks("Picks:\n" + "\n".join(lines))
+
+    assert [pick.path for pick in picks] == [f"{tier}-0-0" for tier in range(5)]
+    assert picks[4].reason == "reason 4"
+
+
+def test_parse_picks_five_picks_all_kept() -> None:
+    lines = [f"- Dart Monkey 0-0-{tier} ${tier + 1}" for tier in range(5)]
+
+    assert len(parse_picks("Picks:\n" + "\n".join(lines))) == 5
+
+
 def test_parse_picks_header_must_be_whole_line() -> None:
     assert parse_picks("My Picks: \n- Super Monkey 3-0-0 $27000\nPicks: none") == ()
 
@@ -290,8 +395,10 @@ picks_strategy = st.lists(
         st.builds("{}-{}-{}".format, *[st.integers(0, 5)] * 3),
         st.integers(0, 10_000_000),
     ),
-    max_size=6,
+    max_size=MAX_PICKS,
 )
+
+reason_strategy = st.text(alphabet="abcdefg HIJ.,0123", max_size=30).map(str.strip)
 
 
 @given(picks=picks_strategy)
@@ -300,6 +407,31 @@ def test_parse_picks_round_trips(picks: list[Pick]) -> None:
     answer = "Reasoning.\nPicks:\n" + "\n".join(lines or ["- none"])
 
     assert parse_picks(answer) == tuple(picks)
+
+
+reasoned_picks = st.lists(
+    st.builds(
+        Pick,
+        st.sampled_from(["Super Monkey", "Dart Monkey", "Ninja Monkey"]),
+        st.builds("{}-{}-{}".format, *[st.integers(0, 5)] * 3),
+        st.integers(0, 10_000_000),
+        reason_strategy,
+    ),
+    max_size=MAX_PICKS + 3,
+)
+
+
+@given(picks=reasoned_picks, use_dash=st.booleans())
+def test_parse_picks_round_trips_with_reasons_and_cap(picks: list[Pick], use_dash: bool) -> None:
+    separator = " - " if use_dash else ": "
+    lines = [
+        f"- {pick.tower_name} {pick.path} ${pick.total_cost:,}"
+        + (f"{separator}{pick.reason}" if pick.reason else "")
+        for pick in picks
+    ]
+    answer = "Reasoning.\nPicks:\n" + "\n".join(lines or ["- none"])
+
+    assert parse_picks(answer) == tuple(picks[:MAX_PICKS])
 
 
 @given(text=st.text(alphabet=st.characters(blacklist_characters="\r"), max_size=200))

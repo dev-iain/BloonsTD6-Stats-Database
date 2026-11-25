@@ -576,3 +576,35 @@ Base case: A1, B1, C1, D1
 | T10 | `wait_for_port` open | listening socket -> `True` | `test_wait_for_port_open` |
 | T11 | `wait_for_port` closed | nothing listening, short timeout -> `False` | `test_wait_for_port_times_out` |
 | T12 | `open_browser_when_ready` | thread opens the URL once the port listens; nothing opened when it never does | `test_open_browser_when_ready_*` |
+
+### `recommend --one-per-tower` and `--live` owned towers
+
+`recommend` gains `--one-per-tower` (flag, passed as `one_per_tower`) and an `upgrade from` column after `path` (blank for new purchases). With `--live`, the known towers of the game state are passed as `owned`, and a line `Owned: <name> <path>, ...` (or `Owned: none`) is printed under the `Live game:` line. Tests: `tests/test_cli_recommend.py`, `tests/test_cli_live.py`.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`--one-per-tower`|K) Flag|K1: Not given|none|
+|||K2: Given|`--one-per-tower`|
+|`--live` state towers|L) Owned towers|L1: Not live|no `--live`|
+|||L2: Live, one known tower the database lacks|`Super Monkey 2-0-0`|
+|||L3: Live, one tower that creates upgrades|`Super Monkey 0-0-0`|
+|||L4: Live, several towers|`Ninja Monkey 0-0-0`, `Dart Monkey 2-0-0`|
+|||L5: Live, none|`[]`|
+
+Base case: K1, L1
+
+### Base Choice Coverage
+
+| BCC Test | K | L | Oracle | Test Name |
+|---|---|---|---|---|
+| T1 | K1 | L1 | header `rank tower path upgrade from cost score leaks at reasons`; `upgrade from` blank; no `Owned:` line | `test_main_recommend_all_base`, `test_main_recommend_upgrade_from_column_is_blank_for_purchases`, `test_main_recommend_not_live_prints_no_owned_line` |
+| T2 | K2 | L1 | one data row equal to `recommend(..., one_per_tower=True)`; also with `--limit 3` | `test_main_recommend_one_per_tower`, `test_main_recommend_one_per_tower_with_limit` |
+| T3 | K1 | L2 | line `Owned: Super Monkey 2-0-0`, table equal to the non-live table (entry ignored) | `test_main_recommend_live_all_base`, `test_main_recommend_live_hard` |
+| T4 | K1 | L3 | `Owned: Super Monkey 0-0-0`; table has upgrade rows (`upgrades_owned`, price 24500) | `test_main_recommend_live_passes_owned_towers` |
+| T5 | K1 | L4 | `Owned: Ninja Monkey 0-0-0, Dart Monkey 2-0-0` | `test_main_recommend_live_lists_every_owned_tower` |
+| T6 | K1 | L5 | `Owned: none`, table equal to non-live | `test_main_recommend_live_no_towers` |
+| T7 | K2 | L3 | one data row | `test_main_recommend_live_one_per_tower` |
+
+`--help` for `recommend` lists `--one-per-tower` (`test_main_recommend_help_lists_one_per_tower`). A live tower with `known` false is not passed or printed (assumed, untested).

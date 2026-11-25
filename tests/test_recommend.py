@@ -6,6 +6,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
+from btd6 import recommend as recommend_module
 from btd6.db.cost_loader import load_costs
 from btd6.query import QueryError, UpgradeFilters
 from btd6.recommend import (
@@ -19,12 +20,17 @@ from btd6.recommend import (
     sort_key,
 )
 from btd6.rounds import NoRoundDataError
-from btd6.threats import PROPERTY_NAMES, RoundThreats
 from tests.factories import CostsFactory, UpgradeRowFactory
 from tests.recommend_fixture import (
+    FIXTURE_RANGE,
     build_recommend_database,
     camo_specs,
+    capped_pierce,
     load_round_data,
+    make_recommendation,
+    make_threats,
+    plain_window_score,
+    round_density,
 )
 from tests.test_ranking import (
     NULL_RATE_STATS,
@@ -33,9 +39,23 @@ from tests.test_ranking import (
     insert_upgrade_rows,
 )
 
-BASE_PATHS = ["3-0-0", "0-0-4", "1-0-0", "0-0-0"]
-BASE_SCORES = [600 / 27000, (2 / 0.0225 * 8) / 67855, (1 / 0.045 * 2) / 4500, (1 / 0.045) / 2500]
+BASE_PATHS = ["3-0-0", "1-0-0", "0-0-0", "0-0-4"]
+ROUND_ONE_DENSITY = (20 / 17.5125) / 25
+ROUND_ONE_CROWD = ROUND_ONE_DENSITY * 2 * FIXTURE_RANGE
+SINGLE_ROUND_SCORES = [
+    100 * min(6, ROUND_ONE_CROWD) / 27000,
+    (1 / 0.045 * 2) / 4500,
+    (1 / 0.045) / 2500,
+    (2 / 0.0225 * min(8, ROUND_ONE_CROWD)) / 67855,
+]
 BIG_BUDGET = 100000
+NUMERIC_FIELDS = (
+    "dps",
+    "moab_dps",
+    "pierce_weighted_dps",
+    "projectile_pierce",
+    "effective_pierce",
+)
 
 
 @pytest.fixture
@@ -53,26 +73,11 @@ def cost_of(results: list[Recommendation], path: str) -> int:
     return next(result.total_cost for result in results if result.path == path)
 
 
-def make_threats(
-    camo_share: float = 0.0, lead: float = 0.0, moab_share: float = 0.0
-) -> RoundThreats:
-    shares = {name: 0.0 for name in PROPERTY_NAMES}
-    shares["lead"] = lead
-    return RoundThreats(
-        round=1,
-        total_rbe=100,
-        unknown_groups=0,
-        property_share=shares,
-        camo_share=camo_share,
-        regrow_share=0.0,
-        moab_share=moab_share,
-        mean_layers=1.0,
-    )
-
-
 def test_constants() -> None:
     assert MIN_PROPERTY_SHARE == 0.05
     assert HIGH_PIERCE == 5
+    assert recommend_module.DEFAULT_HORIZON == 5
+    assert recommend_module.HORIZON_DECAY == 0.75
 
 
 # region recommend
@@ -81,11 +86,23 @@ def test_constants() -> None:
 def test_recommend_all_base(recommend_database: sqlite3.Connection) -> None:
     results = recommend(recommend_database, 1, BIG_BUDGET)
     assert paths_of(results) == BASE_PATHS
-    assert [result.score for result in results] == pytest.approx(BASE_SCORES, rel=1e-6)
+    expected = [plain_window_score(path, 1, 5) for path in BASE_PATHS]
+    assert [result.score for result in results] == pytest.approx(expected, rel=1e-6)
+    assert all(result.first_leak_round is None for result in results)
+
+
+def test_recommend_single_round_scores_use_capped_pierce(
+    recommend_database: sqlite3.Connection,
+) -> None:
+    results = recommend(recommend_database, 1, BIG_BUDGET, horizon=1)
+    assert paths_of(results) == BASE_PATHS
+    assert [result.score for result in results] == pytest.approx(SINGLE_ROUND_SCORES, rel=1e-6)
+    assert ROUND_ONE_CROWD == pytest.approx(round_density(1) * 100)
+    assert capped_pierce("3-0-0", round_density(1)) == pytest.approx(ROUND_ONE_CROWD)
 
 
 def test_recommend_money_equal_to_cost(recommend_database: sqlite3.Connection) -> None:
-    assert paths_of(recommend(recommend_database, 1, 4500)) == ["1-0-0", "0-0-0"]
+    assert paths_of(recommend(recommend_database, 1, 4500, horizon=1)) == ["1-0-0", "0-0-0"]
 
 
 def test_recommend_money_below_cheapest(recommend_database: sqlite3.Connection) -> None:
@@ -123,13 +140,13 @@ def test_recommend_invalid_difficulty(recommend_database: sqlite3.Connection) ->
 
 
 def test_recommend_moab_round(recommend_database: sqlite3.Connection) -> None:
-    results = recommend(recommend_database, 40, BIG_BUDGET)
+    results = recommend(recommend_database, 40, BIG_BUDGET, horizon=1)
     assert paths_of(results) == ["0-0-0", "1-0-0", "3-0-0", "0-0-4"]
     assert all(result.reasons[-1] == "high_single_target" for result in results)
 
 
 def test_recommend_lead_round(recommend_database: sqlite3.Connection) -> None:
-    results = recommend(recommend_database, 63, BIG_BUDGET)
+    results = recommend(recommend_database, 63, BIG_BUDGET, horizon=1)
     assert paths_of(results) == ["3-0-0", "0-0-4"]
     assert results[0].reasons == ("affordable", "pops_lead", "high_pierce")
 
@@ -191,14 +208,14 @@ def test_recommend_zero_money(recommend_database: sqlite3.Connection) -> None:
 
 
 def test_recommend_pierce_flips_with_moab_share(recommend_database: sqlite3.Connection) -> None:
-    plain = paths_of(recommend(recommend_database, 1, BIG_BUDGET))
-    moab = paths_of(recommend(recommend_database, 40, BIG_BUDGET))
+    plain = paths_of(recommend(recommend_database, 1, BIG_BUDGET, horizon=1))
+    moab = paths_of(recommend(recommend_database, 40, BIG_BUDGET, horizon=1))
     assert plain.index("1-0-0") < plain.index("0-0-0")
     assert moab.index("1-0-0") > moab.index("0-0-0")
 
 
 def test_recommend_returns_recommendations(recommend_database: sqlite3.Connection) -> None:
-    results = recommend(recommend_database, 63, BIG_BUDGET)
+    results = recommend(recommend_database, 63, BIG_BUDGET, horizon=1)
     assert results
     for result in results:
         assert isinstance(result, Recommendation)
@@ -210,12 +227,35 @@ def test_recommend_returns_recommendations(recommend_database: sqlite3.Connectio
 
 
 def test_recommend_fields_match_worked_example(recommend_database: sqlite3.Connection) -> None:
-    top = recommend(recommend_database, 63, BIG_BUDGET)[0]
-    assert (top.path, top.total_cost) == ("3-0-0", 27000)
-    assert top.dps == pytest.approx(100, rel=1e-6)
-    assert top.moab_dps == pytest.approx(100, rel=1e-6)
-    assert top.pierce_weighted_dps == pytest.approx(600, rel=1e-6)
-    assert top.projectile_pierce == pytest.approx(6, rel=1e-6)
+    top_result = recommend(recommend_database, 63, BIG_BUDGET, horizon=1)[0]
+    assert (top_result.path, top_result.total_cost) == ("3-0-0", 27000)
+    assert top_result.dps == pytest.approx(100, rel=1e-6)
+    assert top_result.moab_dps == pytest.approx(100, rel=1e-6)
+    assert top_result.pierce_weighted_dps == pytest.approx(600, rel=1e-6)
+    assert top_result.projectile_pierce == pytest.approx(6, rel=1e-6)
+    assert top_result.effective_pierce == pytest.approx(6, rel=1e-6)
+    assert top_result.first_leak_round is None
+
+
+@pytest.mark.parametrize(
+    ("path", "expected"),
+    [("0-0-0", 1.0), ("1-0-0", 2.0), ("3-0-0", ROUND_ONE_CROWD), ("0-0-4", ROUND_ONE_CROWD)],
+)
+def test_recommend_effective_pierce_field_is_capped_by_crowd(
+    recommend_database: sqlite3.Connection, path: str, expected: float
+) -> None:
+    results = recommend(recommend_database, 1, BIG_BUDGET)
+    found = next(result for result in results if result.path == path)
+    assert found.effective_pierce == pytest.approx(expected, rel=1e-6)
+    assert found.projectile_pierce == UPGRADE_STATS[path]["projectile_pierce"]
+
+
+def test_recommend_high_pierce_needs_effective_pierce(
+    recommend_database: sqlite3.Connection,
+) -> None:
+    results = recommend(recommend_database, 1, BIG_BUDGET, horizon=1)
+    assert all("high_pierce" not in result.reasons for result in results)
+    assert all(result.reasons == ("affordable",) for result in results)
 
 
 def test_recommend_tie_breaks_by_name_then_path() -> None:
@@ -267,7 +307,14 @@ def test_recommend_null_stats_are_none_and_last(null_stat: str) -> None:
     assert results[-1].score is None
     assert all(result.score is not None for result in results[:-1])
     assert getattr(results[-1], null_stat.replace("attack_rate", "dps")) is None
-    for field in ("dps", "moab_dps", "pierce_weighted_dps", "projectile_pierce"):
+    assert results[-1].first_leak_round is None
+    for field in (
+        "dps",
+        "moab_dps",
+        "pierce_weighted_dps",
+        "projectile_pierce",
+        "effective_pierce",
+    ):
         value = getattr(results[-1], field)
         assert value is None or value == value
 
@@ -296,87 +343,122 @@ def test_filters_for_threats_lead_above_threshold() -> None:
 
 
 def test_round_score_all_base() -> None:
-    assert round_score(0.5, 30.0, 60.0, 3000) == pytest.approx(0.015, rel=1e-6)
+    assert round_score(0.5, 30.0, 20.0, 3.0, 3000) == pytest.approx(0.015, rel=1e-6)
 
 
 def test_round_score_no_moab() -> None:
-    assert round_score(0.0, 30.0, 60.0, 3000) == pytest.approx(0.02, rel=1e-6)
+    assert round_score(0.0, 30.0, 20.0, 3.0, 3000) == pytest.approx(0.02, rel=1e-6)
 
 
 def test_round_score_all_moab() -> None:
-    assert round_score(1.0, 30.0, 60.0, 3000) == pytest.approx(0.01, rel=1e-6)
+    assert round_score(1.0, 30.0, 20.0, 3.0, 3000) == pytest.approx(0.01, rel=1e-6)
 
 
 def test_round_score_missing_moab_dps() -> None:
-    assert round_score(0.5, None, 60.0, 3000) is None
+    assert round_score(0.5, None, 20.0, 3.0, 3000) is None
 
 
-def test_round_score_missing_pierce_dps() -> None:
-    assert round_score(0.5, 30.0, None, 3000) is None
+def test_round_score_missing_dps() -> None:
+    assert round_score(0.5, 30.0, None, 3.0, 3000) is None
+
+
+def test_round_score_missing_effective_pierce() -> None:
+    assert round_score(0.5, 30.0, 20.0, None, 3000) is None
 
 
 def test_round_score_zero_cost() -> None:
-    assert round_score(0.5, 30.0, 60.0, 0) is None
+    assert round_score(0.5, 30.0, 20.0, 3.0, 0) is None
 
 
 def test_round_score_missing_cost() -> None:
-    assert round_score(0.5, 30.0, 60.0, None) is None
+    assert round_score(0.5, 30.0, 20.0, 3.0, None) is None
 
 
 def test_round_score_zero_weight_ignores_missing_moab() -> None:
-    assert round_score(0.0, None, 60.0, 3000) == pytest.approx(0.02, rel=1e-6)
+    assert round_score(0.0, None, 20.0, 3.0, 3000) == pytest.approx(0.02, rel=1e-6)
 
 
-def test_round_score_zero_weight_ignores_missing_pierce() -> None:
-    assert round_score(1.0, 30.0, None, 3000) == pytest.approx(0.01, rel=1e-6)
+@pytest.mark.parametrize("missing", [(None, 3.0), (20.0, None), (None, None)])
+def test_round_score_zero_weight_ignores_missing_pierce_terms(
+    missing: tuple[float | None, float | None],
+) -> None:
+    assert round_score(1.0, 30.0, *missing, 3000) == pytest.approx(0.01, rel=1e-6)
+
+
+def test_round_score_uses_effective_pierce_not_raw() -> None:
+    capped = round_score(0.0, 30.0, 20.0, 1.83, 3000)
+    assert capped == pytest.approx(20.0 * 1.83 / 3000, rel=1e-6)
+
+
+HIGH_PIERCE_DPS = 12.0
+LOW_PIERCE_DPS = 15.0
 
 
 def test_reasons_for_all_base() -> None:
-    assert reasons_for(make_threats(), 10, 60, 5) == ("affordable", "high_pierce")
+    assert reasons_for(make_threats(), 10, HIGH_PIERCE_DPS, 5) == ("affordable", "high_pierce")
 
 
 def test_reasons_for_camo() -> None:
-    result = reasons_for(make_threats(camo_share=0.2), 10, 60, 5)
+    result = reasons_for(make_threats(camo_share=0.2), 10, HIGH_PIERCE_DPS, 5)
     assert result == ("affordable", "hits_camo", "high_pierce")
 
 
 def test_reasons_for_lead() -> None:
-    result = reasons_for(make_threats(lead=0.12), 10, 60, 5)
+    result = reasons_for(make_threats(lead=0.12), 10, HIGH_PIERCE_DPS, 5)
     assert result == ("affordable", "pops_lead", "high_pierce")
 
 
 def test_reasons_for_single_target() -> None:
-    result = reasons_for(make_threats(moab_share=1.0), 10, 60, 5)
+    result = reasons_for(make_threats(moab_share=1.0), 10, HIGH_PIERCE_DPS, 5)
     assert result == ("affordable", "high_single_target")
 
 
 def test_reasons_for_equal_terms() -> None:
-    assert reasons_for(make_threats(moab_share=0.5), 60, 60, 5) == ("affordable",)
+    result = reasons_for(make_threats(moab_share=0.5), 60, HIGH_PIERCE_DPS, 5)
+    assert result == ("affordable",)
 
 
-def test_reasons_for_low_pierce() -> None:
-    assert reasons_for(make_threats(), 10, 60, 4) == ("affordable",)
+def test_reasons_for_low_effective_pierce() -> None:
+    assert reasons_for(make_threats(), 10, LOW_PIERCE_DPS, 4) == ("affordable",)
 
 
-def test_reasons_for_missing_pierce() -> None:
-    assert reasons_for(make_threats(), 10, 60, None) == ("affordable",)
+def test_reasons_for_effective_pierce_just_below_threshold() -> None:
+    assert reasons_for(make_threats(), 10, 100.0, 4.999) == ("affordable",)
+
+
+def test_reasons_for_missing_effective_pierce() -> None:
+    assert reasons_for(make_threats(), 10, HIGH_PIERCE_DPS, None) == ("affordable",)
 
 
 def test_reasons_for_missing_moab_dps_keeps_pierce() -> None:
-    result = reasons_for(make_threats(moab_share=0.5), None, 0.5, 5)
+    result = reasons_for(make_threats(moab_share=0.5), None, 0.2, 5)
     assert "high_pierce" in result
 
 
-def test_reasons_for_missing_pierce_dps_keeps_single_target() -> None:
+def test_reasons_for_missing_dps_keeps_single_target() -> None:
     result = reasons_for(make_threats(moab_share=0.5), 0.5, None, 5)
     assert result == ("affordable", "high_single_target")
-
-
-def make_recommendation(score: float | None, total_cost: int) -> Recommendation:
-    return Recommendation("Super Monkey", "0-0-0", total_cost, score, None, None, None, None, ())
 
 
 def test_sort_key_zero_score_before_missing() -> None:
     scored = make_recommendation(0.0, 500)
     unscored = make_recommendation(None, 100)
     assert sorted([unscored, scored], key=sort_key) == [scored, unscored]
+
+
+def test_sort_key_non_leaker_before_leaker_with_higher_score() -> None:
+    leaker = make_recommendation(9.0, 100, first_leak_round=24)
+    steady = make_recommendation(0.1, 900)
+    assert sorted([leaker, steady], key=sort_key) == [steady, leaker]
+
+
+def test_sort_key_non_leaker_with_missing_score_before_leaker() -> None:
+    leaker = make_recommendation(9.0, 100, first_leak_round=24)
+    unscored = make_recommendation(None, 900)
+    assert sorted([leaker, unscored], key=sort_key) == [unscored, leaker]
+
+
+def test_sort_key_leakers_ordered_by_score() -> None:
+    lower_score = make_recommendation(1.0, 100, first_leak_round=24)
+    higher_score = make_recommendation(2.0, 900, first_leak_round=99)
+    assert sorted([lower_score, higher_score], key=sort_key) == [higher_score, lower_score]

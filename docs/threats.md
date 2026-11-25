@@ -19,6 +19,9 @@ For each round group: `count * rbe`, or `count * rbe_fort` when `is_fortified` a
 | `property_share[prop]` | RBE of groups whose bloon has `has_<prop>`, divided by `total_rbe`; a group counts toward every property it carries, so the shares can sum to more than 1 |
 | `camo_share`, `regrow_share`, `moab_share` | RBE of groups with `is_camo`, `is_regrow`, `is_moab`, divided by `total_rbe` |
 | `mean_layers` | `sum(group RBE * bloons.layers) / total_rbe` (a NULL `layers` counts as 0) |
+| `crowd_density` | bloons per unit of track, RBE-weighted over groups: `sum(group RBE * density_g) / sum(group RBE)` with `density_g = (count / max(duration, MIN_GROUP_SECONDS)) / bloons.speed`; groups with no RBE or a NULL/0 `speed` are left out of both sums; `None` when no group is left. Used by the recommender to cap pierce (`docs/recommend.md`). |
+
+`MIN_GROUP_SECONDS = 1.0`: a group spawned all at once (`duration` 0, e.g. a single MOAB) is treated as spread over one second, so the density stays finite.
 
 When `total_rbe` is 0 (empty round or every group unknown) every share and `mean_layers` is `0.0`. Errors come from `validate_round`: `TypeError` for a non-int (including `bool`), `ValueError` for a round below 1 or above the highest loaded, `NoRoundDataError` when no rounds are loaded.
 
@@ -27,6 +30,7 @@ When `total_rbe` is 0 (empty round or every group unknown) every share and `mean
 | Round | `total_rbe` | Notable shares | `mean_layers` |
 |---|---|---|---|
 | 40 | 616 | `moab_share` 1.0 (a single MOAB), all properties 0 | 10.0 |
+| 1 | 20 | 20 Red over 17.5125 s at speed 25: `crowd_density` = (20 / 17.5125) / 25 = 0.045682 | 1.0 |
 | 63 | 14413 | `property_share["lead"]` 0.1197 (75 Lead, 122 Ceramic), other properties 0, `camo_share` 0.0 | 8.76 |
 
 Round 63 has no camo in the wiki's `DefaultRoundSet` (groups: Lead x75, Ceramic x40, x40, x42, none with a Camo suffix), so `camo_share` is 0 there, contrary to the epic text. Lead is the only property carried (ceramic has none), so it is the largest property share. A recommender that wants pierce for round 63 must get it from the ceramic RBE share (`mean_layers`), not from a property.

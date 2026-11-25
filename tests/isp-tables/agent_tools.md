@@ -136,3 +136,42 @@ Base case: A1, B1, C1, D1, E1, F1 (each characteristic has one block, so each is
 | T6 | every schema is `json.dumps`-able; every description is a non-empty string | `test_tool_schemas_json_serializable` |
 | T7 | calling each tool by schema name does not give `UnknownTool` | `test_tool_schemas_names_are_dispatchable` |
 | T8 | `search_upgrades` and `rank_upgrades["filters"]` expose the 14 filter properties | `test_tool_schemas_filter_properties` |
+
+---
+
+## `recommend` tool: `one_per_tower` and `owned`
+
+`TOOL_SCHEMAS` `recommend` gains optional `one_per_tower` (boolean) and `owned` (array of strings `<tower name> <X-Y-Z>`). `call_tool` parses each string with the API rule (a trailing `X-Y-Z`) and passes `OwnedTower`s and the flag to `recommend`. Errors are results, not exceptions.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`owned`|J) Value|J1: Absent|not given|
+|||J2: One valid string|`["Super Monkey 0-0-0"]`|
+|||J3: Empty list|`[]`|
+|||J4: Tower not in the database|`["Banana Farm 2-0-0"]`|
+|||J5: No trailing `X-Y-Z`|`"Ninja"`, `"Super Monkey"`, `"Super Monkey 1-2"`, `""`|
+|||J6: Digit out of range|`"Super Monkey 6-0-0"`|
+|`one_per_tower`|K) Value|K1: Absent|not given|
+|||K2: `True`|`True`|
+|||K3: `False`|`False`|
+|||K4: Not a bool|`"yes"`, `1`, `"true"`|
+
+Base case: J1, K1
+
+### Base Choice Coverage
+
+| BCC Test | J | K | Oracle | Test Name |
+|---|---|---|---|---|
+| T1 | J1 | K1 | unchanged list of four | `test_call_tool_recommend_all_base` |
+| T2 | J2 | K1 | rows with `upgrade_from` `0-0-0` for `3-0-0` (24500) and `0-0-4`, reason `upgrades_owned` | `test_call_tool_recommend_owned_is_passed_through` |
+| T3 | J3 | K1 | equals the default | `test_call_tool_recommend_owned_empty_list_is_no_owned` |
+| T4 | J4 | K1 | equals the default | `test_call_tool_recommend_owned_unknown_tower_is_ignored` |
+| T5 | J5 | K1 | `QueryError` `owned must be '<tower name> X-Y-Z', got '<entry>'` | `test_call_tool_recommend_owned_bad_string` |
+| T6 | J6 | K1 | `QueryError` | `test_call_tool_recommend_owned_path_out_of_range` |
+| T7 | J1 | K2 | first result only | `test_call_tool_recommend_one_per_tower_is_passed_through` |
+| T8 | J1 | K3 | same as the default list | `test_call_tool_recommend_one_per_tower_is_passed_through` |
+| T9 | J1 | K4 | `QueryError` `one_per_tower must be true or false, got 'yes'` | `test_call_tool_recommend_one_per_tower_wrong_type` |
+
+Extra: `owned=["Super Monkey 0-0-4"]` at round 101 returns four rows (`test_call_tool_recommend_owned_covers_needs`); schema checks `test_tool_schemas_recommend_one_per_tower_is_optional_boolean`, `test_tool_schemas_recommend_owned_is_optional_array_of_strings`.

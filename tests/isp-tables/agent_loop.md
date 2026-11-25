@@ -253,3 +253,56 @@ Base case: A1, B1, C1, D1, E1, F1
 | T9 | A1 | B1 | C1 | D1 | E2 | F1 | exit 1, message on stderr, stdout empty | `test_main_agent_agent_error_from_client` |
 | T10 | A1 | B1 | C1 | D1 | E1 | F2 | argparse exit 2 | `test_main_agent_required_options` |
 | T11 | A1 | B1 | C1 | D1 | E3 | exit 1, `BTD6_AGENT_MODEL` on stderr, no `Unexpected error`, stdout empty | `test_main_agent_busy_model_error_is_a_clean_message` |
+
+---
+
+## parse_picks: reasons and the pick cap
+
+```python
+def parse_picks(answer: str) -> tuple[Pick, ...]   # Pick(tower_name, path, total_cost, reason="")
+MAX_PICKS = 5
+```
+
+A pick line may end with `: <reason>` or ` - <reason>` after the cost. The reason is trimmed and defaults to `""`. At most `MAX_PICKS` picks are kept, in order.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`answer`|G) Reason separator|G1: None|`- Super Monkey 3-0-0 $27000`|
+|||G2: Colon|`$27000: Pops lead.`|
+|||G3: Spaced dash|`$27000 - Pops lead.`|
+|||G4: Text after the cost without a separator|`$27000 extra words`|
+|`answer`|H) Reason content|H1: Plain|`Pops lead.`|
+|||H2: Padded with spaces|`:   padded reason   `|
+|||H3: Contains a colon or a dash|`Upgrade from 0-0-0: lead`, `camo - lead`|
+|`answer`|I) Number of picks|I1: One|1 line|
+|||I2: Exactly five|5 lines|
+|||I3: More than five|6 lines|
+
+Base case: G1, H1, I1
+
+### Base Choice Coverage
+
+| BCC Test | G | H | I | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | G1 | H1 | I1 | `reason == ""` | `test_parse_picks_reason[no_reason]` |
+| T2 | G2 | H1 | I1 | `reason == "Pops lead."` | `test_parse_picks_reason[colon]`, `[colon_comma_cost]` |
+| T3 | G3 | H1 | I1 | `reason == "Pops lead."` | `test_parse_picks_reason[dash]` |
+| T4 | G4 | H1 | I1 | `()` | `test_parse_picks_text_after_cost_without_separator_is_not_a_pick` |
+| T5 | G2 | H2 | I1 | trimmed | `test_parse_picks_reason[colon_padded]`, `[dash_padded]` |
+| T6 | G2 | H3 | I1 | whole text kept | `test_parse_picks_reason[reason_with_colon]`, `[reason_with_dash]` |
+| T7 | G1 | H1 | I2 | five picks | `test_parse_picks_five_picks_all_kept` |
+| T8 | G1 | H1 | I3 | first five, in order | `test_parse_picks_keeps_first_five` |
+
+### Properties and constants
+
+- Formatting up to `MAX_PICKS + 3` picks with reasons (`: ` or ` - `) parses back to the first `MAX_PICKS` (`test_parse_picks_round_trips_with_reasons_and_cap`).
+- `MAX_PICKS == 5` and `Pick("...").reason == ""` (`test_max_picks_is_five`, `test_pick_reason_defaults_to_empty`).
+
+### Prompts
+
+| Test | Oracle | Test Name |
+|---|---|---|
+| T9 | `SYSTEM_PROMPT` contains `one_per_tower true`, `limit 10`, `Pick up to 5 different towers`, `alternatives`, `affordable on its own`, the `: <reason>` pick format, `one sentence`, `leaks in later rounds` | `test_system_prompt_mentions` |
+| T10 | `LIVE_PROMPT` tells the model to pass owned towers to `recommend`, allows upgrade picks, and starts their reason with `Upgrade from <X-Y-Z>`; it no longer says to list only new purchases | `test_live_prompt_mentions`, `test_live_prompt_no_longer_limits_picks_to_new_purchases` |
