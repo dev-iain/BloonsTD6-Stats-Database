@@ -352,3 +352,34 @@ def stored_upgrade_id(connection: Any, tower_name: str, path: str) -> int:
         (tower_name, path),
     ).fetchone()
     return row[0]
+
+
+class EffectFactory(factory.Factory):
+    """A wiki projectile effect; the defaults are Glue Gunner 2-0-0's damage over time."""
+
+    class Meta:
+        model = dict
+
+    damage = 1
+    interval = 2
+    lifespan = 11
+    triggerImmediate = False  # noqa: N815
+    immuneBloonProperties = 64  # noqa: N815
+    layers = 9999999
+    chance = 0
+    glueLevel = 0  # noqa: N815
+    initialDelay = 0  # noqa: N815
+    applyOnlyIfDamaged = False  # noqa: N815
+    distributeToChildren = True  # noqa: N815
+
+
+def effect_container(*named: tuple[str, dict[str, Any]]) -> dict[str, Any]:
+    """An `effects` `_order` container holding every `(name, effect)` pair, in order."""
+    return {"_order": [name for name, _ in named], **dict(named)}
+
+
+def with_effects(projectile: dict[str, Any], *named: tuple[str, dict[str, Any]]) -> dict[str, Any]:
+    """Copy of `projectile` carrying the given effects; no effects leaves it unchanged."""
+    if not named:
+        return dict(projectile)
+    return {**projectile, "effects": effect_container(*named)}

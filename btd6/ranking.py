@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import sqlite3
 
 import pandas
@@ -26,6 +27,17 @@ FROM upgrades
 LEFT JOIN attacks ON attacks.upgrade_id = upgrades.id
 LEFT JOIN projectiles ON projectiles.attack_id = attacks.id
 """
+EFFECT_SQL = """
+SELECT projectiles.attack_id AS attack_id, projectiles.count AS count,
+    projectile_effects.damage AS damage, projectile_effects.tick_interval AS tick_interval,
+    projectile_effects.lifespan AS lifespan,
+    projectile_effects.trigger_immediate AS trigger_immediate,
+    projectile_effects.moab_bonus_damage AS moab_bonus_damage,
+    projectile_effects.moab_only AS moab_only
+FROM projectile_effects
+JOIN projectiles ON projectiles.id = projectile_effects.projectile_id
+JOIN attacks ON attacks.id = projectiles.attack_id
+"""
 DPS_ORDER_SQL = " ORDER BY upgrades.id, attacks.attack_index, projectiles.projectile_index"
 Figures = tuple[float | None, float | None]
 
@@ -45,13 +57,17 @@ def add_metrics(dataframe: pandas.DataFrame) -> pandas.DataFrame:
     return result
 
 
+def projectile_count(row: sqlite3.Row) -> int:
+    return 1 if row["count"] is None else row["count"]
+
+
 def projectile_hits(row: sqlite3.Row) -> Figures:
     if row["unlimited_damage"]:
         return None, None
     bonus = row["moab_bonus_damage"]
     if row["damage"] is None and bonus is None:
         return None, None
-    count = 1 if row["count"] is None else row["count"]
+    count = projectile_count(row)
     base_damage = row["damage"] or 0
     moab_hit = (base_damage + (bonus or 0)) * count
     plain_hit = None if row["moab_only"] or row["damage"] is None else base_damage * count
@@ -82,7 +98,29 @@ def add_optional(total: float | None, part: float | None) -> float | None:
     return part if total is None else total + part
 
 
-def combine_attacks(attacks: dict[int, list[sqlite3.Row]]) -> Figures:
+def effect_dps(row: sqlite3.Row, rate: float, damage: float) -> float:
+    count = projectile_count(row)
+    interval = row["tick_interval"]
+    ticks = math.floor(row["lifespan"] / interval + 1e-9) + row["trigger_immediate"]
+    return min(count * damage * ticks / rate, damage / interval)
+
+
+def effect_totals(effects: list[sqlite3.Row], rate: float) -> Figures:
+    plain: list[float] = []
+    moab: list[float] = []
+    for row in effects:
+        if not row["moab_only"]:
+            plain.append(effect_dps(row, rate, row["damage"]))
+        moab.append(effect_dps(row, rate, row["damage"] + (row["moab_bonus_damage"] or 0)))
+    return sum_or_none(plain), sum_or_none(moab)
+
+
+def combine_attacks(
+    attacks: dict[int, list[sqlite3.Row]],
+    effects: dict[int, list[sqlite3.Row]] | None = None,
+) -> Figures:
+    if effects is None:
+        effects = {}
     plain_total: float | None = None
     moab_total: float | None = None
     for projectiles in attacks.values():
@@ -92,6 +130,11 @@ def combine_attacks(attacks: dict[int, list[sqlite3.Row]]) -> Figures:
         plain, moab = attack_totals([row for row in projectiles if row["name"] is not None])
         plain_total = add_optional(plain_total, None if plain is None else plain / rate)
         moab_total = add_optional(moab_total, None if moab is None else moab / rate)
+        effect_plain, effect_moab = effect_totals(
+            effects.get(projectiles[0]["attack_id"], []), rate
+        )
+        plain_total = add_optional(plain_total, effect_plain)
+        moab_total = add_optional(moab_total, effect_moab)
     return plain_total, moab_total
 
 
@@ -105,7 +148,19 @@ def dps_by_upgrade(
         attacks = grouped.setdefault(row["upgrade_id"], {})
         if row["attack_id"] is not None:
             attacks.setdefault(row["attack_id"], []).append(row)
-    return {key: combine_attacks(attacks) for key, attacks in grouped.items()}
+    effects = effects_by_attack(connection, upgrade_id)
+    return {key: combine_attacks(attacks, effects) for key, attacks in grouped.items()}
+
+
+def effects_by_attack(
+    connection: sqlite3.Connection, upgrade_id: int | None = None
+) -> dict[int, list[sqlite3.Row]]:
+    where = "" if upgrade_id is None else " WHERE attacks.upgrade_id = ?"
+    params = [] if upgrade_id is None else [upgrade_id]
+    grouped: dict[int, list[sqlite3.Row]] = {}
+    for row in connection.execute(EFFECT_SQL + where + " ORDER BY projectile_effects.id", params):
+        grouped.setdefault(row["attack_id"], []).append(row)
+    return grouped
 
 
 def all_upgrade_dps(connection: sqlite3.Connection) -> dict[int, Figures]:

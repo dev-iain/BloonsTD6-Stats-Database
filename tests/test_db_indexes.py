@@ -69,3 +69,32 @@ def test_round_groups_round_filter_uses_index(populated_connection):
 def test_round_groups_bloon_id_filter_uses_index(populated_connection):
     detail = plan_details(populated_connection, "SELECT id FROM round_groups WHERE bloon_id = 1")
     assert "idx_round_groups_bloon_id" in detail
+
+
+def test_effects_by_projectile_uses_autoindex(populated_connection):
+    populated_connection.execute(
+        "INSERT INTO attacks (id, upgrade_id, attack_index, name) VALUES (1, 1, 0, 'A')"
+    )
+    populated_connection.executemany(
+        "INSERT INTO projectiles (id, attack_id, projectile_index, name, damage_type_id,"
+        " can_hit_camo) VALUES (?, 1, ?, 'P', 1, 1)",
+        [(number, number - 1) for number in range(1, 31)],
+    )
+    populated_connection.executemany(
+        "INSERT INTO projectile_effects (projectile_id, effect_index, name, damage,"
+        " tick_interval, lifespan, trigger_immediate, damage_type_id)"
+        " VALUES (?, ?, 'E', 1, 1, 1, 0, 1)",
+        [(projectile, index) for projectile in range(1, 31) for index in range(3)],
+    )
+    populated_connection.execute("ANALYZE")
+    detail = plan_details(
+        populated_connection, "SELECT id FROM projectile_effects WHERE projectile_id = 3"
+    )
+    assert "sqlite_autoindex_projectile_effects_1" in detail
+
+
+def test_effects_by_damage_type_uses_index(populated_connection):
+    detail = plan_details(
+        populated_connection, "SELECT id FROM projectile_effects WHERE damage_type_id = 3"
+    )
+    assert "idx_projectile_effects_damage_type_id" in detail
