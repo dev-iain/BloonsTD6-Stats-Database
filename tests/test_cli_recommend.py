@@ -11,10 +11,10 @@ from btd6.recommend import Recommendation, recommend
 from tests.income_fixture import save_connection
 from tests.recommend_fixture import build_recommend_database
 
-HEADER_WORDS = ["rank", "tower", "path", "cost", "score", "reasons"]
+HEADER_WORDS = ["rank", "tower", "path", "upgrade from", "cost", "score", "leaks at", "reasons"]
 ROW_PATTERN = re.compile(
     r"^\s*(?P<rank>\d+)\s+(?P<tower>.+?)\s+(?P<path>\d-\d-\d)\s+"
-    r"(?P<cost>\S+)\s+(?P<score>\S+)\s+(?P<reasons>.+?)\s*$"
+    r"(?:(?P<origin>\d-\d-\d)\s+)?(?P<cost>\S+)\s+(?P<score>\S+)\s+(?:(?P<leaks>\d+)\s+)?(?P<reasons>affordable.*?)\s*$"
 )
 NO_RESULT_LINE = "No affordable upgrade can handle this round."
 MISSING_ROUNDS_MESSAGE = 'No round data loaded. Run "python -m btd6 load" first.\n'
@@ -33,14 +33,16 @@ def run_recommend(db_file: str, options: list[str]) -> int:
 
 
 def base_options(**overrides: str) -> list[str]:
-    values = {"--round": "63", "--money": "100000", **overrides}
+    values = {"--round": "63", "--money": "100000", "--horizon": "1", **overrides}
     return [item for pair in values.items() for item in pair]
 
 
-def expected_results(db_file: str, *args: object) -> list[Recommendation]:
+def expected_results(
+    db_file: str, *args: object, horizon: int = 1, **options: object
+) -> list[Recommendation]:
     connection = connect(db_file)
     try:
-        return recommend(connection, *args)
+        return recommend(connection, *args, horizon=horizon, **options)
     finally:
         connection.close()
 
@@ -59,12 +61,16 @@ def assert_matches(output: str, expected: list[Recommendation]) -> None:
         assert int(row["rank"]) == position
         assert row["tower"] == result.tower_name
         assert row["path"] == result.path
+        assert row["origin"] == result.upgrade_from
         assert int(row["cost"]) == result.total_cost
         if result.score is None:
             assert row["score"] == "-"
         else:
             assert float(row["score"]) == pytest.approx(result.score, abs=1e-4)
         assert row["reasons"] == ", ".join(result.reasons)
+        assert row["leaks"] == (
+            None if result.first_leak_round is None else str(result.first_leak_round)
+        )
 
 
 def test_main_recommend_all_base(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
@@ -73,7 +79,7 @@ def test_main_recommend_all_base(db_file: str, capsys: pytest.CaptureFixture[str
     captured = capsys.readouterr()
     assert exit_code == 0
     assert captured.err == ""
-    assert captured.out.splitlines()[0].split() == HEADER_WORDS
+    assert captured.out.splitlines()[0].split() == " ".join(HEADER_WORDS).split()
     rows = parse_table(captured.out)
     assert [row["path"] for row in rows] == ["3-0-0", "0-0-4"]
     assert rows[0]["reasons"] == "affordable, pops_lead, high_pierce"
@@ -179,6 +185,51 @@ def test_main_recommend_limit_zero(db_file: str, capsys: pytest.CaptureFixture[s
     assert captured.out == ""
 
 
+def test_main_recommend_default_horizon_shows_leaks(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    options = ["--round", "100", "--money", "100000"]
+    exit_code = run_recommend(db_file, options)
+
+    captured = capsys.readouterr()
+    rows = parse_table(captured.out)
+    assert exit_code == 0
+    assert [row["path"] for row in rows] == ["0-0-4", "0-0-0", "1-0-0", "3-0-0"]
+    assert [row["leaks"] for row in rows] == [None, "101", "101", "101"]
+    assert rows[1]["reasons"].endswith("fails_camo_at_101")
+    assert_matches(captured.out, expected_results(db_file, 100, 100000, horizon=5))
+
+
+def test_main_recommend_horizon_one_leaves_leaks_blank(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    exit_code = run_recommend(db_file, ["--round", "100", "--money", "100000", "--horizon", "1"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert {row["leaks"] for row in parse_table(captured.out)} == {None}
+
+
+def test_main_recommend_horizon_zero(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
+    exit_code = run_recommend(db_file, base_options(**{"--horizon": "0"}))
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert captured.err == "horizon must be at least 1, got 0\n"
+    assert captured.out == ""
+
+
+def test_main_recommend_horizon_not_integer(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with pytest.raises(SystemExit) as caught:
+        run_recommend(db_file, base_options(**{"--horizon": "abc"}))
+
+    assert caught.value.code == 2
+    last_line = capsys.readouterr().err.strip().splitlines()[-1]
+    assert last_line == "btd6 recommend: error: argument --horizon: invalid int value: 'abc'"
+
+
 def test_main_recommend_database_missing(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -228,3 +279,48 @@ def test_main_recommend_moab_round(db_file: str, capsys: pytest.CaptureFixture[s
     assert rows[0]["path"] == "0-0-0"
     assert all(row["reasons"].endswith("high_single_target") for row in rows)
     assert_matches(captured.out, expected_results(db_file, 40, 100000))
+
+
+def test_main_recommend_one_per_tower(db_file: str, capsys: pytest.CaptureFixture[str]) -> None:
+    exit_code = run_recommend(db_file, [*base_options(), "--one-per-tower"])
+
+    captured = capsys.readouterr()
+    rows = parse_table(captured.out)
+    assert exit_code == 0
+    assert len(rows) == 1
+    assert rows[0]["path"] == "3-0-0"
+    assert_matches(captured.out, expected_results(db_file, 63, 100000, one_per_tower=True))
+
+
+def test_main_recommend_one_per_tower_off_by_default(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    run_recommend(db_file, base_options(**{"--round": "1"}))
+
+    assert len(parse_table(capsys.readouterr().out)) == 4
+
+
+def test_main_recommend_one_per_tower_with_limit(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    options = [*base_options(**{"--limit": "3"}), "--one-per-tower"]
+    exit_code = run_recommend(db_file, options)
+
+    assert exit_code == 0
+    assert len(parse_table(capsys.readouterr().out)) == 1
+
+
+def test_main_recommend_upgrade_from_column_is_blank_for_purchases(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    run_recommend(db_file, base_options())
+
+    rows = parse_table(capsys.readouterr().out)
+    assert {row["origin"] for row in rows} == {None}
+
+
+def test_main_recommend_help_lists_one_per_tower(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit):
+        main(["recommend", "--help"])
+
+    assert "--one-per-tower" in capsys.readouterr().out

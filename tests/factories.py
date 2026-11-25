@@ -4,6 +4,8 @@ from typing import Any
 
 import factory
 
+from btd6.threats import PROPERTY_NAMES, RoundThreats
+
 
 def path_for_index(index: int) -> str:
     """Unique X-Y-Z style path; digits stay 0-4 except the leading one."""
@@ -53,6 +55,22 @@ class UpgradeRowFactory(factory.Factory):
     can_pop_purple = True
     can_pop_glass = True
     can_pop_frozen = True
+
+
+class RoundThreatsFactory(factory.Factory):
+    """A plain round: no camo, no properties, no MOAB. `crowd_density` is left at its default."""
+
+    class Meta:
+        model = RoundThreats
+
+    round = 1
+    total_rbe = 100
+    unknown_groups = 0
+    property_share = factory.LazyFunction(lambda: dict.fromkeys(PROPERTY_NAMES, 0.0))
+    camo_share = 0.0
+    regrow_share = 0.0
+    moab_share = 0.0
+    mean_layers = 1.0
 
 
 class UpgradeCostRowFactory(factory.Factory):

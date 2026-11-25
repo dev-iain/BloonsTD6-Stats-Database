@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from collections.abc import Callable, Mapping
 from dataclasses import asdict
@@ -96,6 +97,9 @@ def recommendation_rows(database_path: str, params: Mapping[str, Any]) -> list[d
             options.money,
             options.difficulty,
             options.limit,
+            options.horizon,
+            options.owned,
+            options.one_per_tower,
         )
         return [asdict(result) for result in results]
 
@@ -214,6 +218,10 @@ def register_error_handlers(app: FastAPI) -> None:
 
 
 def register_routes(app: FastAPI, database_path: str) -> None:
+    @app.get("/api/health")
+    def health() -> dict[str, Any]:
+        return {"app": "btd6", "pid": os.getpid()}
+
     @app.get("/api/upgrades")
     def upgrades(request: Request) -> dict[str, Any]:
         return {"rows": upgrade_rows(database_path, request.query_params)}
@@ -224,7 +232,8 @@ def register_routes(app: FastAPI, database_path: str) -> None:
 
     @app.get("/api/recommendations")
     def recommendations(request: Request) -> dict[str, Any]:
-        return {"rows": recommendation_rows(database_path, request.query_params)}
+        params = {**request.query_params, "owned": request.query_params.getlist("owned")}
+        return {"rows": recommendation_rows(database_path, params)}
 
     @app.get("/api/damage-types")
     def damage_types() -> dict[str, list[str]]:

@@ -66,12 +66,13 @@ Tool errors are not exceptions. They go back to the model as the tool result, so
 | `picks` | `tuple[Pick, ...]` | Parsed from the answer's `Picks:` block |
 
 - `ToolCall` is a frozen dataclass of `name: str`, `arguments: dict` and `result: dict`.
-- `Pick` is a frozen dataclass of `tower_name: str`, `path: str` and `total_cost: int`.
+- `Pick` is a frozen dataclass of `tower_name: str`, `path: str`, `total_cost: int` and `reason: str` (default `""`).
 
 ### `parse_picks(answer)`
 
 - Only the text after the last line equal to `Picks:` (case-insensitive, trimmed) is read.
-- Each line matching `- <tower name> <X-Y-Z> $<cost>` becomes a `Pick`. Commas in the cost are allowed.
+- Each line matching `- <tower name> <X-Y-Z> $<cost>`, optionally followed by `: <reason>` (or ` - <reason>`), becomes a `Pick`. Commas in the cost are allowed. The reason is trimmed, and is `""` when there is none.
+- At most `MAX_PICKS = 5` picks are kept, the first five in order.
 - `- none` means no picks.
 - If there is no `Picks:` line, the result is `()`.
 
@@ -80,11 +81,17 @@ Tool errors are not exceptions. They go back to the model as the tool result, so
 ```
 You are a Bloons TD6 advisor. You only know what the tools return.
 1. Call get_round_threats for the round first.
-2. Call recommend with the round, money and difficulty to get affordable candidates. Use rank_upgrades or search_upgrades only to compare alternatives.
+2. Call recommend with the round, money and difficulty, one_per_tower true and limit 10, to get affordable candidates from different towers. Use rank_upgrades or search_upgrades only to compare alternatives.
 3. Check every pick's cost against the money with total_cost or the cost in the tool result. Never pick something that costs more than the money.
-4. Explain in a few sentences why the picks fit the round's threats (camo, lead, MOAB share, pierce).
+4. Pick up to 5 different towers, best first. They are alternatives: each one must be affordable on its own.
 Never state a number, tower or upgrade path that did not come from a tool result. If a tool returns an error, say so and do not make up data. If nothing is affordable, say so plainly.
-End the answer with a line "Picks:" followed by one line per pick in the form "- <tower name> <X-Y-Z> $<total cost>", or "- none".
+End the answer with a line "Picks:" followed by one line per pick in the form "- <tower name> <X-Y-Z> $<total cost>: <reason>", or "- none". The reason is one sentence on why that pick fits the round's threats (camo, lead, MOAB share, pierce, leaks in later rounds).
+```
+
+Live prompt (appended with `--live`):
+
+```
+This is a live game. The towers the player already owns are listed in the request; call get_game_state if you need the current cash, lives or towers again. Pass the owned towers to recommend as owned ("<tower name> <X-Y-Z>"), so upgrades to them are offered and the needs they already cover are dropped. A pick may be an upgrade of an owned tower: write the target path and the upgrade price from the tool result, and start its reason with "Upgrade from <X-Y-Z>".
 ```
 
 ## Tools
@@ -239,7 +246,7 @@ Description: "The live game as the mod last reported it: round, cash (money), li
 `run_agent(..., state_path=None, owned_towers=None)`:
 
 - With `owned_towers` (a sequence of `PlacedTower`), the user message gains `You own: Super Monkey 2-0-0, BananaFarm 2-0-0 (not in the database).` (or `You own no towers.`) before `Recommend what to buy.`
-- With `state_path`, the system message is `SYSTEM_PROMPT + "\n" + LIVE_PROMPT`, the tools are `LIVE_TOOL_SCHEMAS`, and `get_game_state` reads that file. `LIVE_PROMPT` tells the model that the owned towers are already placed, to mention upgrades to them in the explanation, and to list only new purchases under `Picks:`.
+- With `state_path`, the system message is `SYSTEM_PROMPT + "\n" + LIVE_PROMPT`, the tools are `LIVE_TOOL_SCHEMAS`, and `get_game_state` reads that file. `LIVE_PROMPT` (text under System prompt) tells the model to pass the owned towers to `recommend` as `owned`, and allows upgrades of owned towers as picks (target path, upgrade price, reason starting `Upgrade from <X-Y-Z>`).
 
 ## Evaluation (`tests/agent_evals/`)
 

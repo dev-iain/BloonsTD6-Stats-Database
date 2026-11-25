@@ -29,8 +29,14 @@ def state_file(tmp_path: Path) -> Path:
     return tmp_path / "game_state.json"
 
 
-def write_state(state_file: Path, difficulty: str = "medium", age_seconds: float = 0) -> None:
-    state = fake_game_state(63, 100000, difficulty, [("Super Monkey", "2-0-0")])
+def write_state(
+    state_file: Path,
+    difficulty: str = "medium",
+    age_seconds: float = 0,
+    towers: list[tuple[str, str]] | None = None,
+) -> None:
+    towers = [("Super Monkey", "2-0-0")] if towers is None else towers
+    state = fake_game_state(63, 100000, difficulty, towers)
     save_game_state(state_file, state, datetime.now(UTC) - timedelta(seconds=age_seconds))
 
 
@@ -44,6 +50,11 @@ def output_of(capsys: pytest.CaptureFixture[str], *argv: str) -> str:
     return capsys.readouterr().out
 
 
+def split_live(output: str) -> tuple[str, str, str]:
+    first, owned_line, rest = output.split("\n", 2)
+    return first, owned_line, rest
+
+
 def test_main_recommend_live_all_base(
     db_file: str, state_file: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -52,9 +63,10 @@ def test_main_recommend_live_all_base(
 
     exit_code = run(db_file, state_file, "recommend", "--live")
 
-    first, _, rest = capsys.readouterr().out.partition("\n")
+    first, owned_line, rest = split_live(capsys.readouterr().out)
     assert exit_code == 0
     assert first == LIVE_LINE
+    assert owned_line == "Owned: Super Monkey 2-0-0"
     assert rest == expected
 
 
@@ -141,9 +153,10 @@ def test_main_recommend_live_hard(
 
     exit_code = run(db_file, state_file, "recommend", "--live")
 
-    first, _, rest = capsys.readouterr().out.partition("\n")
+    first, owned_line, rest = split_live(capsys.readouterr().out)
     assert exit_code == 0
     assert first == "Live game: round 63, $100,000, difficulty hard"
+    assert owned_line == "Owned: Super Monkey 2-0-0"
     assert rest == expected
 
 
@@ -203,3 +216,69 @@ def test_main_agent_live_missing(
     assert exit_code == 1
     assert capsys.readouterr().err.startswith("No game state at")
     assert scripted.call_count == 0
+
+
+def test_main_recommend_live_passes_owned_towers(
+    db_file: str, state_file: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_state(state_file, towers=[("Super Monkey", "0-0-0")])
+    expected = output_of(capsys, "--db", db_file, "recommend", "--round", "63", "--money", "100000")
+
+    exit_code = run(db_file, state_file, "recommend", "--live")
+
+    first, owned_line, rest = split_live(capsys.readouterr().out)
+    assert exit_code == 0
+    assert first == LIVE_LINE
+    assert owned_line == "Owned: Super Monkey 0-0-0"
+    assert rest != expected
+    header, *rows = rest.splitlines()
+    assert header.split() == "rank tower path upgrade from cost score leaks at reasons".split()
+    assert any("upgrades_owned" in row for row in rows)
+    assert any("24500" in row and "0-0-0" in row for row in rows)
+
+
+def test_main_recommend_live_lists_every_owned_tower(
+    db_file: str, state_file: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    towers = [("Ninja Monkey", "0-0-0"), ("Dart Monkey", "2-0-0")]
+    write_state(state_file, towers=towers)
+
+    exit_code = run(db_file, state_file, "recommend", "--live")
+
+    owned_line = split_live(capsys.readouterr().out)[1]
+    assert exit_code == 0
+    assert owned_line == "Owned: Ninja Monkey 0-0-0, Dart Monkey 2-0-0"
+
+
+def test_main_recommend_live_no_towers(
+    db_file: str, state_file: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_state(state_file, towers=[])
+    expected = output_of(capsys, "--db", db_file, "recommend", "--round", "63", "--money", "100000")
+
+    exit_code = run(db_file, state_file, "recommend", "--live")
+
+    first, owned_line, rest = split_live(capsys.readouterr().out)
+    assert exit_code == 0
+    assert owned_line == "Owned: none"
+    assert rest == expected
+
+
+def test_main_recommend_live_one_per_tower(
+    db_file: str, state_file: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_state(state_file, towers=[("Super Monkey", "0-0-0")])
+
+    exit_code = run(db_file, state_file, "recommend", "--live", "--one-per-tower")
+
+    rows = split_live(capsys.readouterr().out)[2].splitlines()[1:]
+    assert exit_code == 0
+    assert len(rows) == 1
+
+
+def test_main_recommend_not_live_prints_no_owned_line(
+    db_file: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    output = output_of(capsys, "--db", db_file, "recommend", "--round", "63", "--money", "100000")
+
+    assert "Owned:" not in output

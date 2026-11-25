@@ -18,7 +18,7 @@
 def round_threats(connection: sqlite3.Connection, round_number: int) -> RoundThreats
 ```
 
-`RoundThreats(round, total_rbe, unknown_groups, property_share, camo_share, regrow_share, moab_share, mean_layers)`.
+`RoundThreats(round, total_rbe, unknown_groups, property_share, camo_share, regrow_share, moab_share, mean_layers, crowd_density=None)`.
 
 ### ISP
 
@@ -64,3 +64,56 @@ Base fixture: rounds 1-40 as in `tests/rounds_fixture.py`; round 3 is `[Red x5, 
 | T13 | A1 | B1 | C1 | D5 | raises `TypeError` (`"3"`, `True`, `3.0`) | `test_round_threats_wrong_type` |
 
 Extra (not BCC): a round whose only group has NULL `rbe` gives `total_rbe` 0 and `unknown_groups` 1 (C2 with only that group); hypothesis test: every share is within 0..1 and `moab_share` equals the MOAB RBE from `get_round` divided by `total_rbe`; acceptance tests for rounds 40 (`moab_share > 0`) and 63 (`camo_share > 0`, lead share the largest property share) on the real database.
+
+---
+
+## crowd_density
+
+```python
+RoundThreats.crowd_density: float | None  # default None, last field
+MIN_GROUP_SECONDS = 1.0
+```
+
+`sum(group RBE * density_g) / sum(group RBE)` with `density_g = (count / max(duration, MIN_GROUP_SECONDS)) / bloons.speed`. A group with no RBE or a NULL/0 `speed` is left out of both sums; `None` when no group is left (`docs/threats.md`). Tests: `tests/test_threats_density.py`; the fixture of `tests/rounds_fixture.py` has speed NULL and duration 1, so each test sets them with `UPDATE`.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|round groups, database|A) Usable groups|A1: One group **(Base)**|round 1: Red x20, duration 17.5125, `speed` 25|
+|||A2: Several groups, different RBE|round 3: Red x5 (speed 25), Blue x3 (speed 50), Lead x2 (speed 25), duration 10 each|
+|||A3: A group with NULL `speed`|round 3 with Blue `speed` NULL|
+|||A4: A group with `speed` 0|round 3 with Blue `speed` 0|
+|||A5: A group with NULL `rbe`|round 3 with Blue `rbe` NULL|
+|||A6: No usable group (speed NULL everywhere)|round 3 with no `speed` set|
+|||A7: Only group has NULL `rbe`|round 27 (Lead x6), `speed` 25, `rbe` NULL|
+|||A8: Round without groups|round 5 with its groups deleted|
+|`duration`|B) Group duration against `MIN_GROUP_SECONDS`|B1: Above **(Base)**|`17.5125`|
+|||B2: Exactly equal|`1.0`|
+|||B3: Below|`0.5`|
+|||B4: Zero|`0.0`|
+|`RoundThreats` construction|C) `crowd_density` argument|C1: Omitted **(Base)**|`RoundThreatsFactory.build()`|
+|||C2: Given|`crowd_density=0.25`|
+
+Base case: A1, B1, C1 (C is only varied in the constructor test).
+
+### BCC
+
+Oracles use `(count / max(duration, 1)) / speed`; B2-B4 use round 40 Moab x1 (`speed` 25).
+
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | `crowd_density` = (20 / 17.5125) / 25 = 0.045682 | `test_round_threats_crowd_density_round_one` |
+| T2 | A2 | B1 | C1 | RBE-weighted: (5\*0.02 + 6\*0.006 + 46\*0.008) / 57, not the plain mean of the three densities | `test_round_threats_crowd_density_rbe_weighting` |
+| T3 | A3 | B1 | C1 | Blue left out: (5\*0.02 + 46\*0.008) / 51; `total_rbe` still 57 | `test_round_threats_crowd_density_leaves_out_unusable_speed[NULL]` |
+| T4 | A4 | B1 | C1 | same as T3 | `test_round_threats_crowd_density_leaves_out_unusable_speed[0]` |
+| T5 | A5 | B1 | C1 | Blue left out, same oracle as T3 | `test_round_threats_crowd_density_leaves_out_null_rbe` |
+| T6 | A6 | B1 | C1 | `None` | `test_round_threats_crowd_density_no_speeds_is_none` |
+| T7 | A7 | B1 | C1 | `None` | `test_round_threats_crowd_density_only_unknown_group_is_none` |
+| T8 | A8 | B1 | C1 | `None` | `test_round_threats_crowd_density_empty_round_is_none` |
+| T9 | A1 | B2 | C1 | 0.04 (1 / 1 / 25) | `test_round_threats_crowd_density_duration_clamp[1.0-0.04]` |
+| T10 | A1 | B3 | C1 | 0.04 (clamped to 1 s) | `test_round_threats_crowd_density_duration_clamp[0.5-0.04]` |
+| T11 | A1 | B4 | C1 | 0.04 (clamped to 1 s) | `test_round_threats_crowd_density_duration_clamp[0.0-0.04]` |
+| T12 | A1 | B1 | C2 | `RoundThreatsFactory.build(crowd_density=0.25).crowd_density == 0.25`; omitted gives `None` | `test_round_threats_crowd_density_defaults_to_none` |
+
+Extra (not BCC): `duration` 2.0 gives 0.02 (`...duration_clamp[2.0-0.02]`); `MIN_GROUP_SECONDS == 1.0` (`test_min_group_seconds`); hypothesis: with random speeds and durations the density lies between the smallest and largest group density (`test_round_threats_crowd_density_between_group_densities`).

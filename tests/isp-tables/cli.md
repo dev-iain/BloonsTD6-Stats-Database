@@ -576,3 +576,97 @@ Base case: A1, B1, C1, D1
 | T10 | `wait_for_port` open | listening socket -> `True` | `test_wait_for_port_open` |
 | T11 | `wait_for_port` closed | nothing listening, short timeout -> `False` | `test_wait_for_port_times_out` |
 | T12 | `open_browser_when_ready` | thread opens the URL once the port listens; nothing opened when it never does | `test_open_browser_when_ready_*` |
+
+### Restarting: `replace_running_advisor` and `run_start` (`docs/web.md`, Restarting)
+
+```python
+def replace_running_advisor(host: str, port: int) -> str | None
+```
+Returns `None` when the port is free or the old advisor was stopped; otherwise an error message that `run_start` prints to stderr before returning `1`.
+
+#### ISP
+
+| Input | Characteristic | Block | Value |
+|---|---|---|---|
+| `port_in_use(host, port)` | A) Port state | A1: Free | `False` |
+| | | A2: In use | `True` |
+| `running_advisor_pid` | B) Health reply | B1: Advisor | `4321` |
+| | | B2: No advisor | `None` |
+| `wait_for_port_free` | C) Port after SIGTERM | C1: Freed within `STOP_TIMEOUT_SECONDS` | `True` |
+| | | C2: Still held | `False` |
+
+Base case: A2, B1, C1 (C is only reachable with B1; B and C are not varied when A1.)
+
+#### Base Choice Coverage
+
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A2 | B1 | C1 | returns `None`; `stop_process(4321)`; waits with `STOP_TIMEOUT_SECONDS`; prints `Stopping the advisor that is already running (pid 4321)...` | `test_replace_running_advisor_stops_old_advisor` |
+| T2 | A1 | B1 | C1 | returns `None`; nothing stopped, no output | `test_replace_running_advisor_port_free` |
+| T3 | A2 | B2 | C1 | returns `Port 9100 is already in use. ...use --port N.`; nothing stopped | `test_replace_running_advisor_port_held_by_other_program` |
+| T4 | A2 | B1 | C2 | returns `Could not stop the advisor on port 8000 (pid 4321). Close its window and run the start script again.` | `test_replace_running_advisor_will_not_stop` |
+
+Extra `run_start` tests (not BCC):
+
+| Test | Oracle | Test Name |
+|---|---|---|
+| Called with the address | `replace_running_advisor("0.0.0.0", 9100)` | `test_start_checks_the_address_first` |
+| Error message | returns `1`; message on stderr; no db built, no game, no uvicorn, no browser | `test_start_port_error_prints_and_exits` |
+| Order | replace runs before `build_database` | `test_start_replaces_before_building_database` |
+
+#### `running_advisor_pid(host, port) -> int | None`
+
+`GET http://<host>:<port>/api/health` with a 2 s timeout (wildcard hosts map to `127.0.0.1`).
+
+| Input | Characteristic | Block | Value |
+|---|---|---|---|
+| response | D) Reply | D1: Valid | `{"app": "btd6", "pid": 4321}` |
+| | | D2: Request fails | `ConnectionError`, `Timeout` |
+| | | D3: Not JSON | `.json()` raises `ValueError` |
+| | | D4: Other app | `{"app": "other", "pid": 4321}` |
+| | | D5: `pid` not int | `"4321"`, missing; JSON list or null body |
+
+Base case: D1. Oracles: D1 `4321`; D2 to D5 `None`. Tests: `test_running_advisor_pid_valid_reply`, `test_running_advisor_pid_not_an_advisor` (parametrized), plus wildcard mapping and the 2 s timeout.
+
+#### `stop_process(pid)`, `port_in_use`, `wait_for_port_free`
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T5 | other pid | `os.kill(pid, SIGTERM)` once | `test_stop_process_sends_sigterm` |
+| T6 | own pid | `os.kill` not called | `test_stop_process_ignores_own_pid` |
+| T7 | `ProcessLookupError` | swallowed, returns `None` | `test_stop_process_already_exited_counts_as_stopped` |
+| T8 | `port_in_use` listening / free / wildcard | `True` / `False` / `True` | `test_port_in_use_*` |
+| T9 | `wait_for_port_free` free / held / released midway | `True` / `False` after the timeout / `True` | `test_wait_for_port_free_*` |
+| T10 | constant | `STOP_TIMEOUT_SECONDS == 10` | `test_stop_timeout_is_ten_seconds` |
+
+### `recommend --one-per-tower` and `--live` owned towers
+
+`recommend` gains `--one-per-tower` (flag, passed as `one_per_tower`) and an `upgrade from` column after `path` (blank for new purchases). With `--live`, the known towers of the game state are passed as `owned`, and a line `Owned: <name> <path>, ...` (or `Owned: none`) is printed under the `Live game:` line. Tests: `tests/test_cli_recommend.py`, `tests/test_cli_live.py`.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`--one-per-tower`|K) Flag|K1: Not given|none|
+|||K2: Given|`--one-per-tower`|
+|`--live` state towers|L) Owned towers|L1: Not live|no `--live`|
+|||L2: Live, one known tower the database lacks|`Super Monkey 2-0-0`|
+|||L3: Live, one tower that creates upgrades|`Super Monkey 0-0-0`|
+|||L4: Live, several towers|`Ninja Monkey 0-0-0`, `Dart Monkey 2-0-0`|
+|||L5: Live, none|`[]`|
+
+Base case: K1, L1
+
+### Base Choice Coverage
+
+| BCC Test | K | L | Oracle | Test Name |
+|---|---|---|---|---|
+| T1 | K1 | L1 | header `rank tower path upgrade from cost score leaks at reasons`; `upgrade from` blank; no `Owned:` line | `test_main_recommend_all_base`, `test_main_recommend_upgrade_from_column_is_blank_for_purchases`, `test_main_recommend_not_live_prints_no_owned_line` |
+| T2 | K2 | L1 | one data row equal to `recommend(..., one_per_tower=True)`; also with `--limit 3` | `test_main_recommend_one_per_tower`, `test_main_recommend_one_per_tower_with_limit` |
+| T3 | K1 | L2 | line `Owned: Super Monkey 2-0-0`, table equal to the non-live table (entry ignored) | `test_main_recommend_live_all_base`, `test_main_recommend_live_hard` |
+| T4 | K1 | L3 | `Owned: Super Monkey 0-0-0`; table has upgrade rows (`upgrades_owned`, price 24500) | `test_main_recommend_live_passes_owned_towers` |
+| T5 | K1 | L4 | `Owned: Ninja Monkey 0-0-0, Dart Monkey 2-0-0` | `test_main_recommend_live_lists_every_owned_tower` |
+| T6 | K1 | L5 | `Owned: none`, table equal to non-live | `test_main_recommend_live_no_towers` |
+| T7 | K2 | L3 | one data row | `test_main_recommend_live_one_per_tower` |
+
+`--help` for `recommend` lists `--one-per-tower` (`test_main_recommend_help_lists_one_per_tower`). A live tower with `known` false is not passed or printed (assumed, untested).

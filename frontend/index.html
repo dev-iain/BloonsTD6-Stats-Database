@@ -102,6 +102,8 @@
           </select>
         </label>
         <label>Limit <input id="recommend-limit" name="limit" type="number" min="1" step="1" value="10"></label>
+        <label title="Rounds to look ahead, counting this one">Horizon <input id="recommend-horizon" name="horizon" type="number" min="1" step="1" value="5"></label>
+        <label class="live-toggle"><input id="recommend-one-per-tower" name="one_per_tower" type="checkbox" value="true"> One per tower</label>
         <div class="actions">
           <button type="submit" class="primary">Recommend</button>
           <label class="live-toggle"><input id="recommend-live" type="checkbox"> Use live game</label>

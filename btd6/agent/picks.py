@@ -5,7 +5,10 @@ from dataclasses import dataclass
 
 from btd6.agent.tools import ToolCall
 
-PICK_PATTERN = re.compile(r"-\s+(.+?)\s+([0-5]-[0-5]-[0-5])\s+\$([\d,]+)")
+PICK_PATTERN = re.compile(
+    r"-\s+(.+?)\s+([0-5]-[0-5]-[0-5])\s+\$([\d,]+)(?:\s*:\s*(.*)|\s+-\s+(.*))?"
+)
+MAX_PICKS = 5
 HEADER = "picks:"
 
 
@@ -14,6 +17,7 @@ class Pick:
     tower_name: str
     path: str
     total_cost: int
+    reason: str = ""
 
 
 @dataclass(frozen=True)
@@ -32,6 +36,7 @@ def parse_picks(answer: str) -> tuple[Pick, ...]:
     for line in lines[headers[-1] + 1 :]:
         match = PICK_PATTERN.fullmatch(line)
         if match:
-            name, path, cost = match.groups()
-            picks.append(Pick(name, path, int(cost.replace(",", ""))))
-    return tuple(picks)
+            name, path, cost, colon_reason, dash_reason = match.groups()
+            reason = (colon_reason or dash_reason or "").strip()
+            picks.append(Pick(name, path, int(cost.replace(",", "")), reason))
+    return tuple(picks[:MAX_PICKS])

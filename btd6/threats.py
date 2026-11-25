@@ -7,11 +7,13 @@ from dataclasses import dataclass
 from btd6.etl.extract import BLOON_FLAG_COLUMNS, BLOON_PROPERTIES
 from btd6.rounds import validate_round
 
+MIN_GROUP_SECONDS = 1.0
 PROPERTY_NAMES = tuple(name.lower() for name in BLOON_PROPERTIES)
 THREAT_SQL = f"""
 SELECT round_groups.count, round_groups.is_camo, round_groups.is_regrow,
        round_groups.is_fortified, bloons.rbe, bloons.rbe_fort, bloons.layers,
-       bloons.is_moab, {", ".join(f"bloons.{column}" for column in BLOON_FLAG_COLUMNS)}
+       bloons.is_moab, round_groups.duration, bloons.speed,
+       {", ".join(f"bloons.{column}" for column in BLOON_FLAG_COLUMNS)}
 FROM round_groups
 JOIN bloons ON bloons.id = round_groups.bloon_id
 WHERE round_groups.round = ?
@@ -29,6 +31,7 @@ class RoundThreats:
     regrow_share: float
     moab_share: float
     mean_layers: float
+    crowd_density: float | None = None
 
 
 @dataclass(frozen=True)
@@ -39,6 +42,13 @@ class GroupWeight:
     is_regrow: bool
     is_moab: bool
     properties: frozenset[str]
+    density: float | None = None
+
+
+def group_density(row: sqlite3.Row) -> float | None:
+    if not row["speed"]:
+        return None
+    return (row["count"] / max(row["duration"], MIN_GROUP_SECONDS)) / row["speed"]
 
 
 def group_weight(row: sqlite3.Row) -> GroupWeight | None:
@@ -53,6 +63,7 @@ def group_weight(row: sqlite3.Row) -> GroupWeight | None:
         is_regrow=bool(row["is_regrow"]),
         is_moab=bool(row["is_moab"]),
         properties=frozenset(name for name in PROPERTY_NAMES if row[f"has_{name}"]),
+        density=group_density(row),
     )
 
 
@@ -72,6 +83,14 @@ def mean_layers(weights: list[GroupWeight], total_rbe: int) -> float:
     if total_rbe == 0:
         return 0.0
     return sum(weight.rbe * weight.layers for weight in weights) / total_rbe
+
+
+def crowd_density(weights: list[GroupWeight]) -> float | None:
+    dense = [weight for weight in weights if weight.density is not None and weight.rbe > 0]
+    total = sum(weight.rbe for weight in dense)
+    if total == 0:
+        return None
+    return sum(weight.rbe * weight.density for weight in dense) / total
 
 
 def round_threats(connection: sqlite3.Connection, round_number: int) -> RoundThreats:
@@ -94,4 +113,5 @@ def round_threats(connection: sqlite3.Connection, round_number: int) -> RoundThr
         regrow_share=share_of(weights, total_rbe, lambda weight: weight.is_regrow),
         moab_share=share_of(weights, total_rbe, lambda weight: weight.is_moab),
         mean_layers=mean_layers(weights, total_rbe),
+        crowd_density=crowd_density(weights),
     )

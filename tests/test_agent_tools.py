@@ -32,7 +32,7 @@ VALID_ARGUMENTS: dict[str, dict[str, Any]] = {
     "get_round_threats": {"round": 63},
     "search_upgrades": {"tower_name": "Super Monkey", "can_hit_camo": True, "limit": 1},
     "rank_upgrades": {"filters": {"tower_name": "Super Monkey"}, "metric": "dps", "limit": 2},
-    "recommend": {"round": 63, "money": 100000},
+    "recommend": {"round": 63, "money": 100000, "horizon": 1},
     "total_cost": {"tower_name": "Super Monkey", "path": "1-0-0"},
 }
 FILTER_NAMES = {
@@ -80,11 +80,14 @@ RECOMMENDATION_KEYS = {
     "tower_name",
     "path",
     "total_cost",
+    "upgrade_from",
     "score",
     "dps",
     "moab_dps",
     "pierce_weighted_dps",
     "projectile_pierce",
+    "effective_pierce",
+    "first_leak_round",
     "reasons",
 }
 
@@ -284,9 +287,10 @@ def test_call_tool_recommend_money_too_low(tool_database: sqlite3.Connection) ->
 
 
 def test_call_tool_recommend_limit(tool_database: sqlite3.Connection) -> None:
-    default = run(tool_database, "recommend", round=1, money=100000)["recommendations"]
-    assert paths_in(default) == ["3-0-0", "0-0-4", "1-0-0", "0-0-0"]
-    limited = run(tool_database, "recommend", round=1, money=100000, limit=1)
+    arguments = {"round": 1, "money": 100000, "horizon": 1}
+    default = run(tool_database, "recommend", **arguments)["recommendations"]
+    assert paths_in(default) == ["3-0-0", "1-0-0", "0-0-0", "0-0-4"]
+    limited = run(tool_database, "recommend", limit=1, **arguments)
     assert paths_in(limited["recommendations"]) == ["3-0-0"]
 
 
@@ -294,6 +298,26 @@ def test_call_tool_recommend_camo_round(tool_database: sqlite3.Connection) -> No
     rows = run(tool_database, "recommend", round=101, money=100000)["recommendations"]
     assert paths_in(rows) == ["0-0-4"]
     assert rows[0]["reasons"][:2] == ["affordable", "hits_camo"]
+
+
+def test_call_tool_recommend_horizon_is_passed_through(
+    tool_database: sqlite3.Connection,
+) -> None:
+    arguments = {"round": 100, "money": 100000}
+    short = run(tool_database, "recommend", horizon=1, **arguments)["recommendations"]
+    long = run(tool_database, "recommend", horizon=5, **arguments)["recommendations"]
+    assert {row["first_leak_round"] for row in short} == {None}
+    leaks = {row["path"]: row["first_leak_round"] for row in long}
+    assert leaks == {"0-0-4": None, "0-0-0": 101, "1-0-0": 101, "3-0-0": 101}
+    assert paths_in(long)[0] == "0-0-4"
+    assert long[1]["reasons"][-1] == "fails_camo_at_101"
+    assert_strict_json({"recommendations": long})
+
+
+def test_call_tool_recommend_default_horizon_is_five(tool_database: sqlite3.Connection) -> None:
+    arguments = {"round": 100, "money": 100000}
+    default = run(tool_database, "recommend", **arguments)
+    assert default == run(tool_database, "recommend", horizon=5, **arguments)
 
 
 def test_call_tool_recommend_easy_cost(tool_database: sqlite3.Connection) -> None:
@@ -389,6 +413,20 @@ def test_call_tool_recommend_round_not_loaded(tool_database: sqlite3.Connection)
     assert_error(run(tool_database, "recommend", round=150, money=10), "QueryError")
 
 
+@pytest.mark.parametrize("horizon", [0, -1])
+def test_call_tool_recommend_horizon_too_small(
+    tool_database: sqlite3.Connection, horizon: int
+) -> None:
+    result = run(tool_database, "recommend", round=1, money=10, horizon=horizon)
+    assert_error(result, "QueryError")
+    assert f"horizon must be at least 1, got {horizon}" in result["error"]["message"]
+
+
+def test_call_tool_recommend_horizon_wrong_type(tool_database: sqlite3.Connection) -> None:
+    result = run(tool_database, "recommend", round=1, money=10, horizon="5")
+    assert_error(result, "QueryError")
+
+
 def test_call_tool_recommend_money_wrong_type(tool_database: sqlite3.Connection) -> None:
     result = run(tool_database, "recommend", round=1, money="5000")
     assert result["error"]["type"] in {"TypeError", "QueryError"}
@@ -456,6 +494,14 @@ def test_tool_schemas_difficulty_enum(name: str) -> None:
     assert difficulty["enum"] == list(tuple(DIFFICULTY_MULTIPLIERS))
 
 
+def test_tool_schemas_recommend_horizon_is_optional_integer() -> None:
+    parameters = schema_of("recommend")["parameters"]
+    horizon = parameters["properties"]["horizon"]
+    assert horizon["type"] == "integer"
+    assert horizon["minimum"] == 1
+    assert "horizon" not in parameters.get("required", [])
+
+
 def test_tool_schemas_json_serializable() -> None:
     json.dumps(TOOL_SCHEMAS, allow_nan=False)
     for entry in TOOL_SCHEMAS:
@@ -475,8 +521,6 @@ def test_tool_schemas_filter_properties() -> None:
     assert FILTER_NAMES <= set(search)
     assert set(rank) == FILTER_NAMES
 
-
-# endregion
 
 json_scalars = st.none() | st.booleans() | st.integers(-5, 200) | st.text(max_size=8)
 arguments_strategy = st.dictionaries(
@@ -506,6 +550,96 @@ def test_call_tool_recommend_never_exceeds_money(
     result = call_tool(shared_database, "recommend", {"round": round_number, "money": money})
     assert_strict_json(result)
     assert all(row["total_cost"] <= money for row in result["recommendations"])
+
+
+# region recommend: one_per_tower and owned
+
+OWNED_ARGUMENTS = {"round": 63, "money": 100000, "horizon": 1}
+
+
+def test_tool_schemas_recommend_one_per_tower_is_optional_boolean() -> None:
+    parameters = schema_of("recommend")["parameters"]
+    assert parameters["properties"]["one_per_tower"]["type"] == "boolean"
+    assert "one_per_tower" not in parameters.get("required", [])
+
+
+def test_tool_schemas_recommend_owned_is_optional_array_of_strings() -> None:
+    parameters = schema_of("recommend")["parameters"]
+    owned = parameters["properties"]["owned"]
+    assert owned["type"] == "array"
+    assert owned["items"]["type"] == "string"
+    assert "owned" not in parameters.get("required", [])
+
+
+def test_call_tool_recommend_one_per_tower_is_passed_through(
+    tool_database: sqlite3.Connection,
+) -> None:
+    arguments = {"round": 1, "money": 100000, "horizon": 1}
+    everything = run(tool_database, "recommend", limit=10, **arguments)["recommendations"]
+    single = run(tool_database, "recommend", one_per_tower=True, **arguments)["recommendations"]
+    assert len(everything) == 4
+    assert single == everything[:1]
+    assert run(tool_database, "recommend", one_per_tower=False, limit=10, **arguments) == {
+        "recommendations": everything
+    }
+
+
+def test_call_tool_recommend_owned_is_passed_through(tool_database: sqlite3.Connection) -> None:
+    rows = run(
+        tool_database, "recommend", owned=["Super Monkey 0-0-0"], limit=10, **OWNED_ARGUMENTS
+    )["recommendations"]
+    upgrades = {row["path"]: row for row in rows if row["upgrade_from"] is not None}
+    assert set(upgrades) == {"3-0-0", "0-0-4"}
+    assert upgrades["3-0-0"]["upgrade_from"] == "0-0-0"
+    assert upgrades["3-0-0"]["total_cost"] == 24500
+    assert "upgrades_owned" in upgrades["3-0-0"]["reasons"]
+    assert_strict_json({"recommendations": rows})
+
+
+def test_call_tool_recommend_owned_covers_needs(tool_database: sqlite3.Connection) -> None:
+    arguments = {"round": 101, "money": 100000, "horizon": 1, "limit": 10}
+    alone = run(tool_database, "recommend", **arguments)["recommendations"]
+    covered = run(tool_database, "recommend", owned=["Super Monkey 0-0-4"], **arguments)
+    assert paths_in(alone) == ["0-0-4"]
+    assert len(covered["recommendations"]) == 4
+
+
+def test_call_tool_recommend_owned_empty_list_is_no_owned(
+    tool_database: sqlite3.Connection,
+) -> None:
+    assert run(tool_database, "recommend", owned=[], **OWNED_ARGUMENTS) == run(
+        tool_database, "recommend", **OWNED_ARGUMENTS
+    )
+
+
+def test_call_tool_recommend_owned_unknown_tower_is_ignored(
+    tool_database: sqlite3.Connection,
+) -> None:
+    result = run(tool_database, "recommend", owned=["Banana Farm 2-0-0"], **OWNED_ARGUMENTS)
+    assert result == run(tool_database, "recommend", **OWNED_ARGUMENTS)
+
+
+@pytest.mark.parametrize("entry", ["Ninja", "Super Monkey", "Super Monkey 1-2", "0-0-0", ""])
+def test_call_tool_recommend_owned_bad_string(
+    tool_database: sqlite3.Connection, entry: str
+) -> None:
+    result = run(tool_database, "recommend", owned=[entry], **OWNED_ARGUMENTS)
+    assert_error(result, "QueryError")
+    assert result["error"]["message"] == f"owned must be '<tower name> X-Y-Z', got {entry!r}"
+
+
+def test_call_tool_recommend_owned_path_out_of_range(tool_database: sqlite3.Connection) -> None:
+    result = run(tool_database, "recommend", owned=["Super Monkey 6-0-0"], **OWNED_ARGUMENTS)
+    assert_error(result, "QueryError")
+
+
+@pytest.mark.parametrize("value", ["yes", 1, "true"])
+def test_call_tool_recommend_one_per_tower_wrong_type(
+    tool_database: sqlite3.Connection, value: object
+) -> None:
+    result = run(tool_database, "recommend", one_per_tower=value, **OWNED_ARGUMENTS)
+    assert_error(result, "QueryError")
+    assert result["error"]["message"] == f"one_per_tower must be true or false, got {value!r}"
 
 
 # endregion

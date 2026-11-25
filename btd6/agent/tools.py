@@ -17,6 +17,7 @@ from btd6.costs import total_cost
 from btd6.game_state import load_game_state, state_summary
 from btd6.query import QueryError, UpgradeFilters, search_upgrades
 from btd6.ranking import rank_upgrades
+from btd6.recommend import DEFAULT_HORIZON, parse_owned
 from btd6.recommend import recommend as recommend_upgrades
 from btd6.rounds import NoRoundDataError
 from btd6.threats import round_threats
@@ -99,8 +100,14 @@ def recommend_tool(
     money: int,
     difficulty: str = "medium",
     limit: int = 5,
+    horizon: int = DEFAULT_HORIZON,
+    one_per_tower: bool = False,
+    owned: list[str] | None = None,
 ) -> dict[str, Any]:
-    results = recommend_upgrades(connection, round, money, difficulty, limit)
+    towers = [parse_owned(text) for text in owned or []]
+    results = recommend_upgrades(
+        connection, round, money, difficulty, limit, horizon, towers, one_per_tower
+    )
     return {"recommendations": [dataclass_to_plain(result) for result in results]}
 
 

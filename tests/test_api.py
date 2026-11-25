@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -126,3 +127,16 @@ def test_root_serves_the_frontend_page(client: TestClient) -> None:
 def test_frontend_assets_are_served(client: TestClient) -> None:
     assert client.get("/static/app.js").status_code == 200
     assert client.get("/static/style.css").status_code == 200
+
+
+def test_health_reports_app_and_pid(client: TestClient) -> None:
+    response = client.get("/api/health")
+
+    assert response.status_code == 200
+    assert response.json() == {"app": "btd6", "pid": os.getpid()}
+
+
+def test_health_works_without_database(tmp_path: Path) -> None:
+    missing = TestClient(create_app(str(tmp_path / "missing.db")))
+
+    assert missing.get("/api/health").json() == {"app": "btd6", "pid": os.getpid()}

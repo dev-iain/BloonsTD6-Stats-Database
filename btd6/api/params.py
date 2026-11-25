@@ -7,6 +7,7 @@ from typing import Any
 
 from btd6.formatting import format_row
 from btd6.query import POP_PROPERTIES, SORT_COLUMNS, QueryError, UpgradeFilters
+from btd6.recommend import DEFAULT_HORIZON, OwnedTower, parse_owned
 
 ANY_DAMAGE_TYPE = "Any"
 POP_CHOICES: dict[str, bool | None] = {"any": None, "can": True, "cannot": False}
@@ -30,17 +31,19 @@ def parse_optional_float(text: str) -> float | None:
     return number
 
 
+def parse_positive_int(field: str, cleaned: str) -> int:
+    try:
+        number = int(cleaned)
+    except ValueError:
+        raise QueryError(f"{field} must be a whole number, got {cleaned!r}") from None
+    if number < 1:
+        raise QueryError(f"{field} must be at least 1, got {number}")
+    return number
+
+
 def parse_limit(text: str) -> int | None:
     cleaned = text.strip()
-    if not cleaned:
-        return None
-    try:
-        limit = int(cleaned)
-    except ValueError:
-        raise QueryError(f"limit must be a whole number, got {cleaned!r}") from None
-    if limit < 1:
-        raise QueryError(f"limit must be at least 1, got {limit}")
-    return limit
+    return parse_positive_int("limit", cleaned) if cleaned else None
 
 
 def parse_minimum(field: str, text: str) -> float | None:
@@ -97,6 +100,9 @@ class RecommendOptions:
     money: int
     difficulty: str
     limit: int | None
+    horizon: int = DEFAULT_HORIZON
+    one_per_tower: bool = False
+    owned: tuple[OwnedTower, ...] = ()
 
 
 def parse_required_int(field: str, value: object) -> int:
@@ -109,12 +115,40 @@ def parse_required_int(field: str, value: object) -> int:
         raise QueryError(f"{field} must be a whole number, got {text!r}") from None
 
 
+def parse_horizon(form: Mapping[str, Any]) -> int:
+    text = str(form.get("horizon") or "").strip()
+    return parse_positive_int("horizon", text) if text else DEFAULT_HORIZON
+
+
+def parse_one_per_tower(value: object) -> bool:
+    text = str(value or "").strip()
+    if text.lower() in ("", "false", "0"):
+        return False
+    if text.lower() in ("true", "1", "on"):
+        return True
+    raise QueryError(f"one_per_tower must be true or false, got {text!r}")
+
+
+def parse_owned_form(value: object) -> tuple[OwnedTower, ...]:
+    if value is None:
+        return ()
+    texts = [value] if isinstance(value, str) else list(value)
+    return tuple(parse_owned(text) for text in texts)
+
+
 def form_to_recommend_options(form: Mapping[str, Any]) -> RecommendOptions:
     round_number = parse_required_int("round", form.get("round"))
     money = parse_required_int("money", form.get("money"))
     if money < 0:
         raise QueryError(f"money must be 0 or more, got {money}")
     difficulty = str(form.get("difficulty") or "").strip() or "medium"
+    limit = parse_limit(str(form.get("limit") or ""))
     return RecommendOptions(
-        round_number, money, difficulty, parse_limit(str(form.get("limit") or ""))
+        round_number,
+        money,
+        difficulty,
+        limit,
+        parse_horizon(form),
+        parse_one_per_tower(form.get("one_per_tower")),
+        parse_owned_form(form.get("owned")),
     )

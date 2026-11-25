@@ -26,6 +26,17 @@ def offline_wiki(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("btd6.cli.fetch_tower_module", lambda name: load_tower_data())
 
 
+@pytest.fixture(autouse=True)
+def port_is_free(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, int]]:
+    calls: list[tuple[str, int]] = []
+
+    def fake_replace(host: str, port: int) -> None:
+        calls.append((host, port))
+
+    monkeypatch.setattr(launcher, "replace_running_advisor", fake_replace)
+    return calls
+
+
 @pytest.fixture
 def uvicorn_calls(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, Any]]:
     calls: list[dict[str, Any]] = []
@@ -155,3 +166,44 @@ def test_main_help_lists_start(capsys):
     with pytest.raises(SystemExit):
         main(["--help"])
     assert "start" in capsys.readouterr().out
+
+
+def test_start_checks_the_address_first(existing_db, uvicorn_calls, browser_calls, port_is_free):
+    code = main(["--db", str(existing_db), "start", "--host", "0.0.0.0", "--port", "9100"])
+
+    assert code == 0
+    assert port_is_free == [("0.0.0.0", 9100)]
+
+
+def test_start_port_error_prints_and_exits(
+    tmp_path, monkeypatch, uvicorn_calls, browser_calls, opened_uris, capsys
+):
+    message = "Port 8000 is already in use. Close it."
+    monkeypatch.setattr(launcher, "replace_running_advisor", lambda host, port: message)
+    database = tmp_path / "new.db"
+
+    code = main(["--db", str(database), "start", "--game"])
+
+    captured = capsys.readouterr()
+    assert code == 1
+    assert message in captured.err
+    assert message not in captured.out
+    assert "Building the database" not in captured.out
+    assert not database.exists()
+    assert uvicorn_calls == []
+    assert browser_calls == []
+    assert opened_uris == []
+
+
+def test_start_replaces_before_building_database(
+    tmp_path, monkeypatch, uvicorn_calls, browser_calls
+):
+    order: list[str] = []
+    monkeypatch.setattr(
+        launcher, "replace_running_advisor", lambda host, port: order.append("replace")
+    )
+    monkeypatch.setattr("btd6.cli.build_database", lambda args: order.append("build") or 0)
+
+    main(["--db", str(tmp_path / "new.db"), "start"])
+
+    assert order == ["replace", "build"]

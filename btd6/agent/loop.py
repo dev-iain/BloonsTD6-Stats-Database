@@ -15,24 +15,29 @@ from btd6.game_state import PlacedTower
 SYSTEM_PROMPT = """\
 You are a Bloons TD6 advisor. You only know what the tools return.
 1. Call get_round_threats for the round first.
-2. Call recommend with the round, money and difficulty to get affordable candidates. \
+2. Call recommend with the round, money and difficulty, one_per_tower true and limit 10, \
+to get affordable candidates from different towers. \
 Use rank_upgrades or search_upgrades only to compare alternatives.
 3. Check every pick's cost against the money with total_cost or the cost in the tool result. \
 Never pick something that costs more than the money.
-4. Explain in a few sentences why the picks fit the round's threats \
-(camo, lead, MOAB share, pierce).
+4. Pick up to 5 different towers, best first. They are alternatives: \
+each one must be affordable on its own.
 Never state a number, tower or upgrade path that did not come from a tool result. \
 If a tool returns an error, say so and do not make up data. \
 If nothing is affordable, say so plainly.
 End the answer with a line "Picks:" followed by one line per pick in the form \
-"- <tower name> <X-Y-Z> $<total cost>", or "- none"."""
+"- <tower name> <X-Y-Z> $<total cost>: <reason>", or "- none". \
+The reason is one sentence on why that pick fits the round's threats \
+(camo, lead, MOAB share, pierce, leaks in later rounds)."""
 
 
 LIVE_PROMPT = """\
 This is a live game. The towers the player already owns are listed in the request; \
 call get_game_state if you need the current cash, lives or towers again. \
-Mention upgrades to owned towers in the explanation when they fit the round better than a \
-new tower, but list only new purchases under Picks."""
+Pass the owned towers to recommend as owned ("<tower name> <X-Y-Z>"), \
+so upgrades to them are offered and the needs they already cover are dropped. \
+A pick may be an upgrade of an owned tower: write the target path and the upgrade price \
+from the tool result, and start its reason with "Upgrade from <X-Y-Z>"."""
 
 
 class ChatClient(Protocol):
