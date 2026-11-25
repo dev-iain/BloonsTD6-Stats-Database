@@ -39,7 +39,8 @@ Database for compiling tower stats from Bloons Tower Defense 6, as well as an ag
 - `btd6/query.py`: `UpgradeFilters` and `search_upgrades` (contract in `docs/queries.md`)
 - `btd6/formatting.py`: shared cell formatting
 - `btd6/api/`: FastAPI app (`create_app`) serving `/api/upgrades`, `/api/rankings`, `/api/damage-types` and the `frontend/` JS UI; `params.py` holds the pure `form_to_filters`/`form_to_search_options`/`rows_to_cells`; see `docs/web.md`
-- `btd6/cli.py`: argparse entry point (`python -m btd6`); commands `load`, `search`, `rank` and `serve`
+- `btd6/cli.py`: argparse entry point (`python -m btd6`); commands `load`, `search`, `rank`, `serve` and `start` (loads the db if missing or `--refresh`, then serves; `--game`, `--no-browser`)
+- `btd6/launcher.py`: `browser_url`, `open_uri` (per-platform), `launch_game` (Steam URI), `wait_for_port`, `open_browser_when_ready`; `start.sh`/`start.bat` wrap `uv sync` + `python -m btd6 start`
 - `btd6/ranking.py`: `add_metrics`, `rank_upgrades` (formulas in `docs/ranking.md`)
 - `btd6/costs.py`: `total_cost`; `btd6/db/cost_loader.py`: `load_costs`; `fetch_costs` in `btd6/etl/fetch.py`; migration `002_costs` adds the costs tables
 - `btd6/db/round_loader.py`: `load_bloons` (upsert by name, keeps ids), `load_rounds` (replaces rounds 1-100 and their groups); `fetch_bloons` in `btd6/etl/fetch.py` (paged Cargo `btd6_bloons`, spaces in keys become `_`); `btd6/rounds.py`: `get_round`, `get_round_summary`; migration `003_rounds` adds `bloons`, `rounds`, `round_groups`; `python -m btd6 rounds --round N` (or `--from A --to B`) prints a round; `load` also loads bloons and rounds unless `--no-rounds`; known data quirks in `docs/data-notes.md`

@@ -1,11 +1,11 @@
 # BTD6 Tower Stats Database
 
-A database of Bloons Tower Defense 6 tower stats, pulled from the BTD6 wiki, with a command-line search. Version 1.0 covers the Magic towers: Super Monkey, Wizard Monkey, Ninja Monkey, Alchemist and Druid.
+A database of Bloons Tower Defense 6 tower stats, pulled from the BTD6 wiki, with a command-line and web interface, round and income data, tower rankings, a recommender, an LLM advisor and a mod that reports the live game. It covers ten towers: the five Magic towers (Super Monkey, Wizard Monkey, Ninja Monkey, Alchemist, Druid) plus Dart Monkey, Boomerang Monkey, Bomb Shooter, Sniper Monkey and Ice Monkey.
 
-Roadmap:
-- **1.0:** filter upgrades by stats from the command line (this release).
-- **2.0:** round data, expected income per round, and tower rankings.
-- **3.0:** an agent that recommends towers for a given round and amount of money.
+Releases:
+- **1.0:** filter upgrades by stats from the command line.
+- **2.0:** web UI, round data, expected income per round, tower rankings and the live-game mod.
+- **3.0:** recommendations for a given round and amount of money, from a deterministic recommender and an LLM advisor (current).
 
 ## Requirements and setup
 
@@ -15,6 +15,26 @@ Roadmap:
 ```bash
 uv sync
 ```
+
+## Quick start
+
+One command installs the dependencies, builds `btd6.db` from the wiki on the first run, starts the web UI and opens it in your browser:
+
+```bash
+./start.sh            # Linux / macOS
+start.bat             # Windows (or double-click it)
+```
+
+Options are passed through to `python -m btd6 start`:
+
+| Option | Meaning |
+|---|---|
+| `--game` | also launch BTD6 through Steam (`steam://rungameid/960090`), so the mod can report to the server |
+| `--refresh` | download the data from the wiki again before serving |
+| `--no-browser` | do not open a browser tab |
+| `--host H`, `--port N` | where to serve (defaults `127.0.0.1` and `8000`) |
+
+Press Ctrl+C to stop. If the first download fails, the half-built database is removed so the next start tries again. The sections below cover each command on its own.
 
 ## Build the database
 
@@ -143,10 +163,11 @@ Then open `http://127.0.0.1:8000`. `--db PATH` works the same as for `search`; `
 
 - **Search**: the same filters as the `search` command, plus a name box (case-insensitive substring), a damage type dropdown, a sort dropdown and a limit.
 - **Rankings**: rank upgrades by damage per dollar, DPS or pierce-weighted damage per dollar, for any difficulty.
-- **Rounds**: placeholder until the round-data work lands.
+- **Rounds**: a round's summary, income, bloon totals and spawn order.
+- **Recommend**: affordable upgrades for a round and amount of money, with an optional live-game mode.
 - Follows your system light or dark setting.
 
-The page is served by a small JSON API (`/api/upgrades`, `/api/rankings`, `/api/damage-types`). The endpoints and layout are in [docs/web.md](docs/web.md).
+The page is served by a small JSON API (`/api/upgrades`, `/api/rankings`, `/api/rounds`, `/api/recommendations`, `/api/game-state`, ...). The endpoints and layout are in [docs/web.md](docs/web.md).
 
 ## Agent (LLM advisor)
 
@@ -250,13 +271,13 @@ dotnet test mod/GameStateReporter.Tests   # C# mod logic, no game needed
 | `btd6/etl/` | wiki fetch, crosspath resolution, stat extraction, refresh pipeline |
 | `btd6/db/` | SQLite connection, migrations, seeding and loader |
 | `btd6/query.py` | `search_upgrades` and `UpgradeFilters` |
-| `btd6/cli.py` | the `load`, `search`, `rank` and `serve` commands |
+| `btd6/cli.py` | every command: `start`, `load`, `search`, `rank`, `serve`, `rounds`, `income`, `recommend`, `agent`, `fake-state`, `game-state` |
 | `btd6/formatting.py` | result columns and cell formatting shared by the CLI and the UI |
 | `btd6/api/` | FastAPI app and request parsing behind the web UI |
 | `frontend/` | the JS web UI (HTML, CSS, ES module) |
 | `mod/` | the C# BTD6 mod that reports the live game ([mod/README.md](mod/README.md)) |
 | `tests/` | pytest suite; ISP/BCC tables in `tests/isp-tables/` |
-| `docs/` | [schema](docs/schema.md), [query contract](docs/queries.md) and [UI notes](docs/ui.md) |
+| `docs/` | [schema](docs/schema.md), [query contract](docs/queries.md) and [web UI and API](docs/web.md) |
 
 ## Contributing
 
