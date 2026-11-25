@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 
+from btd6.etl.extract import extract_attack_rows
 from btd6.etl.fetch import CODE_PATTERN, deep_merge, resolve_all_codes
 
 BASE_RESOLVE_INPUT = {
@@ -62,7 +63,83 @@ DEEP_MERGE_CASES = [
         {"range": 50},
         id="test_deep_merge_empty_override",
     ),
+    pytest.param(
+        {"_order": ["Projectile", "Explosion"]},
+        {"_order": ["Projectile"]},
+        {"_order": ["Projectile", "Explosion"]},
+        id="test_deep_merge_order_keeps_unchanged_base_entries",
+    ),
+    pytest.param(
+        {"_order": ["A"]},
+        {"_order": ["C", "A", "D"]},
+        {"_order": ["A", "C", "D"]},
+        id="test_deep_merge_order_appends_new_entries",
+    ),
+    pytest.param(
+        {"_order": ["A", "B"]},
+        {"_order": ["B", "A"]},
+        {"_order": ["A", "B"]},
+        id="test_deep_merge_order_keeps_base_order",
+    ),
+    pytest.param(
+        {"_order": ["Attack"], "Attack": {"rate": 1}},
+        {"_order": ["Grape attack"], "Grape attack": {"rate": 2}},
+        {
+            "_order": ["Attack", "Grape attack"],
+            "Attack": {"rate": 1},
+            "Grape attack": {"rate": 2},
+        },
+        id="test_deep_merge_order_buccaneer_attacks",
+    ),
+    pytest.param(
+        {},
+        {"_order": ["X"]},
+        {"_order": ["X"]},
+        id="test_deep_merge_order_absent_in_base",
+    ),
+    pytest.param(
+        {"_order": ["A"]},
+        {"_order": "A"},
+        {"_order": "A"},
+        id="test_deep_merge_order_non_list_override_replaces",
+    ),
+    pytest.param(
+        {
+            "attacks": {
+                "_order": ["Attack"],
+                "Attack": {"projectiles": {"_order": ["Projectile", "Explosion"]}},
+            }
+        },
+        {"attacks": {"Attack": {"projectiles": {"_order": ["Projectile"]}}}},
+        {
+            "attacks": {
+                "_order": ["Attack"],
+                "Attack": {"projectiles": {"_order": ["Projectile", "Explosion"]}},
+            }
+        },
+        id="test_deep_merge_order_nested",
+    ),
 ]
+
+BOMB_SHOOTER_TOWER = {
+    "_300": {
+        "attacks": {
+            "_order": ["Attack"],
+            "Attack": {
+                "projectiles": {
+                    "_order": ["Projectile", "Explosion"],
+                    "Projectile": {"pierce": 1},
+                    "Explosion": {"damage": 4},
+                }
+            },
+        },
+        "_320": {
+            "attacks": {
+                "Attack": {"projectiles": {"_order": ["Projectile"], "Projectile": {"pierce": 2}}}
+            }
+        },
+    }
+}
 
 
 def build_resolve_input(**changes: Any) -> dict[str, Any]:
@@ -110,6 +187,15 @@ def test_deep_merge(base, override, expected):
     for key in override:
         if CODE_PATTERN.match(key):
             assert key not in result
+
+
+def test_deep_merge_order_result_is_new_list() -> None:
+    base = {"_order": ["A"]}
+    override = {"_order": ["B"]}
+    result = deep_merge(base, override)
+    result["_order"].append("Z")
+    assert base == {"_order": ["A"]}
+    assert override == {"_order": ["B"]}
 
 
 def test_deep_merge_result_not_aliased_to_inputs():
@@ -177,6 +263,15 @@ def test_resolve_all_codes_top_level_siblings():
     assert results["_010"] == {"range": 40}
     assert results["_100"] == BASE_RESOLVE_OUTPUT["_100"]
     assert results["_110"] == BASE_RESOLVE_OUTPUT["_110"]
+
+
+def test_resolve_all_codes_child_keeps_parent_order_entries() -> None:
+    results = resolve_checked(BOMB_SHOOTER_TOWER)
+    projectiles = results["_320"]["attacks"]["Attack"]["projectiles"]
+    assert projectiles["_order"] == ["Projectile", "Explosion"]
+    attacks = extract_attack_rows(results["_320"])
+    assert len(attacks) == 1
+    assert [row["name"] for row in attacks[0]["projectiles"]] == ["Projectile", "Explosion"]
 
 
 def test_resolve_all_codes_empty():
