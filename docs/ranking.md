@@ -88,3 +88,5 @@ Difficulty, same upgrades:
 ## Ranking order
 
 `rank_upgrades` sorts by the chosen metric, highest first; ties go to the lower total cost, then the path string; `NULL` metrics come last.
+
+With `max_cost` (the money available; `money` in `/api/rankings`) only upgrades whose `total_cost` is known and at most `max_cost` are kept, before `limit`. A `NULL` cost is dropped, since it cannot be shown to be affordable. A negative `max_cost` raises `QueryError`.

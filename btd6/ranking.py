@@ -195,18 +195,33 @@ def attach_dps(connection: sqlite3.Connection, frame: pandas.DataFrame) -> None:
     frame["upgrade_moab_dps"] = [figures[key][1] for key in keys]
 
 
+def validate_rank_options(
+    metric: str, difficulty: str, limit: int | None, max_cost: float | None
+) -> None:
+    if metric not in METRICS:
+        raise QueryError(f'Cannot rank by "{metric}". Allowed: {", ".join(METRICS)}')
+    validate_difficulty(difficulty)
+    if limit is not None and limit < 1:
+        raise QueryError(f"limit must be at least 1, got {limit}")
+    if max_cost is not None and max_cost < 0:
+        raise QueryError(f"max_cost must be 0 or more, got {max_cost:g}")
+
+
+def keep_affordable(frame: pandas.DataFrame, max_cost: float | None) -> pandas.DataFrame:
+    if max_cost is None:
+        return frame
+    return frame[frame["total_cost"].notna() & (frame["total_cost"] <= max_cost)]
+
+
 def rank_upgrades(
     connection: sqlite3.Connection,
     filters: UpgradeFilters | None = None,
     metric: str = "damage_per_dollar",
     difficulty: str = "medium",
     limit: int | None = None,
+    max_cost: float | None = None,
 ) -> pandas.DataFrame:
-    if metric not in METRICS:
-        raise QueryError(f'Cannot rank by "{metric}". Allowed: {", ".join(METRICS)}')
-    validate_difficulty(difficulty)
-    if limit is not None and limit < 1:
-        raise QueryError(f"limit must be at least 1, got {limit}")
+    validate_rank_options(metric, difficulty, limit, max_cost)
     frame = rows_to_frame(search_upgrades(connection, filters))
     attach_dps(connection, frame)
     frame["total_cost"] = [
@@ -214,7 +229,7 @@ def rank_upgrades(
         for tower, path in zip(frame["tower_name"], frame["path"], strict=True)
     ]
     frame["total_cost"] = pandas.to_numeric(frame["total_cost"], errors="coerce")
-    ranked = add_metrics(frame).sort_values(
+    ranked = keep_affordable(add_metrics(frame), max_cost).sort_values(
         [metric, "total_cost", "path"], ascending=[False, True, True], na_position="last"
     )
     ranked = ranked.reset_index(drop=True)

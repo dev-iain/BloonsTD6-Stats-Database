@@ -15,7 +15,14 @@ import pandas as pd
 import requests
 
 from btd6 import launcher
-from btd6.agent.client import AgentError, MissingApiKeyError, client_from_environment
+from btd6.agent.client import (
+    API_KEY_FILES,
+    KEY_FILE_NAME,
+    AgentError,
+    MissingApiKeyError,
+    client_from_environment,
+    write_key_file_template,
+)
 from btd6.agent.loop import run_agent
 from btd6.costs import DIFFICULTY_MULTIPLIERS
 from btd6.db import connect
@@ -58,6 +65,7 @@ from btd6.recommend import DEFAULT_HORIZON, OwnedTower, Recommendation, recommen
 from btd6.rounds import NoRoundDataError, RoundGroup, get_round
 from btd6.threats import RoundThreats, round_threats
 
+KEY_FILE_PATH = PROJECT_ROOT / KEY_FILE_NAME
 RANK_METRICS: dict[str, str] = {
     "dps": "dps",
     "dollar": "damage_per_dollar",
@@ -618,7 +626,7 @@ def run_agent_command(args: argparse.Namespace) -> int:
     if target is None:
         return 1
     try:
-        client = client_from_environment(os.environ)
+        client = client_from_environment(os.environ, API_KEY_FILES)
     except MissingApiKeyError as error:
         print(error, file=sys.stderr)
         return 2
@@ -642,7 +650,7 @@ def run_agent_command(args: argparse.Namespace) -> int:
     return 0
 
 
-def run_serve(args: argparse.Namespace) -> int:
+def run_serve(args: argparse.Namespace, auto_stop: bool = False) -> int:
     if not Path(args.db).exists():
         print(f'Database not found at {args.db}. Run "python -m btd6 load" first.', file=sys.stderr)
         return 1
@@ -650,7 +658,7 @@ def run_serve(args: argparse.Namespace) -> int:
 
     from btd6.api import create_app
 
-    app = create_app(args.db, state_path=args.state_file)
+    app = create_app(args.db, state_path=args.state_file, auto_stop=auto_stop)
     uvicorn.run(app, host=args.host, port=args.port)
     return 0
 
@@ -673,13 +681,15 @@ def run_start(args: argparse.Namespace) -> int:
         load_code = build_database(args)
         if load_code != 0:
             return load_code
+    if write_key_file_template(KEY_FILE_PATH):
+        print(f"Created {KEY_FILE_NAME}: paste a free Gemini API key there to use the agent.")
     if args.game:
         launcher.launch_game()
     url = launcher.browser_url(args.host, args.port)
     print(f"BTD6 advisor running at {url} (Ctrl+C to stop)", flush=True)
     if not args.no_browser:
         launcher.open_browser_when_ready(url, args.host, args.port)
-    return run_serve(args)
+    return run_serve(args, auto_stop=not args.no_browser)
 
 
 def format_game_state(state: GameState) -> str:

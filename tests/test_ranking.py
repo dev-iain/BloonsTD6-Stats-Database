@@ -421,3 +421,33 @@ def test_rank_upgrades_cost_never_helps(paths: list[str], damage: int, rate: flo
     connection.close()
     costs = list(ranked["total_cost"])
     assert costs == sorted(costs)
+
+
+def test_rank_upgrades_max_cost_keeps_affordable(ranked_database: sqlite3.Connection) -> None:
+    result = rank_upgrades(ranked_database, max_cost=27000)
+    assert paths_of(result) == ["0-0-0", "1-0-0", "3-0-0"]
+
+
+def test_rank_upgrades_max_cost_applies_before_limit(ranked_database: sqlite3.Connection) -> None:
+    result = rank_upgrades(ranked_database, metric="dps", max_cost=5000, limit=1)
+    assert paths_of(result) == ["0-0-0"]
+
+
+def test_rank_upgrades_max_cost_none_affordable(ranked_database: sqlite3.Connection) -> None:
+    assert rank_upgrades(ranked_database, max_cost=0).empty
+
+
+def test_rank_upgrades_max_cost_drops_unknown_cost() -> None:
+    connection = build_database(UPGRADE_STATS, with_costs=False)
+    result = rank_upgrades(connection, max_cost=1_000_000)
+    connection.close()
+    assert result.empty
+
+
+def test_rank_upgrades_negative_max_cost_raises(ranked_database: sqlite3.Connection) -> None:
+    with pytest.raises(QueryError, match=r"max_cost must be 0 or more, got -1"):
+        rank_upgrades(ranked_database, max_cost=-1)
+
+
+def test_rank_upgrades_max_cost_uses_difficulty_cost(ranked_database: sqlite3.Connection) -> None:
+    assert rank_upgrades(ranked_database, difficulty="hard", max_cost=2500).empty

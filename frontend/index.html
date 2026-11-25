@@ -15,6 +15,7 @@
       <button role="tab" data-tab="rounds" aria-selected="false">Rounds</button>
       <button role="tab" data-tab="recommend" aria-selected="false">Recommend</button>
     </nav>
+    <button type="button" id="quit-button" class="quit" title="Stop the advisor">Quit</button>
   </header>
 
   <main>
@@ -65,6 +66,12 @@
             <option value="impoppable">Impoppable</option>
           </select>
         </label>
+        <label>Tower
+          <select id="rank-tower" name="tower">
+            <option value="">All towers</option>
+          </select>
+        </label>
+        <label>Money available <input id="rank-money" name="money" type="number" min="0" step="1" placeholder="Any"></label>
         <label>Limit <input name="limit" type="number" min="1" step="1" value="25"></label>
         <div class="actions"><button type="submit" class="primary">Rank</button></div>
       </form>
@@ -119,6 +126,26 @@
         <h2 class="section-title">Recommended upgrades</h2>
         <div class="table-wrap"><table id="recommend-table"></table></div>
       </div>
+
+      <section class="agent card" aria-labelledby="agent-title">
+        <div class="agent-head">
+          <div>
+            <h2 id="agent-title">Ask the agent</h2>
+            <p class="agent-hint">An AI advisor reads this round and picks up to 5 towers for your money, using the round, money, difficulty and live game above. Needs a free Gemini API key in <code>gemini_api_key.txt</code>.</p>
+          </div>
+          <button type="button" id="agent-ask" class="primary">Ask the agent</button>
+        </div>
+        <p class="status" id="agent-status" role="status"></p>
+        <div id="agent-detail" hidden>
+          <p class="agent-answer" id="agent-answer"></p>
+          <h2 class="section-title">Agent picks</h2>
+          <div class="table-wrap"><table id="agent-table"></table></div>
+          <details class="agent-tools">
+            <summary id="agent-tools-summary">Tools used</summary>
+            <ol id="agent-tools"></ol>
+          </details>
+        </div>
+      </section>
     </section>
   </main>
 

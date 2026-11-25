@@ -77,3 +77,14 @@ class OfflineCostsWiki:
 @pytest.fixture
 def offline_costs_wiki(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(fetch, "wiki_api", OfflineCostsWiki())
+
+
+@pytest.fixture(autouse=True)
+def hermetic_key_files(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Keep the developer's real `.env` and key file out of every test, and never write them."""
+    absent_files = (tmp_path / "absent" / ".env", tmp_path / "absent" / "gemini_api_key.txt")
+    for module in ("btd6.agent.client", "btd6.cli", "btd6.api.app"):
+        monkeypatch.setattr(f"{module}.API_KEY_FILES", absent_files, raising=False)
+    monkeypatch.setattr(
+        "btd6.cli.KEY_FILE_PATH", tmp_path / "absent" / "template.txt", raising=False
+    )

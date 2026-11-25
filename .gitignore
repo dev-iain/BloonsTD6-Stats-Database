@@ -12,3 +12,4 @@ game_state.json
 mod/**/bin/
 mod/**/obj/
 mod/*.user
+gemini_api_key.txt

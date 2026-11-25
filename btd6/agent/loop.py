@@ -12,6 +12,7 @@ from btd6.agent.schemas import LIVE_TOOL_SCHEMAS, TOOL_SCHEMAS
 from btd6.agent.tools import ToolCall, execute_call
 from btd6.game_state import PlacedTower
 
+DEFAULT_MAX_ITERATIONS = 8
 SYSTEM_PROMPT = """\
 You are a Bloons TD6 advisor. You only know what the tools return.
 1. Call get_round_threats for the round first.
@@ -79,7 +80,7 @@ def run_agent(
     round_number: int,
     money: int,
     difficulty: str = "medium",
-    max_iterations: int = 8,
+    max_iterations: int = DEFAULT_MAX_ITERATIONS,
     state_path: Path | None = None,
     owned_towers: Sequence[PlacedTower] | None = None,
 ) -> AgentResult:

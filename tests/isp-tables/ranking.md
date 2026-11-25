@@ -160,10 +160,10 @@ Base case: A1, B1
 ## rank_upgrades
 
 ```python
-def rank_upgrades(connection: sqlite3.Connection, filters: UpgradeFilters | None = None, metric: str = "damage_per_dollar", difficulty: str = "medium", limit: int | None = None) -> pandas.DataFrame
+def rank_upgrades(connection: sqlite3.Connection, filters: UpgradeFilters | None = None, metric: str = "damage_per_dollar", difficulty: str = "medium", limit: int | None = None, max_cost: float | None = None) -> pandas.DataFrame
 ```
 
-Runs `search_upgrades` with `filters`, adds `total_cost`, `dps` (per-attack sum), `moab_dps`, `pierce_weighted_dps`, `damage_per_dollar` and `pierce_damage_per_dollar` columns, and sorts by `metric` (highest first; ties by lower cost, then path; `NULL` last).
+Runs `search_upgrades` with `filters`, adds `total_cost`, `dps` (per-attack sum), `moab_dps`, `pierce_weighted_dps`, `damage_per_dollar` and `pierce_damage_per_dollar` columns, and sorts by `metric` (highest first; ties by lower cost, then path; `NULL` last). With `max_cost` (the money available) only rows whose `total_cost` is known and at most `max_cost` are kept, before `limit` is applied.
 
 Oracles list the `path` column in order. E2 only: add Super Monkey `0-1-0` with `attack_rate = NULL` (other stats from `0-0-0`; medium cost 4000).
 
@@ -213,6 +213,12 @@ Base case: A1, B1, C1, D1, E1, F1
 |---|---|---|---|
 | T11 | invariant (hypothesis) | for any filters and metric, the ranked paths are a permutation of `search_upgrades` paths | `test_rank_upgrades_is_permutation` |
 | T12 | invariant (hypothesis) | of two upgrades with equal DPS, the more expensive one never ranks higher by `damage_per_dollar` | `test_rank_upgrades_cost_never_helps` |
+| T13 | `max_cost` (money available) | `max_cost=27000` keeps paths `["0-0-0", "1-0-0", "3-0-0"]` (`3-0-0` costs exactly 27000, so it is kept) | `test_rank_upgrades_max_cost_keeps_affordable` |
+| T14 | `max_cost` before `limit` | `metric="dps", max_cost=5000, limit=1` gives `["0-0-0"]` (not `3-0-0`) | `test_rank_upgrades_max_cost_applies_before_limit` |
+| T15 | `max_cost` below every cost | `max_cost=0` gives no rows | `test_rank_upgrades_max_cost_none_affordable` |
+| T16 | `max_cost` without costs loaded | every `total_cost` is `NULL`, so no rows (cannot show they are affordable) | `test_rank_upgrades_max_cost_drops_unknown_cost` |
+| T17 | negative `max_cost` | raises `QueryError` `max_cost must be 0 or more` | `test_rank_upgrades_negative_max_cost_raises` |
+| T18 | `max_cost` at another difficulty | `difficulty="hard", max_cost=2500` gives no rows (`0-0-0` costs 2700 on hard) | `test_rank_upgrades_max_cost_uses_difficulty_cost` |
 
 ---
 

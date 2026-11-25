@@ -133,6 +133,13 @@ async function loadDamageTypes() {
   for (const name of (await response.json()).damage_types) select.add(new Option(name, name));
 }
 
+async function loadTowers() {
+  const select = document.getElementById("rank-tower");
+  const response = await fetch("/api/towers");
+  if (!response.ok) return;
+  for (const name of (await response.json()).towers) select.add(new Option(name, name));
+}
+
 function attachSearch() {
   const form = document.getElementById("search-form");
   const status = document.getElementById("search-status");
@@ -162,12 +169,16 @@ function attachRankings() {
       const rows = await fetchRows("/api/rankings", formParams(form));
       const ranked = rows.map((row, index) => ({ ...row, rank: index + 1 }));
       renderTable(table, RANK_COLUMNS, ranked);
-      setStatus(status, ranked.length ? "" : "No upgrades match these filters.");
+      const empty = form.elements.money.value.trim()
+        ? "No upgrade costs that little at this difficulty."
+        : "No upgrades match these filters.";
+      setStatus(status, ranked.length ? "" : empty);
     } catch (error) {
       renderTable(table, RANK_COLUMNS, []);
       setStatus(status, error.message, true);
     }
   });
+  form.elements.tower.addEventListener("change", () => form.requestSubmit());
   form.requestSubmit();
 }
 
@@ -315,6 +326,87 @@ function attachRecommend() {
   });
 }
 
+const AGENT_COLUMNS = [
+  { key: "rank", label: "#", numeric: true },
+  { key: "tower_name", label: "Tower" },
+  { key: "path", label: "Path" },
+  { key: "total_cost", label: "Cost", numeric: true },
+  { key: "reason", label: "Why" },
+];
+
+function answerWithoutPicks(answer, pickCount) {
+  if (!pickCount) return answer.trim();
+  const lines = answer.split("\n");
+  const marker = lines.map((line) => line.trim().toLowerCase()).lastIndexOf("picks:");
+  return (marker === -1 ? answer : lines.slice(0, marker).join("\n")).trim();
+}
+
+function renderToolCalls(calls) {
+  const list = document.getElementById("agent-tools");
+  list.replaceChildren();
+  for (const call of calls) {
+    const item = document.createElement("li");
+    const code = document.createElement("code");
+    code.textContent = `${call.name}(${JSON.stringify(call.arguments)})`;
+    item.appendChild(code);
+    list.appendChild(item);
+  }
+  const noun = calls.length === 1 ? "tool call" : "tool calls";
+  document.getElementById("agent-tools-summary").textContent = `${calls.length} ${noun}`;
+}
+
+function renderAgentResult(body) {
+  document.getElementById("agent-answer").textContent = answerWithoutPicks(body.answer, body.picks.length);
+  const ranked = body.picks.map((pick, index) => ({ ...pick, rank: index + 1 }));
+  renderTable(document.getElementById("agent-table"), AGENT_COLUMNS, ranked);
+  renderToolCalls(body.tool_calls);
+  return ranked.length;
+}
+
+function agentParams(form) {
+  const params = new URLSearchParams();
+  for (const field of LIVE_FIELDS) params.set(field, form.elements[field].value);
+  if (document.getElementById("recommend-live").checked) params.set("live", "true");
+  return params;
+}
+
+async function fetchAgent(params) {
+  const response = await fetch(`/api/agent?${params}`);
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`);
+  return body;
+}
+
+function attachAgent() {
+  const form = document.getElementById("recommend-form");
+  const button = document.getElementById("agent-ask");
+  const status = document.getElementById("agent-status");
+  const detail = document.getElementById("agent-detail");
+  button.addEventListener("click", async () => {
+    if (!form.reportValidity()) return;
+    button.disabled = true;
+    setStatus(status, "Thinking… this usually takes a few seconds.");
+    try {
+      const count = renderAgentResult(await fetchAgent(agentParams(form)));
+      detail.hidden = false;
+      setStatus(status, count ? "" : "The agent made no picks.");
+    } catch (error) {
+      detail.hidden = true;
+      setStatus(status, error.message, true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
+function attachOnePerTowerToggle() {
+  const form = document.getElementById("recommend-form");
+  const toggle = document.getElementById("recommend-one-per-tower");
+  toggle.addEventListener("change", () => {
+    if (form.checkValidity()) form.requestSubmit();
+  });
+}
+
 const LIVE_POLL_MS = 2000;
 const LIVE_FIELDS = ["round", "money", "difficulty"];
 
@@ -388,6 +480,66 @@ async function limitRoundInput() {
   }
 }
 
+function showStopped() {
+  const message = document.createElement("p");
+  message.className = "stopped";
+  message.textContent = "The advisor has stopped. You can close this tab.";
+  document.querySelector("main").replaceChildren(message);
+  document.querySelector(".tabs").hidden = true;
+  document.getElementById("quit-button").hidden = true;
+}
+
+function attachQuit() {
+  const button = document.getElementById("quit-button");
+  button.addEventListener("click", async () => {
+    if (!window.confirm("Stop the advisor? You will need to run the start script again to use it.")) return;
+    button.disabled = true;
+    try {
+      const response = await fetch("/api/shutdown", { method: "POST", headers: { "X-BTD6-Action": "quit" } });
+      if (!response.ok) throw new Error(`Request failed (${response.status})`);
+      stopPresence();
+      showStopped();
+    } catch (error) {
+      button.disabled = false;
+      window.alert(`Could not stop the advisor: ${error.message}`);
+    }
+  });
+}
+
+const PAGE_ID = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+let presenceTimer = null;
+let presenceToken = null;
+
+function presenceBody(event) {
+  return JSON.stringify({ token: presenceToken, page: PAGE_ID, event });
+}
+
+function sendHeartbeat() {
+  fetch("/api/presence", { method: "POST", headers: { "Content-Type": "application/json" }, body: presenceBody("heartbeat") })
+    .catch(() => {});
+}
+
+function sendClosing() {
+  if (presenceToken !== null) navigator.sendBeacon("/api/presence", presenceBody("closing"));
+}
+
+function stopPresence() {
+  clearInterval(presenceTimer);
+  window.removeEventListener("pagehide", sendClosing);
+  presenceToken = null;
+}
+
+async function attachPresence() {
+  const response = await fetch("/api/session");
+  if (!response.ok) return;
+  const session = await response.json();
+  if (!session.auto_stop) return;
+  presenceToken = session.token;
+  sendHeartbeat();
+  presenceTimer = setInterval(sendHeartbeat, session.heartbeat_seconds * 1000);
+  window.addEventListener("pagehide", sendClosing);
+}
+
 function attachTabs() {
   const tabs = document.querySelectorAll(".tabs button");
   for (const tab of tabs) {
@@ -408,6 +560,11 @@ attachSearch();
 attachRankings();
 attachRounds();
 attachRecommend();
+attachOnePerTowerToggle();
+attachAgent();
 attachLiveToggle();
+attachQuit();
+attachPresence();
 limitRoundInput();
 loadDamageTypes();
+loadTowers();

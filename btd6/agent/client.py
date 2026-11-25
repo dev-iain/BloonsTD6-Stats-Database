@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
+from pathlib import Path
 
 import requests
 
@@ -13,9 +14,16 @@ DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 REQUEST_TIMEOUT_SECONDS = 30
 RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
 RETRY_DELAYS_SECONDS = (2.0, 5.0)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+KEY_FILE_NAME = "gemini_api_key.txt"
+API_KEY_FILES = (PROJECT_ROOT / ".env", PROJECT_ROOT / KEY_FILE_NAME)
 MISSING_KEY_MESSAGE = (
     f"{API_KEY_VARIABLE} is not set. Get a free key at https://aistudio.google.com/apikey "
-    "and export it."
+    f"and paste it into {KEY_FILE_NAME} in the project folder (or export {API_KEY_VARIABLE})."
+)
+KEY_FILE_TEMPLATE = (
+    "# Paste your free Gemini API key below on its own line.\n"
+    "# Get one at https://aistudio.google.com/apikey\n"
 )
 
 
@@ -87,8 +95,58 @@ class OpenAICompatibleClient:
             raise AgentError(f"HTTP {response.status_code} from provider: {response.text[:200]}")
 
 
-def client_from_environment(environ: Mapping[str, str]) -> OpenAICompatibleClient:
+def strip_quotes(text: str) -> str:
+    text = text.strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in "\"'":
+        return text[1:-1].strip()
+    return text
+
+
+def key_from_line(line: str) -> str:
+    line = line.strip()
+    if not line or line.startswith("#"):
+        return ""
+    line = line.removeprefix("export ").strip()
+    name, separator, value = line.partition("=")
+    if not separator:
+        return strip_quotes(line)
+    if name.strip() != API_KEY_VARIABLE:
+        return ""
+    return strip_quotes(value)
+
+
+def read_key_file(path: Path) -> str:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    for line in text.splitlines():
+        key = key_from_line(line)
+        if key:
+            return key
+    return ""
+
+
+def find_api_key(environ: Mapping[str, str], key_files: Sequence[Path] = ()) -> str:
     api_key = environ.get(API_KEY_VARIABLE, "").strip()
+    if api_key:
+        return api_key
+    return next((key for key in map(read_key_file, key_files) if key), "")
+
+
+def write_key_file_template(path: Path) -> bool:
+    try:
+        with open(path, "x", encoding="utf-8") as handle:
+            handle.write(KEY_FILE_TEMPLATE)
+    except OSError:
+        return False
+    return True
+
+
+def client_from_environment(
+    environ: Mapping[str, str], key_files: Sequence[Path] = ()
+) -> OpenAICompatibleClient:
+    api_key = find_api_key(environ, key_files)
     if not api_key:
         raise MissingApiKeyError(MISSING_KEY_MESSAGE)
     return OpenAICompatibleClient(
