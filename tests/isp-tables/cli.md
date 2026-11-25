@@ -533,3 +533,46 @@ Base case: A1, B1, C1, D1, E1
 |---|---|---|---|
 | T14 | help | `btd6 --help` stdout names `recommend` | `test_main_help_lists_recommend` |
 | T15 | MOAB round | round 40: first row `0-0-0`, every reasons cell ends in `high_single_target` | `test_main_recommend_moab_round` |
+
+## `start` (one-command launcher)
+
+`python -m btd6 start [--host H] [--port P] [--refresh] [--no-browser] [--game]` builds the database when it is missing (or with `--refresh`), optionally launches BTD6 through Steam, opens the browser once the server accepts connections, then serves.
+
+### ISP
+
+| Input | Characteristic | Block | Value |
+|---|---|---|---|
+| `--db` (state) | A) State before the call | A1: Exists | empty file |
+| | | A2: Missing, load succeeds | `tmp_path / "new.db"`, offline fetch |
+| | | A3: Missing, wiki unreachable | `tmp_path / "new.db"`, fetch raises `ConnectionError` |
+| | | A4: Exists, `--refresh` | empty file plus `--refresh` |
+| `--no-browser` | B) Given | B1: No | none |
+| | | B2: Yes | `--no-browser` |
+| `--game` | C) Given | C1: No | none |
+| | | C2: Yes | `--game` |
+| `--host`/`--port` | D) Address | D1: Defaults | none |
+| | | D2: All interfaces, custom port | `--host 0.0.0.0 --port 9100` |
+
+Base case: A1, B1, C1, D1
+
+### Base Choice Coverage
+
+| BCC Test | A | B | C | D | Oracle | Test Name |
+|---|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | D1 | returns `0`; no load; browser scheduled for `http://127.0.0.1:8000`; uvicorn on `127.0.0.1:8000`; no game launch | `test_start_all_base` |
+| T2 | A2 | B1 | C1 | D1 | returns `0`; stdout has `Building the database` and the load lines; upgrades loaded; uvicorn runs | `test_start_builds_missing_database` |
+| T3 | A3 | B1 | C1 | D1 | returns `1`; database file removed; uvicorn and browser not called | `test_start_load_failure_removes_new_database` |
+| T4 | A4 | B1 | C1 | D1 | returns `0`; load runs on the existing file | `test_start_refresh_reloads` |
+| T5 | A1 | B2 | C1 | D1 | browser not scheduled; uvicorn runs | `test_start_no_browser` |
+| T6 | A1 | B1 | C2 | D1 | `open_uri` called once with `steam://rungameid/960090` | `test_start_launches_game` |
+| T7 | A1 | B1 | C1 | D2 | uvicorn on `0.0.0.0:9100`; browser URL `http://127.0.0.1:9100` | `test_start_custom_address` |
+
+### Launcher helpers (`btd6/launcher.py`)
+
+| Test | Covers | Oracle | Test Name |
+|---|---|---|---|
+| T8 | `browser_url` | `0.0.0.0`/`::`/empty map to `127.0.0.1`; other hosts kept | `test_browser_url` |
+| T9 | `open_uri` per platform | `win32` -> `os.startfile`; `darwin` -> `open`; `linux` -> `xdg-open` | `test_open_uri_uses_platform_opener` |
+| T10 | `wait_for_port` open | listening socket -> `True` | `test_wait_for_port_open` |
+| T11 | `wait_for_port` closed | nothing listening, short timeout -> `False` | `test_wait_for_port_times_out` |
+| T12 | `open_browser_when_ready` | thread opens the URL once the port listens; nothing opened when it never does | `test_open_browser_when_ready_*` |

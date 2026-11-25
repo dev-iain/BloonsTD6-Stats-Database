@@ -14,6 +14,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+from btd6 import launcher
 from btd6.agent.client import AgentError, MissingApiKeyError, client_from_environment
 from btd6.agent.loop import run_agent
 from btd6.costs import DIFFICULTY_MULTIPLIERS
@@ -144,6 +145,10 @@ def build_parser() -> argparse.ArgumentParser:
     add_rank_options(rank_parser)
     serve_parser = subparsers.add_parser("serve", help="serve the web interface and API")
     add_serve_options(serve_parser)
+    start_parser = subparsers.add_parser(
+        "start", help="build the database if needed, then serve and open the web UI"
+    )
+    add_start_options(start_parser)
     rounds_parser = subparsers.add_parser("rounds", help="show the bloons in a round or range")
     add_rounds_options(rounds_parser)
     income_parser = subparsers.add_parser("income", help="show income from popping bloons")
@@ -210,6 +215,16 @@ def add_income_options(subparser: argparse.ArgumentParser) -> None:
 def add_serve_options(subparser: argparse.ArgumentParser) -> None:
     subparser.add_argument("--host", default="127.0.0.1")
     subparser.add_argument("--port", type=int, default=8000)
+
+
+def add_start_options(subparser: argparse.ArgumentParser) -> None:
+    add_serve_options(subparser)
+    subparser.add_argument(
+        "--refresh", action="store_true", help="reload the data from the wiki first"
+    )
+    subparser.add_argument("--no-browser", action="store_true", help="do not open a browser")
+    subparser.add_argument("--game", action="store_true", help="launch BTD6 through Steam")
+    subparser.set_defaults(tower=None, no_rounds=False)
 
 
 def add_load_options(subparser: argparse.ArgumentParser) -> None:
@@ -608,6 +623,29 @@ def run_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_database(args: argparse.Namespace) -> int:
+    was_missing = not Path(args.db).exists()
+    print("Building the database from the BTD6 wiki...")
+    load_code = run_load(args)
+    if load_code != 0 and was_missing:
+        Path(args.db).unlink(missing_ok=True)
+    return load_code
+
+
+def run_start(args: argparse.Namespace) -> int:
+    if args.refresh or not Path(args.db).exists():
+        load_code = build_database(args)
+        if load_code != 0:
+            return load_code
+    if args.game:
+        launcher.launch_game()
+    url = launcher.browser_url(args.host, args.port)
+    print(f"BTD6 advisor running at {url} (Ctrl+C to stop)", flush=True)
+    if not args.no_browser:
+        launcher.open_browser_when_ready(url, args.host, args.port)
+    return run_serve(args)
+
+
 def format_game_state(state: GameState) -> str:
     lines = [
         f"Round {state.round_number}",
@@ -651,6 +689,7 @@ HANDLERS: dict[str, Callable[[argparse.Namespace], int]] = {
     "search": run_search,
     "rank": run_rank,
     "serve": run_serve,
+    "start": run_start,
     "rounds": run_rounds,
     "income": run_income,
     "recommend": run_recommend,
