@@ -279,3 +279,17 @@ def test_rows_to_cells_shape_invariant(overrides: list[dict[str, Any]]) -> None:
 
 
 # endregion
+
+
+@pytest.mark.parametrize(
+    ("form", "expected"),
+    [
+        (base_form(tower="Super Monkey"), "Super Monkey"),
+        (base_form(tower="  Super Monkey  "), "Super Monkey"),
+        (base_form(tower=""), None),
+        (base_form(tower="   "), None),
+        (base_form(), None),
+    ],
+)
+def test_form_to_filters_tower(form: dict[str, str | bool], expected: str | None) -> None:
+    assert form_to_filters(form).tower_name == expected

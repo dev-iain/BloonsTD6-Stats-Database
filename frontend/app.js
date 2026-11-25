@@ -133,6 +133,13 @@ async function loadDamageTypes() {
   for (const name of (await response.json()).damage_types) select.add(new Option(name, name));
 }
 
+async function loadTowers() {
+  const select = document.getElementById("rank-tower");
+  const response = await fetch("/api/towers");
+  if (!response.ok) return;
+  for (const name of (await response.json()).towers) select.add(new Option(name, name));
+}
+
 function attachSearch() {
   const form = document.getElementById("search-form");
   const status = document.getElementById("search-status");
@@ -162,12 +169,16 @@ function attachRankings() {
       const rows = await fetchRows("/api/rankings", formParams(form));
       const ranked = rows.map((row, index) => ({ ...row, rank: index + 1 }));
       renderTable(table, RANK_COLUMNS, ranked);
-      setStatus(status, ranked.length ? "" : "No upgrades match these filters.");
+      const empty = form.elements.money.value.trim()
+        ? "No upgrade costs that little at this difficulty."
+        : "No upgrades match these filters.";
+      setStatus(status, ranked.length ? "" : empty);
     } catch (error) {
       renderTable(table, RANK_COLUMNS, []);
       setStatus(status, error.message, true);
     }
   });
+  form.elements.tower.addEventListener("change", () => form.requestSubmit());
   form.requestSubmit();
 }
 
@@ -556,3 +567,4 @@ attachQuit();
 attachPresence();
 limitRoundInput();
 loadDamageTypes();
+loadTowers();

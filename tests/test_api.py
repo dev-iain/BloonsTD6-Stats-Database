@@ -94,6 +94,41 @@ def test_rankings_respects_limit(client: TestClient) -> None:
     assert len(rows) == 1
 
 
+def test_rankings_money_keeps_affordable_rows(client: TestClient) -> None:
+    rows = client.get("/api/rankings", params={"money": 5000}).json()["rows"]
+    assert rows
+    assert all(row["total_cost"] <= 5000 for row in rows)
+
+
+def test_rankings_blank_money_keeps_every_row(client: TestClient) -> None:
+    every_row = client.get("/api/rankings").json()["rows"]
+    rows = client.get("/api/rankings", params={"money": ""}).json()["rows"]
+    assert len(rows) == len(every_row)
+
+
+@pytest.mark.parametrize("money", ["-1", "lots"])
+def test_rankings_rejects_bad_money(client: TestClient, money: str) -> None:
+    response = client.get("/api/rankings", params={"money": money})
+    assert response.status_code == 422
+    assert "money" in response.json()["error"]
+
+
+def test_rankings_tower_keeps_that_tower(client: TestClient) -> None:
+    rows = client.get("/api/rankings", params={"tower": "Super Monkey"}).json()["rows"]
+    assert rows
+    assert {row["tower_name"] for row in rows} == {"Super Monkey"}
+
+
+def test_rankings_unloaded_tower_gives_no_rows(client: TestClient) -> None:
+    response = client.get("/api/rankings", params={"tower": "Dart Monkey"})
+    assert response.status_code == 200
+    assert response.json()["rows"] == []
+
+
+def test_towers_lists_loaded_names(client: TestClient) -> None:
+    assert client.get("/api/towers").json() == {"towers": ["Super Monkey"]}
+
+
 def test_rankings_rejects_unknown_metric(client: TestClient) -> None:
     response = client.get("/api/rankings", params={"metric": "vibes"})
     assert response.status_code == 422

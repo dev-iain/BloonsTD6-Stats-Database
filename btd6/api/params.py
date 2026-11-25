@@ -77,6 +77,7 @@ def form_to_filters(form: Mapping[str, Any]) -> UpgradeFilters:
         values[field] = parse_minimum(form_key, str(form.get(form_key, "")))
     values["can_hit_camo"] = choice_to_flag("camo", form.get("camo", "either"), CAMO_CHOICES)
     values["tower_name_contains"] = str(form.get("name", "")).strip() or None
+    values["tower_name"] = str(form.get("tower", "")).strip() or None
     damage_type = str(form.get("damage_type", "")).strip()
     values["damage_type"] = None if damage_type in ("", ANY_DAMAGE_TYPE) else damage_type
     return UpgradeFilters(**values)

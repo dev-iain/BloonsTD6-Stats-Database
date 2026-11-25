@@ -92,6 +92,7 @@ Feasibility notes: D2 is the all-unchecked state and is checked for the whole fi
 | T23 | B2 and B5 on the other three numeric fields | `min_range`, `min_damage`, `min_projectile_speed` get `3.0`; `-1` raises `QueryError` naming the form key | `test_form_to_filters_each_numeric_field` |
 | T24 | several filters together | the example "cannot pop lead, min pierce 3" gives `can_pop_lead=False, min_pierce=3.0` | `test_form_to_filters_epic_example` |
 | T25 | invariant (hypothesis) | any text either returns filters whose `min_pierce` is `None` or finite and `>= 0`, or raises `QueryError`; never any other exception | `test_form_to_filters_never_leaks_other_exceptions` |
+| T26 | `tower` (exact tower, Rankings tab) | `"Super Monkey"` and `"  Super Monkey  "` give `tower_name == "Super Monkey"`; `""`, `"   "` and an absent key give `None` | `test_form_to_filters_tower` |
 
 ---
 

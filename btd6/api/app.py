@@ -32,6 +32,7 @@ from btd6.api.params import (
     form_to_filters,
     form_to_recommend_options,
     form_to_search_options,
+    parse_minimum,
     parse_required_int,
 )
 from btd6.api.presence import HEARTBEAT_SECONDS, PagePresence, watch_presence
@@ -97,9 +98,10 @@ def ranking_rows(database_path: str, params: Mapping[str, Any]) -> list[dict[str
     _, limit = form_to_search_options(params)
     metric = params.get("metric", DEFAULT_RANK_METRIC)
     difficulty = params.get("difficulty", DEFAULT_DIFFICULTY)
+    max_cost = parse_minimum("money", str(params.get("money", "")))
 
     def work(connection: sqlite3.Connection) -> list[dict[str, Any]]:
-        frame = rank_upgrades(connection, filters, metric, difficulty, limit)
+        frame = rank_upgrades(connection, filters, metric, difficulty, limit, max_cost)
         return frame_to_records(frame)
 
     return run_query(database_path, work)
@@ -205,6 +207,14 @@ def register_agent_errors(app: FastAPI) -> None:
 def damage_type_names(database_path: str) -> list[str]:
     def work(connection: sqlite3.Connection) -> list[str]:
         rows = connection.execute("SELECT name FROM damage_types ORDER BY name").fetchall()
+        return [row[0] for row in rows]
+
+    return run_query(database_path, work)
+
+
+def tower_names(database_path: str) -> list[str]:
+    def work(connection: sqlite3.Connection) -> list[str]:
+        rows = connection.execute("SELECT name FROM towers ORDER BY name").fetchall()
         return [row[0] for row in rows]
 
     return run_query(database_path, work)
@@ -334,6 +344,10 @@ def register_routes(app: FastAPI, database_path: str) -> None:
     @app.get("/api/damage-types")
     def damage_types() -> dict[str, list[str]]:
         return {"damage_types": damage_type_names(database_path)}
+
+    @app.get("/api/towers")
+    def towers() -> dict[str, list[str]]:
+        return {"towers": tower_names(database_path)}
 
     @app.get("/api/rounds")
     def rounds() -> dict[str, int | None]:
