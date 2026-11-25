@@ -104,12 +104,12 @@ def test_main_load_not_a_known_tower(
     install_fetch(monkeypatch, succeeding_fetch)
 
     with pytest.raises(SystemExit) as exit_info:
-        main(["--db", str(new_db), "load", "--tower", "Glue Gunner"])
+        main(["--db", str(new_db), "load", "--tower", "Banana Farm"])
 
     captured = capsys.readouterr()
     assert exit_info.value.code == 2
     last_line = captured.err.strip().splitlines()[-1]
-    assert last_line.startswith("btd6 load: error: argument --tower: invalid choice: 'Glue Gunner'")
+    assert last_line.startswith("btd6 load: error: argument --tower: invalid choice: 'Banana Farm'")
     assert not new_db.exists()
 
 
