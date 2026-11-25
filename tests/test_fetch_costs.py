@@ -121,7 +121,7 @@ def test_fetch_costs_where_clause_uses_tower_name(
 @pytest.mark.parametrize(
     "tower_name",
     [
-        "Glue Gunner",
+        "Banana Farm",
         "",
         "super monkey",
         "Super Monkey'",

@@ -195,3 +195,68 @@ Oracle is `(upgrade_dps, upgrade_moab_dps)`, compared with `pytest.approx`. The 
 | Alchemist 2-2-0 | `None` | `None` | one attack, no projectile |
 | Wizard 4-0-0 | 21.81818 | 58.18182 | `6 / 0.275` and `(6 + 10) / 0.275` |
 | Super Monkey 0-0-0 | 22.22222 | 22.22222 | `1 / 0.045`; matches the existing `docs/ranking.md` example |
+
+---
+
+## extract_effect_rows (damage over time)
+
+```python
+def extract_effect_rows(effects: dict[str, Any]) -> list[dict[str, Any]]
+```
+
+Walks `effects["_order"]` and returns one dict per effect with a numeric `damage` > 0 and numeric `interval` > 0: `effect_index` (position in `_order`, skipped entries still count), `name`, `damage`, `tick_interval`, `lifespan` (0 when absent), `trigger_immediate`, `moab_bonus_damage`, `moab_only`, `damage_type` (from the effect's own `immuneBloonProperties`). `extract_projectile_row` adds `"effects"` holding this list (`[]` when the projectile has no `effects`). File: `tests/test_extract_effect_rows.py`.
+
+### ISP
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`effects`|A) Container|A1: One effect|Glue 2-0-0 `Damage over time` (damage 1, interval 2, lifespan 11)|
+|||A2: Missing or empty `_order`|`{}` and `{"_order": []}`|
+|||A3: Several effects, some skipped|`Freeze`, damage 0, `Laser Shock`, `Super Glue damage`|
+|`damage`|B) Value|B1: Positive number|`1`|
+|||B2: Absent (e.g. `Freeze`)|no key|
+|||B3: Zero, negative or not a number|`0`, `-3`, `"lots"`|
+|`interval`|C) Value|C1: Positive number|`2`|
+|||C2: Zero or negative|`0`, `-1`|
+|||C3: Absent|no key|
+|`lifespan`|D) Presence|D1: Present|`11`|
+|||D2: Absent|no key|
+|`triggerImmediate`|E) Value|E1: `false`|`False`|
+|||E2: `true`|`True`|
+|||E3: Absent|no key|
+|`damageModifierForMoabs`|F) Presence|F1: Absent|no key|
+|||F2: Present|`3`|
+|`filterOutNonMoabs`|G) Value|G1: Absent or `false`|no key|
+|||G2: `true`|`True`|
+|`immuneBloonProperties`|H) Mask|H1: Known, non-zero|`64` (Acid)|
+|||H2: Zero|`0` (Normal)|
+|||H3: Absent|no key (Normal)|
+|||H4: Not in `DAMAGE_TYPES`|`3` (Unknown)|
+
+Base case: A1, B1, C1, D1, E1, F1, G1, H1
+
+### BCC
+| BCC Test | A | B | C | D | E | F | G | H | Oracle | Test Name |
+|---|---|---|---|---|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | one row: index 0, damage 1, `tick_interval` 2, lifespan 11, immediate `False`, bonus `None`, `moab_only` `False`, `"Acid"` | `test_extract_effect_rows_all_base` |
+| T2 | A2 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | `[]` (both inputs) | `test_extract_effect_rows_empty_container` |
+| T3 | A3 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | rows indexed `2` and `3` only | `test_extract_effect_rows_index_is_position_in_order` |
+| T4 | A1 | B2 | C1 | D1 | E1 | F1 | G1 | H1 | `[]` | `test_extract_effect_rows_skips_effect_without_damage` |
+| T5 | A1 | B3 | C1 | D1 | E1 | F1 | G1 | H1 | `[]` for each value | `test_extract_effect_rows_skips_unusable_numbers` |
+| T6 | A1 | B1 | C2 | D1 | E1 | F1 | G1 | H1 | `[]` | `test_extract_effect_rows_skips_unusable_numbers` |
+| T7 | A1 | B1 | C3 | D1 | E1 | F1 | G1 | H1 | `[]` | `test_extract_effect_rows_skips_missing_interval` |
+| T8 | A1 | B1 | C1 | D2 | E1 | F1 | G1 | H1 | `lifespan == 0` | `test_extract_effect_rows_missing_lifespan_is_zero` |
+| T9 | A1 | B1 | C1 | D1 | E2 | F1 | G1 | H1 | `trigger_immediate is True` | `test_extract_effect_rows_trigger_immediate_true` |
+| T10 | A1 | B1 | C1 | D1 | E3 | F1 | G1 | H1 | `trigger_immediate is False` | `test_extract_effect_rows_missing_trigger_immediate_is_false` |
+| T11 | A1 | B1 | C1 | D1 | E1 | F2 | G1 | H1 | `moab_bonus_damage == 3` | `test_extract_effect_rows_moab_bonus` |
+| T12 | A1 | B1 | C1 | D1 | E1 | F1 | G2 | H1 | `moab_only is True` | `test_extract_effect_rows_moab_only` |
+| T13 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H2 | `damage_type == "Normal"` | `test_extract_effect_rows_damage_type_from_own_mask` |
+| T14 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H3 | `damage_type == "Normal"` | `test_extract_effect_rows_missing_mask_is_normal` |
+| T15 | A1 | B1 | C1 | D1 | E1 | F1 | G1 | H4 | `damage_type == "Unknown"` | `test_extract_effect_rows_damage_type_from_own_mask` |
+
+Extra tests (not BCC): `extract_projectile_row` has `"effects"` (list, `[]` when absent or `{}`): `test_projectile_row_has_effects_key`, `test_projectile_row_without_effects_is_empty_list`; `extract_attack_rows` nests them per projectile: `test_attack_rows_carry_effects_per_projectile`; Ninja 0-0-4 shape (450, 2.95, 3): `test_extract_effect_rows_ninja_damage_to_target`. Hypothesis: for any list of effects the returned indices are strictly increasing and within `_order`, and every row has `damage > 0`, `tick_interval > 0`, `lifespan >= 0` (`test_extract_effect_rows_only_positive_numbers_and_ordered`).
+
+---
+
+## projectile_effects table (migration 007)
+
+`007_projectile_effects.sql`; file `tests/test_effects_migration.py`. Columns, CHECKs, `UNIQUE (projectile_id, effect_index)`, `ON DELETE CASCADE` from projectile, attack, upgrade and tower, `PRAGMA user_version` 7, and applying to a version 6 database runs only `007`. Index plans in `tests/test_db_indexes.py` (`sqlite_autoindex_projectile_effects_1` for effects of a projectile, `idx_projectile_effects_damage_type_id`). Boundaries: `damage` 0 rejected / 0.5 accepted; `tick_interval` 0 rejected / 0.01 accepted; `lifespan` 0 accepted / -0.1 rejected; `moab_bonus_damage` NULL and 0 accepted / -1 rejected; flags 0 and 1 accepted / 2 rejected.

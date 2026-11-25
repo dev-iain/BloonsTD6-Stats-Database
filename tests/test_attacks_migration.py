@@ -72,8 +72,8 @@ def test_migration_006_is_latest_script() -> None:
 
 def test_migration_006_user_version() -> None:
     connection = connect(":memory:")
-    assert apply_migrations(connection)[-1] == "006_attacks.sql"
-    assert connection.execute("PRAGMA user_version").fetchone()[0] == 6
+    assert "006_attacks.sql" in apply_migrations(connection)
+    assert connection.execute("PRAGMA user_version").fetchone()[0] >= 6
     connection.close()
 
 
@@ -82,7 +82,7 @@ def test_migration_006_applied_to_version_five_database() -> None:
     for script in sorted(MIGRATIONS_DIR.glob("00[1-5]_*.sql")):
         connection.executescript(script.read_text())
     connection.execute("PRAGMA user_version = 5")
-    assert apply_migrations(connection) == ["006_attacks.sql"]
+    assert apply_migrations(connection)[0] == "006_attacks.sql"
     connection.close()
 
 

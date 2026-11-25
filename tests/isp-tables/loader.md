@@ -87,3 +87,43 @@ Excluded or reduced combinations:
 | T11 | A2 | B3 | C1 | D1 | E1 | F2 | not a BCC test (B and F varied together): with `1-0-0` stored at `range` 50, loading `{"_100": STATS with range 60, "_200": STATS with range -1}` raises `sqlite3.IntegrityError`; `SELECT COUNT(*) FROM upgrades` is still `1` and the stored `1-0-0` still has `range == 50.0` | `test_load_tower_failure_keeps_previous_contents` |
 
 Hypothesis property: for any valid `resolved`, loading it twice gives the same table contents as loading it once, and the returned count equals `len(resolved)`.
+
+---
+
+## load_tower: effect rows
+
+`load_tower` writes one `projectile_effects` row for each row of `extract_effect_rows` on each projectile, resolving `damage_type_id` by name (`Unknown` fallback) and replacing a tower's effects on reload (they cascade from the deleted upgrades). File: `tests/test_effect_loader.py`.
+
+### ISP
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`resolved` (effects on a projectile)|A) Number of damaging effects|A1: One|Glue `Damage over time`|
+|||A2: None|Ninja 0-0-3 (no `effects`)|
+|||A3: Several|three effects, damage 1, 2, 3|
+|||A4: One damaging, one not|`Freeze` then `Damage over time`|
+|`immuneBloonProperties` of the effect|B) Damage type|B1: Known|`64` (Acid)|
+|||B2: Not in `DAMAGE_TYPES`|`3` (Unknown)|
+|||B3: Differs from the projectile's|effect `0`, projectile `64` (Normal)|
+|`this` (state: tower already loaded)|C) Previous contents|C1: Empty database|none|
+|||C2: Same data|identical reload|
+|||C3: Fewer effects|two effects, then one|
+|||C4: No effects|one effect, then none|
+|||C5: Other tower present|Ninja stored, Glue reloaded|
+
+Base case: A1, B1, C1
+
+### BCC
+| BCC Test | A | B | C | Oracle | Test Name |
+|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | one row: index 0, name `Damage over time`, damage 1, interval 2, lifespan 11, immediate 0, bonus NULL, `moab_only` 0, type `Acid` | `test_load_tower_stores_effect_row` |
+| T2 | A2 | B1 | C1 | `SELECT COUNT(*) FROM projectile_effects` is `0` | `test_load_tower_without_effects_stores_none` |
+| T3 | A3 | B1 | C1 | indices and damages `[(0, 1), (1, 2), (2, 3)]` | `test_load_tower_effect_order_preserved` |
+| T4 | A4 | B1 | C1 | one row, index 1 | `test_load_tower_skips_non_damaging_effects` |
+| T5 | A1 | B2 | C1 | type `"Unknown"` | `test_load_tower_effect_unknown_damage_type` |
+| T6 | A1 | B3 | C1 | type `"Normal"` | `test_load_tower_effect_damage_type_independent_of_projectile` |
+| T7 | A1 | B1 | C2 | rows identical (ignoring `id`), none duplicated | `test_reload_same_data_is_idempotent` |
+| T8 | A1 | B1 | C3 | only the remaining effect, damage 9 | `test_reload_replaces_effects` |
+| T9 | A1 | B1 | C4 | `[]` | `test_reload_without_effects_removes_them` |
+| T10 | A1 | B1 | C5 | still one row | `test_reload_other_tower_keeps_effects` |
+
+Extra tests: flags and bonus stored (`test_load_tower_stores_flags_and_bonus`); effects on two projectiles keep their own projectile (`test_load_tower_effect_on_each_projectile`). Hypothesis: loading twice leaves as many rows as extracted effects (`test_load_tower_effect_count_matches_extraction`).

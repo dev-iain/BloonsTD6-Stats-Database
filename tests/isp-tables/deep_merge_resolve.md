@@ -28,13 +28,24 @@ We model each key in `override`, since the override is applied onto the base. Wh
 |||C3: Key looks like a code but does not match|`{"_12": {"range": 90}}`|
 |`override`|D) Override is empty|D1: Non-empty **(Base)**|`{"attacks": {"rate": 0.5}}`|
 |||D2: Empty|`{}`|
+|`base`, `override`|J) State of the `_order` key|J1: No `_order` on either side **(Base)**|`{"attacks": {"rate": 1}}`|
+|||J2: Both sides hold a list|`["Projectile", "Explosion"]` and `["Projectile"]`|
+|||J3: Absent in base, list in override|`{}` and `{"_order": ["X"]}`|
+|||J4: Override is not a list|`{"_order": ["A"]}` and `{"_order": "A"}`|
+|||J5: `_order` nested two levels down|`attacks.Attack.projectiles._order`|
+|`override["_order"]` (J2 only)|K) Override entries relative to base entries|K1: All already in base **(Base for J2)**|`["A", "B"]` and `["A"]`|
+|||K2: Some new|`["A"]` and `["C", "A", "D"]`|
+|||K3: Same entries, different order|`["A", "B"]` and `["B", "A"]`|
+|||K4: New entry named like an attack|`["Attack"]` and `["Grape attack"]`|
 
-Base case: A2, B2, C1, D1
+Base case: A2, B2, C1, D1, J1 (K applies only to J2; its base is K1)
 
 Excluded or reduced combinations:
 
 - C2 and D2 make A and B irrelevant (a crosspath key is skipped before the type check, and an empty override has no key), so each is tested once with A and B at base.
 - C3 is copied like any normal field, so A and B are irrelevant there as well.
+- J and K concern only the `_order` key: A to D are held at base for those tests (both sides are lists, so the A/B scalar-vs-dict rule is not what decides the result). K is only meaningful under J2; J3, J4 and J5 are tested once each.
+- J5 reuses K1 (`["Projectile", "Explosion"]` + `["Projectile"]`) to check the rule applies at depth and the outer `_order` is untouched.
 - Every A x B combination is otherwise feasible; the BCC set uses the base value of the other one.
 
 ### Base Choice Coverage
@@ -48,10 +59,20 @@ Excluded or reduced combinations:
 | T5 | A2 | B2 | C2 | D1 | `deep_merge({"range": 50}, {"_012": {"range": 90}})` returns `{"range": 50}`; `"_012" not in result` | `test_deep_merge_crosspath_key_skipped` |
 | T6 | A2 | B2 | C3 | D1 | `deep_merge({"range": 50}, {"_12": {"range": 90}})` returns `{"range": 50, "_12": {"range": 90}}` | `test_deep_merge_malformed_code_copied` |
 | T7 | A2 | B2 | C1 | D2 | `deep_merge({"range": 50}, {})` returns `{"range": 50}`; `result is not base` | `test_deep_merge_empty_override` |
+| T8 | A2 | B2 | C1 | D1 | J2, K1: `deep_merge({"_order": ["Projectile", "Explosion"]}, {"_order": ["Projectile"]})` returns `{"_order": ["Projectile", "Explosion"]}` | `test_deep_merge_order_keeps_unchanged_base_entries` |
+| T9 | A2 | B2 | C1 | D1 | J2, K2: base `{"_order": ["A"]}`, override `{"_order": ["C", "A", "D"]}` returns `{"_order": ["A", "C", "D"]}` | `test_deep_merge_order_appends_new_entries` |
+| T10 | A2 | B2 | C1 | D1 | J2, K3: base `["A", "B"]`, override `["B", "A"]` returns `["A", "B"]` | `test_deep_merge_order_keeps_base_order` |
+| T11 | A2 | B2 | C1 | D1 | J2, K4: base `{"_order": ["Attack"], "Attack": {"rate": 1}}`, override `{"_order": ["Grape attack"], "Grape attack": {"rate": 2}}` returns `{"_order": ["Attack", "Grape attack"], "Attack": {"rate": 1}, "Grape attack": {"rate": 2}}` | `test_deep_merge_order_buccaneer_attacks` |
+| T12 | A2 | B1 | C1 | D1 | J3: base `{}`, override `{"_order": ["X"]}` returns `{"_order": ["X"]}` | `test_deep_merge_order_absent_in_base` |
+| T13 | A1 | B2 | C1 | D1 | J4: base `{"_order": ["A"]}`, override `{"_order": "A"}` returns `{"_order": "A"}` | `test_deep_merge_order_non_list_override_replaces` |
+| T14 | A2 | B2 | C1 | D1 | J5: nested bomb shooter example returns inner `_order` `["Projectile", "Explosion"]` and outer `_order` `["Attack"]` | `test_deep_merge_order_nested` |
+| T15 | A2 | B2 | C1 | D1 | J2: mutating the result `_order` list changes neither `base` nor `override` | `test_deep_merge_order_result_is_new_list` |
 
 T5 to T7 do not use the base A and B inputs literally, since a crosspath key, a malformed key or an empty override has nothing to merge; their A and B selections are base labels only.
 
-Hypothesis properties: for any `base`, `deep_merge(base, {})` equals `base` and `base` is never mutated; mutating the result never changes `base`.
+Hypothesis properties: for any `base`, `deep_merge(base, {})` equals `base` and `base` is never mutated; mutating the result never changes `base`. For list-valued `_order` on both sides, every base entry appears in the result `_order` in the same relative order, every override entry appears, and the result has no duplicates (given duplicate-free inputs); `base` is not mutated (`test_order_merge_keeps_base_entries_in_order`, `test_order_merge_never_mutates_inputs`).
+
+T8 to T15 are the fix for crosspath diffs whose `_order` lists only the entries the child changed; they are parametrized in `DEEP_MERGE_CASES` except T15.
 
 ## resolve_all_codes
 
@@ -118,6 +139,8 @@ Excluded or reduced combinations:
 | T8 | E1 | F2 | G1 | H2 | I1 | with a second child `"_120": {"attacks": {"count": 9}}`: `result["_120"] == {"range": 60, "attacks": {"rate": 1, "count": 9}}` and `result["_110"]` equals T1's; `result["_100"]` is unchanged | `test_resolve_all_codes_siblings_independent` |
 | T9 | E1 | F2 | G1 | H3 | I1 | with `"_010": {"range": 40}` added at the top level: `result["_010"] == {"range": 40}`; the other entries equal T1 | `test_resolve_all_codes_top_level_siblings` |
 | T10 | E1 | F2 | G1 | H1 | I2 | `resolve_all_codes({})` returns `{}` | `test_resolve_all_codes_empty` |
+
+| T11 | E1 | F2 | G3 | H1 | I1 | Bomb Shooter regression: `{"_300": {"attacks": {"_order": ["Attack"], "Attack": {"projectiles": {"_order": ["Projectile", "Explosion"], "Projectile": {"pierce": 1}, "Explosion": {"damage": 4}}}}, "_320": {"attacks": {"Attack": {"projectiles": {"_order": ["Projectile"], "Projectile": {"pierce": 2}}}}}}}`: `result["_320"]["attacks"]["Attack"]["projectiles"]["_order"] == ["Projectile", "Explosion"]` and `extract_attack_rows(result["_320"])` has one attack with projectile names `["Projectile", "Explosion"]` | `test_resolve_all_codes_child_keeps_parent_order_entries` |
 
 Oracle checks shared by all cases: the input dict equals a deep copy taken before the call, and changing a nested value in one result entry does not change any other entry (results are not aliased).
 
