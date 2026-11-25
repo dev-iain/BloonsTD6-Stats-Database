@@ -59,7 +59,7 @@ def test_serve_passes_state_file_to_app(
     state_file = tmp_path / "live.json"
     created: list[tuple[str, str]] = []
 
-    def fake_create_app(database_path: str, state_path: str) -> str:
+    def fake_create_app(database_path: str, state_path: str, auto_stop: bool) -> str:
         created.append((database_path, state_path))
         return "app"
 

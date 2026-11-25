@@ -207,3 +207,43 @@ def test_start_replaces_before_building_database(
     main(["--db", str(tmp_path / "new.db"), "start"])
 
     assert order == ["replace", "build"]
+
+
+TEMPLATE_LINE = "Created gemini_api_key.txt: paste a free Gemini API key there to use the agent.\n"
+
+
+@pytest.fixture
+def key_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    path = tmp_path / "gemini_api_key.txt"
+    monkeypatch.setattr("btd6.cli.KEY_FILE_PATH", path, raising=False)
+    return path
+
+
+def test_start_creates_key_file_template(
+    existing_db, key_file, uvicorn_calls, browser_calls, capsys
+):
+    code = main(["--db", str(existing_db), "start"])
+
+    assert code == 0
+    assert TEMPLATE_LINE in capsys.readouterr().out
+    assert key_file.exists()
+    assert "https://aistudio.google.com/apikey" in key_file.read_text(encoding="utf-8")
+
+
+def test_start_keeps_existing_key_file(existing_db, key_file, uvicorn_calls, browser_calls, capsys):
+    key_file.write_text("my-secret-key\n", encoding="utf-8")
+
+    code = main(["--db", str(existing_db), "start"])
+
+    assert code == 0
+    assert "Created gemini_api_key.txt" not in capsys.readouterr().out
+    assert key_file.read_text(encoding="utf-8") == "my-secret-key\n"
+
+
+def test_start_creates_key_file_before_serving(existing_db, key_file, monkeypatch, browser_calls):
+    seen: list[bool] = []
+    monkeypatch.setattr(uvicorn, "run", lambda app, **kwargs: seen.append(key_file.exists()))
+
+    main(["--db", str(existing_db), "start"])
+
+    assert seen == [True]

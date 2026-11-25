@@ -34,7 +34,7 @@ Options are passed through to `python -m btd6 start`:
 | `--no-browser` | do not open a browser tab |
 | `--host H`, `--port N` | where to serve (defaults `127.0.0.1` and `8000`) |
 
-Press Ctrl+C to stop. Running the start script again restarts the advisor: it stops the one already running on the same port first, so code changes and updates are picked up. If the first download fails, the half-built database is removed so the next start tries again. The sections below cover each command on its own.
+To stop it, press **Quit** at the top right of the page, or just close the browser tab: the advisor stops on its own about 5 seconds after its last tab closes (a reload does not stop it). Ctrl+C in the terminal also works. With `--no-browser` it does not stop on its own. Running the start script again restarts the advisor: it stops the one already running on the same port first, so code changes and updates are picked up. If the first download fails, the half-built database is removed so the next start tries again. The sections below cover each command on its own.
 
 ## Build the database
 
@@ -182,20 +182,19 @@ It uses the **free tier of the Gemini API** through Google's OpenAI-compatible e
    uv run python -m btd6 load
    ```
 
-2. Get a free key at <https://aistudio.google.com/apikey> (a Google account is enough, no card). Put it in a `.env` file in the repo root. `.env` is gitignored; never put the key in a tracked file.
+2. Get a free key at <https://aistudio.google.com/apikey> (a Google account is enough, no card) and save it in one of these places. The first one that has a key wins:
 
-   ```bash
-   printf 'GEMINI_API_KEY=your-key-here\n' > .env
-   chmod 600 .env
-   ```
+   1. The `GEMINI_API_KEY` environment variable.
+   2. A `GEMINI_API_KEY=...` line in `.env` in the repo root.
+   3. `gemini_api_key.txt` in the repo root: paste the key on its own line. `./start.sh` / `start.bat` creates this file with instructions the first time it runs, so this is the easiest option.
 
-   The key is read from the environment only. `uv run --env-file .env` loads the file for one command. To skip the flag, run `set -Ux UV_ENV_FILE .env` (fish) or `export UV_ENV_FILE=.env` (bash/zsh) once. Exporting `GEMINI_API_KEY` in your shell also works.
+   Both files are gitignored; never put the key in a tracked file. The files are read on every request, so a key pasted while the advisor is running works without a restart.
 
 3. Ask for a recommendation:
 
    ```bash
-   uv run --env-file .env python -m btd6 agent --round 63 --money 5000
-   uv run --env-file .env python -m btd6 agent --round 40 --money 20000 --difficulty hard
+   uv run python -m btd6 agent --round 63 --money 5000
+   uv run python -m btd6 agent --round 40 --money 20000 --difficulty hard
    ```
 
    The output is a short explanation of the round's threats and why the picks fit, ending with a `Picks:` block (`- <tower> <X-Y-Z> $<cost>`, or `- none` when nothing affordable can handle the round). A real run (`gemini-3.5-flash-lite`, about 2 seconds):
@@ -210,6 +209,8 @@ It uses the **free tier of the Gemini API** through Google's OpenAI-compatible e
    - Boomerang Monkey 4-0-2 $3795
    ```
 
+**In the web UI:** the Recommend tab has an **Ask the agent** section below the recommendations. It uses the round, money, difficulty and **Use live game** settings from the form above, then shows the agent's explanation, its picks (tower, path, cost, why) and the tool calls it made. A missing key or a busy model shows as an error in that section.
+
 Options:
 
 - `--difficulty`: `easy`, `medium` (the default), `hard` or `impoppable`.
@@ -217,7 +218,7 @@ Options:
 - Optional environment variables:
   - `BTD6_AGENT_MODEL`: the model. The default is `gemini-3.5-flash-lite`. `gemini-3.8-flash` is also free but is often overloaded (HTTP 503).
   - `BTD6_AGENT_BASE_URL`: any other OpenAI-compatible provider, such as Groq or OpenRouter free models. Put that provider's key in `GEMINI_API_KEY`.
-- A missing key exits with code 2 and a message saying how to get one.
+- A missing key exits with code 2 and a message saying how to get one and where to put it.
 
 Cost per run is **$0** on the free tier. A run makes about 3 to 5 model calls. The free tier is rate-limited per project. A busy or rate-limited model (HTTP 429 or 503) or a timeout is retried twice. If it still fails, the CLI says so and exits with code 1. Wait a minute or switch `BTD6_AGENT_MODEL`. Google may use free-tier prompts to improve its products, so do not send anything private.
 
@@ -237,7 +238,7 @@ The `mod/` folder holds a BTD6 mod (MelonLoader + BTD Mod Helper, Windows and Li
 uv run python -m btd6 serve                 # receives POST /api/game-state from the mod
 uv run python -m btd6 game-state            # show the stored state
 uv run python -m btd6 recommend --live      # round, money and difficulty from the game
-uv run --env-file .env python -m btd6 agent --live
+uv run python -m btd6 agent --live
 ```
 
 - In the web UI, tick **Use live game** on the Recommend tab. It refreshes every 2 seconds and re-runs the recommendation when the round, cash or difficulty changes.

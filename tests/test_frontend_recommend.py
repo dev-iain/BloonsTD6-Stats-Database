@@ -107,3 +107,8 @@ def test_app_sends_owned_towers_as_repeated_params() -> None:
 def test_app_reports_how_many_owned_towers_are_counted() -> None:
     assert "Counting " in APP_JS
     assert "owned towers" in APP_JS
+
+
+def test_one_per_tower_toggle_resubmits() -> None:
+    assert 'getElementById("recommend-one-per-tower")' in APP_JS
+    assert "attachOnePerTowerToggle();" in APP_JS

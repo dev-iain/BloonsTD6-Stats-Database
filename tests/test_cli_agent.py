@@ -14,7 +14,7 @@ from tests.recommend_fixture import build_recommend_database
 ANSWER = "Pierce for lead.\nPicks:\n- Super Monkey 3-0-0 $27,000"
 MISSING_KEY_MESSAGE = (
     "GEMINI_API_KEY is not set. Get a free key at https://aistudio.google.com/apikey "
-    "and export it.\n"
+    "and paste it into gemini_api_key.txt in the project folder (or export GEMINI_API_KEY).\n"
 )
 
 
@@ -37,7 +37,7 @@ def scripted(monkeypatch: pytest.MonkeyPatch) -> ScriptedClient:
 
 def patch_client(monkeypatch: pytest.MonkeyPatch, client: object) -> None:
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setattr(cli, "client_from_environment", lambda environ: client)
+    monkeypatch.setattr(cli, "client_from_environment", lambda *args: client)
 
 
 def run_agent_cli(db_file: str, *options: str) -> int:
@@ -58,9 +58,13 @@ def test_main_agent_prints_answer(
 
 
 def test_main_agent_missing_api_key(
-    db_file: str, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    db_file: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setattr(cli, "API_KEY_FILES", (tmp_path / "no.env", tmp_path / "no.txt"))
 
     exit_code = run_agent_cli(db_file)
 
@@ -72,9 +76,13 @@ def test_main_agent_missing_api_key(
 
 
 def test_main_agent_blank_api_key(
-    db_file: str, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    db_file: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     monkeypatch.setenv("GEMINI_API_KEY", "  ")
+    monkeypatch.setattr(cli, "API_KEY_FILES", (tmp_path / "no.env", tmp_path / "no.txt"))
 
     exit_code = run_agent_cli(db_file)
 
@@ -193,3 +201,29 @@ def test_main_agent_busy_model_error_is_a_clean_message(
     assert "BTD6_AGENT_MODEL" in captured.err
     assert "Unexpected error" not in captured.err
     assert captured.out == ""
+
+
+def test_main_agent_key_from_txt_file(
+    db_file: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    key_file = tmp_path / "gemini_api_key.txt"
+    key_file.write_text("# paste below\nfile-key\n", encoding="utf-8")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setattr(cli, "API_KEY_FILES", (tmp_path / "no.env", key_file))
+    scripted_client = ScriptedClient([final_message(ANSWER)])
+    built_keys: list[str] = []
+
+    def build_client(api_key: str, model: str, base_url: str) -> ScriptedClient:
+        built_keys.append(api_key)
+        return scripted_client
+
+    monkeypatch.setattr("btd6.agent.client.OpenAICompatibleClient", build_client)
+
+    exit_code = run_agent_cli(db_file)
+
+    assert exit_code == 0
+    assert built_keys == ["file-key"]
+    assert ANSWER in capsys.readouterr().out

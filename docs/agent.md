@@ -9,6 +9,7 @@ Modules:
 - `btd6/agent/client.py`: the OpenAI-compatible chat client, `client_from_environment` and the client errors.
 - `btd6/agent/picks.py`: `Pick`, `AgentResult` and `parse_picks`.
 - `btd6/agent/loop.py`: the tool loop (`run_agent`), `ChatClient` and the system prompt.
+- Web: `GET /api/agent` and the Ask the agent section of the Recommend tab (`docs/web.md`).
 - CLI: `python -m btd6 agent --round N --money X [--difficulty D] [--max-iterations K]`, or `agent --live [--max-age S]` to take round, money and difficulty from the live game state (`docs/game-state.md`).
 
 Tests: `tests/isp-tables/agent_tools.md`, `tests/isp-tables/agent_loop.md`, and evals in `tests/agent_evals/`.
@@ -28,9 +29,20 @@ The tool layer (`tools.py`) does not depend on the delivery. An MCP server can w
 
 | Environment variable | Required | Default | Meaning |
 |---|---|---|---|
-| `GEMINI_API_KEY` | yes | none | API key. It is read from the environment only; keep it in a gitignored `.env` and load it with `uv run --env-file .env` |
+| `GEMINI_API_KEY` | yes (or a key file) | none | API key. See Key lookup below |
 | `BTD6_AGENT_MODEL` | no | `gemini-3.5-flash-lite` | Model id |
 | `BTD6_AGENT_BASE_URL` | no | `https://generativelanguage.googleapis.com/v1beta/openai/` | OpenAI-compatible base URL. The client posts to `{base}chat/completions` |
+
+### Key lookup
+
+`find_api_key(environ, key_files)` returns the first non-empty key from:
+
+1. `GEMINI_API_KEY` in the environment (stripped).
+2. Each file in `key_files`, in order, read by `read_key_file`. The CLI and the web API pass `API_KEY_FILES` = (`.env`, `gemini_api_key.txt`) in the project root, so a user can paste the key into a text file instead of making a `.env`.
+
+`read_key_file(path)` returns `""` for a missing file. It skips blank lines and lines starting with `#`, drops a leading `export `, and takes `GEMINI_API_KEY=value` lines (other `NAME=value` lines are skipped) or a bare line as the key. Matching surrounding quotes are removed. The first non-empty candidate wins.
+
+`write_key_file_template(path)` writes a commented template (every line blank or `#`) when the file is missing and never overwrites. `python -m btd6 start` calls it for `gemini_api_key.txt` and prints `Created gemini_api_key.txt: paste a free Gemini API key there to use the agent.` the first time. Both files are gitignored.
 
 - `gemini-3.5-flash-lite` is a stable model and is free of charge on the Gemini API free tier. This was checked against the Gemini models and pricing pages on 2026-11-24.
 - It is the default because `gemini-3.8-flash` (also free) returned HTTP 503 "high demand" and timed out in a live run on 2026-11-24, while `gemini-3.5-flash-lite` answered a full round-63 run in about 2 seconds.
@@ -38,7 +50,7 @@ The tool layer (`tools.py`) does not depend on the delivery. An MCP server can w
 - `gemini-3.8-flash` is a stronger free alternative when it is not overloaded.
 - **Retries:** HTTP 429, 500, 502, 503 and 504, timeouts and connection errors are retried after 2 s and then 5 s (at most 3 attempts, `REQUEST_TIMEOUT_SECONDS` = 30 per attempt). After the last attempt the client raises `AgentError` naming the model and the cause and suggesting `BTD6_AGENT_MODEL`. HTTP 401 and 403 fail at once with a message about the API key. Other non-2xx statuses and other `requests` errors fail at once as `AgentError`. The CLI prints the message and exits with code 1.
 - Any OpenAI-compatible provider works, for example Groq or OpenRouter free models. Set `BTD6_AGENT_BASE_URL` and `BTD6_AGENT_MODEL`, and put that provider's key in `GEMINI_API_KEY`.
-- If the key is missing, the CLI prints `GEMINI_API_KEY is not set. Get a free key at https://aistudio.google.com/apikey and export it.` to stderr and exits with code 2.
+- If no key is found, the CLI prints `GEMINI_API_KEY is not set. Get a free key at https://aistudio.google.com/apikey and paste it into gemini_api_key.txt in the project folder (or export GEMINI_API_KEY).` to stderr and exits with code 2.
 
 ## Loop
 

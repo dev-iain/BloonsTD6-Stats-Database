@@ -567,6 +567,9 @@ Base case: A1, B1, C1, D1
 | T6 | A1 | B1 | C2 | D1 | `open_uri` called once with `steam://rungameid/960090` | `test_start_launches_game` |
 | T7 | A1 | B1 | C1 | D2 | uvicorn on `0.0.0.0:9100`; browser URL `http://127.0.0.1:9100` | `test_start_custom_address` |
 
+| T7a | A1 | B1 | C1 | D1 | key file E: absent | template written at `cli.KEY_FILE_PATH` before uvicorn runs; stdout has `Created gemini_api_key.txt: paste a free Gemini API key there to use the agent.` | `test_start_creates_key_file_template`, `test_start_creates_key_file_before_serving` |
+| T7b | A1 | B1 | C1 | D1 | key file E: exists | file content unchanged; no `Created` line | `test_start_keeps_existing_key_file` |
+
 ### Launcher helpers (`btd6/launcher.py`)
 
 | Test | Covers | Oracle | Test Name |

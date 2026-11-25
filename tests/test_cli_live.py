@@ -164,7 +164,7 @@ def test_main_recommend_live_hard(
 def scripted(monkeypatch: pytest.MonkeyPatch) -> ScriptedClient:
     client = ScriptedClient([final_message(ANSWER)])
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setattr(cli, "client_from_environment", lambda environ: client)
+    monkeypatch.setattr(cli, "client_from_environment", lambda *args: client)
     return client
 
 

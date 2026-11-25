@@ -243,7 +243,7 @@ Base case: A1, B1, C1, D1, E1, F1
 | BCC Test | A | B | C | D | E | F | Oracle | Test Name |
 |---|---|---|---|---|---|---|---|---|
 | T1 | A1 | B1 | C1 | D1 | E1 | F1 | exit 0, answer on stdout, stderr empty | `test_main_agent_prints_answer` |
-| T2 | A2 | B1 | C1 | D1 | E1 | F1 | exit 2, stderr is the `GEMINI_API_KEY is not set...` message | `test_main_agent_missing_api_key` |
+| T2 | A2 | B1 | C1 | D1 | E1 | F1 | exit 2, stderr is the new `MISSING_KEY_MESSAGE` (`cli.API_KEY_FILES` pointed at absent tmp paths) | `test_main_agent_missing_api_key` |
 | T3 | A3 | B1 | C1 | D1 | E1 | F1 | exit 2, stderr names `GEMINI_API_KEY` | `test_main_agent_blank_api_key` |
 | T4 | A1 | B2 | C1 | D1 | E1 | F1 | exit 1, `Database not found...`, client never called | `test_main_agent_database_missing` |
 | T5 | A1 | B1 | C2 | D1 | E1 | F1 | user message carries the difficulty | `test_main_agent_difficulty_choices` |
@@ -306,3 +306,51 @@ Base case: G1, H1, I1
 |---|---|---|
 | T9 | `SYSTEM_PROMPT` contains `one_per_tower true`, `limit 10`, `Pick up to 5 different towers`, `alternatives`, `affordable on its own`, the `: <reason>` pick format, `one sentence`, `leaks in later rounds` | `test_system_prompt_mentions` |
 | T10 | `LIVE_PROMPT` tells the model to pass owned towers to `recommend`, allows upgrade picks, and starts their reason with `Upgrade from <X-Y-Z>`; it no longer says to list only new purchases | `test_live_prompt_mentions`, `test_live_prompt_no_longer_limits_picks_to_new_purchases` |
+
+---
+
+## API key lookup with file fallbacks (`btd6/agent/client.py`)
+
+```python
+def read_key_file(path: Path) -> str
+def find_api_key(environ: Mapping[str, str], key_files: Sequence[Path] = ()) -> str
+def client_from_environment(environ: Mapping[str, str], key_files: Sequence[Path] = ()) -> OpenAICompatibleClient
+def write_key_file_template(path: Path) -> bool
+```
+
+`read_key_file` returns the first usable key: blank and `#` lines skipped, `export ` dropped, `NAME=value` lines count only for `GEMINI_API_KEY`, bare lines are the key, matching quotes stripped. `find_api_key`: environment, then files in order. `write_key_file_template` never overwrites.
+
+### ISP
+
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|`path`|A) File|A1: Missing|`absent.txt`|
+|||A2: Only comments or blank|`# only`|
+|||A3: Bare key line|`  abc  `|
+|||A4: `GEMINI_API_KEY=` line|`GEMINI_API_KEY="abc"`|
+|||A5: Other variable only|`OTHER=1`|
+|||A6: Empty assignment then a later key|`GEMINI_API_KEY=` then `GEMINI_API_KEY=later`|
+|`environ`|B) Environment key|B1: Non-empty|`" env-key "`|
+|||B2: Absent, empty or blank|`{}`, `""`, `"  "`|
+|`key_files`|C) Files|C1: None given|`()`|
+|||C2: Several, first has a key|`.env` and txt|
+|||C3: First empty or missing, second has a key|comments-only `.env`, txt|
+|`path` (template)|D) Target|D1: Absent|`tmp_path / KEY_FILE_NAME`|
+|||D2: Exists|file holding a key|
+
+Base case: A3, B2, C3, D1
+
+### Base Choice Coverage
+
+| BCC Test | Blocks | Oracle | Test Name |
+|---|---|---|---|
+| T1 | A1..A6 | `""`, `""`, `abc`, `abc`, `""`, `later` (plus quote, export and spacing variants) | `test_read_key_file[...]`, `test_read_key_file_missing` |
+| T2 | B1, C3 | environment wins | `test_find_api_key_environment_wins` |
+| T3 | B2, C3 | file key | `test_find_api_key_falls_back_to_files` |
+| T4 | B2, C2 | first file wins | `test_find_api_key_first_file_wins` |
+| T5 | B2, C3 | skips missing and empty files | `test_find_api_key_skips_empty_and_missing_files` |
+| T6 | B2, C1 | `""`; `client_from_environment({})` raises with `MISSING_KEY_MESSAGE` | `test_find_api_key_nothing_found`, `test_client_from_environment_without_files_ignores_files` |
+| T7 | D1 | creates inert template naming the sign-up URL, returns `True` | `test_write_key_file_template_creates_inert_file` |
+| T8 | D2 | returns `False`, content unchanged | `test_write_key_file_template_never_overwrites` |
+
+CLI: `test_main_agent_key_from_txt_file` (env unset, key only in the txt). `.gitignore` lists `gemini_api_key.txt` (`test_gitignore_lists_key_file`).
