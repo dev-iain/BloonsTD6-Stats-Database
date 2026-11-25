@@ -24,7 +24,7 @@ def columns(connection: sqlite3.Connection, table: str) -> list[str]:
 
 
 def test_migration_005_user_version(migrated) -> None:
-    assert migrated.execute("PRAGMA user_version").fetchone()[0] == 6
+    assert migrated.execute("PRAGMA user_version").fetchone()[0] == 7
 
 
 def test_migration_005_applied_to_version_four_database() -> None:
@@ -32,7 +32,11 @@ def test_migration_005_applied_to_version_four_database() -> None:
     for script in sorted(MIGRATIONS_DIR.glob("00[1234]_*.sql")):
         connection.executescript(script.read_text())
     connection.execute("PRAGMA user_version = 4")
-    assert apply_migrations(connection) == ["005_bloon_properties.sql", "006_attacks.sql"]
+    assert apply_migrations(connection) == [
+        "005_bloon_properties.sql",
+        "006_attacks.sql",
+        "007_projectile_effects.sql",
+    ]
     connection.close()
 
 

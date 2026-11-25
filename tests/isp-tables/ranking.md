@@ -237,3 +237,56 @@ Fixtures: `tests/factories.py` (`ninja_003`, `wizard_005`, `wizard_400`, `druid_
 | Wizard 0-0-5 | 18.30303 | 38.30303 | `test_wizard_005_moab_and_bfb_are_alternatives`, `test_rank_upgrades_wizard_005_moab_and_bfb_are_alternatives`: `MOAB` (40) and `BFB` (100) are per-summon alternatives; DPS takes the smallest (`1/0.275 + 2/1.5 + 40/3`), MOAB DPS the largest (`... + 100/3`) |
 
 Sentinel: no ranking column is infinite for Druid; a first projectile with unlimited pierce gives `NULL` `pierce_weighted_dps`. Cooldown: `search_upgrades(sort_by="ability_cooldown")` treats `0` like `NULL` (`NULLIF(ability_cooldown, 0)`): Alchemist 0-4-0 (60), then Alchemist 2-2-0 (`NULL`), Druid 0-4-0 (0), in both directions (`test_ability_cooldown_zero_sorts_like_no_ability`). Invariant (hypothesis): `dps` is `None` or finite and `moab_dps >= dps` (`test_dps_is_finite_and_moab_dps_never_lower`).
+
+---
+
+## Effect DPS (damage over time)
+
+`upgrade_dps`, `upgrade_moab_dps` and `all_upgrade_dps` add, for each `projectile_effects` row of a usable attack (rate not NULL or 0), `min(count * hit * ticks / rate, hit / tick_interval)` with `ticks = floor(lifespan / tick_interval + 1e-9) + (1 if trigger_immediate else 0)`, `count = COALESCE(projectile.count, 1)`, and `hit = damage` (plain) or `damage + COALESCE(moab_bonus_damage, 0)` (MOAB). `moab_only` effects count only toward MOAB DPS. Effects are independent of the projectile's own damage (NULL or unlimited). Decision: an attack whose effects give 0 ticks is still usable and contributes `0.0` (not NULL); an upgrade with neither projectile damage nor damaging effects stays NULL; a MOAB-only effect as the sole damage gives plain `None`, MOAB DPS from it. File: `tests/test_effect_dps.py`.
+
+### ISP
+|Parameter|Characteristic|Partition|Value|
+|---|---|---|---|
+|Effect timing|A) Tick count|A1: Several ticks, cap binds|R=1, damage 1, interval 2, lifespan 11 (5 ticks)|
+|||A2: Cap does not bind|R=4, count 1, damage 450, interval 2.95, lifespan 3|
+|||A3: Immediate tick adds one|R=1, damage 30, interval 1, lifespan 0.95, immediate|
+|||A4: Zero ticks|R=1, damage 5, interval 2, lifespan 1|
+|||A5: Float rounding edge|damage 1, interval 0.1, lifespan 0.3 (3 ticks)|
+|`count`|B) Projectile count|B1: NULL|absent|
+|||B2: Greater than 1|`2` with R=40, damage 10, interval 1, lifespan 3|
+|||B3: Zero|`0`|
+|Effect MOAB fields|C) MOAB handling|C1: None|no bonus, not MOAB only|
+|||C2: Bonus|damage 2, bonus 3, interval 1, lifespan 3.05|
+|||C3: MOAB only|`filterOutNonMoabs` true|
+|Projectile damage|D) Projectile's own damage|D1: NULL|`pierce` only|
+|||D2: Present|damage 2, count 1, R=0.5|
+|||D3: Unlimited|`9999999`|
+|Attack|E) Rate|E1: Positive|as above|
+|||E2: NULL or 0|omitted, `0`|
+|Effects|F) Damaging effects on the upgrade|F1: One|as above|
+|||F2: Two on one projectile|glue shape twice|
+|||F3: None, or only non-damaging (`Freeze`)|no `effects`|
+
+Base case: A1, B1, C1, D1, E1, F1
+
+### BCC
+Oracle is `(upgrade_dps, upgrade_moab_dps)`.
+
+| BCC Test | A | B | C | D | E | F | Oracle | Test Name |
+|---|---|---|---|---|---|---|---|---|
+| T1 | A1 | B1 | C1 | D1 | E1 | F1 | `(0.5, 0.5)` | `test_effect_dps_all_base` (via `test_effect_counts_when_projectile_damage_is_null`, `test_effect_only_dps[glue_200_capped]`) |
+| T2 | A2 | B1 | C1 | D1 | E1 | F1 | `(112.5, 112.5)` | `test_effect_only_dps[ninja_below_cap]` |
+| T3 | A3 | B1 | C1 | D1 | E1 | F1 | `(30, 30)` | `test_effect_only_dps[immediate_tick_counts]` |
+| T4 | A4 | B1 | C1 | D1 | E1 | F1 | `(0.0, 0.0)` | `test_effect_only_dps[zero_ticks_still_usable]` |
+| T5 | A5 | B1 | C1 | D1 | E1 | F1 | `(3, 3)` | `test_effect_only_dps[floating_point_tick_epsilon]` |
+| T6 | A1 | B2 | C1 | D1 | E1 | F1 | `(1.5, 1.5)` (`2 * 10 * 3 / 40`, cap 10) | `test_effect_only_dps[count_multiplies]` |
+| T7 | A1 | B3 | C1 | D1 | E1 | F1 | `(0.0, 0.0)` | `test_effect_only_dps[count_zero_gives_nothing]` |
+| T8 | A1 | B1 | C2 | D1 | E1 | F1 | `(2, 5)` | `test_effect_moab_bonus_splits_figures` |
+| T9 | A1 | B1 | C3 | D1 | E1 | F1 | `(None, 0.5)` | `test_moab_only_effect_alone_has_no_plain_dps` |
+| T10 | A1 | B1 | C1 | D2 | E1 | F1 | `(4.5, 4.5)` (projectile 4.0 + effect 0.5) | `test_effect_adds_to_projectile_damage` |
+| T11 | A1 | B1 | C1 | D3 | E1 | F1 | `(0.5, 0.5)` | `test_effect_counts_when_projectile_damage_is_unlimited` |
+| T12 | A1 | B1 | C1 | D1 | E2 | F1 | `(None, None)` for NULL and 0 rate | `test_effect_on_unusable_attack_is_skipped` |
+| T13 | A1 | B1 | C1 | D1 | E1 | F2 | `(1.0, 1.0)` | `test_effects_sum_within_an_attack` |
+| T14 | A1 | B1 | C1 | D1 | E1 | F3 | `(None, None)` (also for `Freeze`) | `test_projectile_without_damage_or_effects_stays_null`, `test_non_damaging_effect_leaves_dps_null` |
+
+Extra tests (not BCC): MOAB-only effect beside projectile damage 1 gives `(1.0, 1.5)` (`test_moab_only_effect_counts_only_toward_moab_dps`); second attack adds `1/1 + min(1 × 5 / 2, 1 / 2) = 1.5` (`test_effect_on_second_attack_adds`); `all_upgrade_dps` agrees (`test_all_upgrade_dps_includes_effects`). Hypothesis: `0 <= dps <= damage / interval` and `dps <= moab_dps <= (damage + bonus) / interval` for any effect-only upgrade (`test_effect_dps_never_exceeds_tick_cap`).

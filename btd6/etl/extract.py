@@ -45,10 +45,41 @@ def limited_value(value: float | None) -> float | None:
     return None if value == UNLIMITED else value
 
 
+def damage_type_name(mask: int) -> str:
+    return DAMAGE_TYPES.get(mask, ("Unknown", set()))[0]
+
+
+def is_positive_number(value: object) -> bool:
+    return isinstance(value, int | float) and not isinstance(value, bool) and value > 0
+
+
+def extract_effect_rows(effects: dict[str, Any]) -> list[dict[str, Any]]:
+    """Flatten the damaging effects of one projectile, keeping their `_order` position."""
+    rows: list[dict[str, Any]] = []
+    for index, name in enumerate(effects.get("_order", [])):
+        effect = effects.get(name, {})
+        if not is_positive_number(effect.get("damage")):
+            continue
+        if not is_positive_number(effect.get("interval")):
+            continue
+        rows.append(
+            {
+                "effect_index": index,
+                "name": name,
+                "damage": effect["damage"],
+                "tick_interval": effect["interval"],
+                "lifespan": effect.get("lifespan", 0),
+                "trigger_immediate": bool(effect.get("triggerImmediate", False)),
+                "moab_bonus_damage": effect.get("damageModifierForMoabs"),
+                "moab_only": bool(effect.get("filterOutNonMoabs", False)),
+                "damage_type": damage_type_name(effect.get("immuneBloonProperties", 0)),
+            }
+        )
+    return rows
+
+
 def extract_projectile_row(index: int, name: str, projectile: dict[str, Any]) -> dict[str, Any]:
-    damage_type, _ = DAMAGE_TYPES.get(
-        projectile.get("immuneBloonProperties", 0), ("Unknown", set())
-    )
+    damage_type = damage_type_name(projectile.get("immuneBloonProperties", 0))
     damage = projectile.get("damage")
     pierce = projectile.get("pierce")
     return {
@@ -66,6 +97,7 @@ def extract_projectile_row(index: int, name: str, projectile: dict[str, Any]) ->
         "lifespan": projectile.get("lifespan"),
         "damage_type": damage_type,
         "can_hit_camo": not projectile.get("filterInvisible", False),
+        "effects": extract_effect_rows(projectile.get("effects", {})),
     }
 
 

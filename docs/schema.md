@@ -10,6 +10,8 @@ erDiagram
     upgrades ||--o{ attacks : "has (006, designed)"
     attacks ||--o{ projectiles : "fires (006, designed)"
     damage_types ||--o{ projectiles : "classifies (006, designed)"
+    projectiles ||--o{ projectile_effects : "applies (007)"
+    damage_types ||--o{ projectile_effects : "classifies (007)"
     damage_types ||--o{ upgrades : "classifies"
     towers ||--o{ upgrade_costs : "prices"
     rounds ||--o{ round_groups : "spawns"
@@ -277,6 +279,26 @@ Extractor changes this needs (#133): add `damageModifierForMoabs` and `filterOut
 
 Worked values from the real resolved JSON (2026-11-23): Ninja 0-0-3 DPS = (3 + 1) / 0.62 + 1 / 3.9 = 6.7080; Wizard 0-0-5 DPS = 1 / 0.275 + 2 / 1.5 + 40 / 3 = 18.3030 and MOAB DPS = 1 / 0.275 + 2 / 1.5 + 100 / 3 = 38.3030 (the earlier simultaneous sum of 51.6364 was wrong, see `docs/data-notes.md`); Druid 0-3-0 DPS = 8 / 1.1 + 1 / 2.6 = 7.6573 with `has_unlimited_damage` true; Alchemist 2-2-0 DPS NULL; Wizard 4-0-0 MOAB DPS = (6 + 10) / 0.275 = 58.1818 against DPS 21.8182.
 
+### `projectile_effects` (migration `007_projectile_effects.sql`)
+
+Damaging effects of a projectile (damage over time and similar), one row per effect, in the wiki's `effects._order`. Extracted by `extract_effect_rows` in `btd6/etl/extract.py`: an effect is kept only when `damage` and `interval` are both numbers above 0, so "Freeze", "Glue", "Stun", "Knockback" and the other non-damaging effects are not stored. Real names: "Damage over time" (244 rows), "Laser Shock" (36), "Damage to target" (10, Ninja Sticky Bomb), "Super Glue damage" (6). 296 rows across 11 towers after the 2026-11-25 reload.
+
+| Column | Type | NULL | Constraint / source |
+|---|---|---|---|
+| `id` | INTEGER | no | `PRIMARY KEY` |
+| `projectile_id` | INTEGER | no | `REFERENCES projectiles (id) ON DELETE CASCADE`, so reloading a tower (which deletes its upgrades) removes its effects |
+| `effect_index` | INTEGER | no | position in `effects._order` (non-damaging effects keep their slot, so indices can skip); `CHECK (effect_index >= 0)`; `UNIQUE (projectile_id, effect_index)` |
+| `name` | TEXT | no | wiki key |
+| `damage` | REAL | no | `CHECK (damage > 0)`; damage per tick |
+| `tick_interval` | REAL | no | the wiki's `interval`; `CHECK (tick_interval > 0)`. Named `tick_interval` to avoid the SQL keyword |
+| `lifespan` | REAL | no | `CHECK (lifespan >= 0)`; 0 when absent (every real effect has one) |
+| `trigger_immediate` | INTEGER | no | `CHECK (x IN (0, 1))`; the wiki's `triggerImmediate`, one extra tick on application |
+| `moab_bonus_damage` | REAL | yes | `damageModifierForMoabs`, additive like the projectile column; NULL when absent |
+| `moab_only` | INTEGER | no | `DEFAULT 0 CHECK (x IN (0, 1))`; `filterOutNonMoabs` |
+| `damage_type_id` | INTEGER | no | `REFERENCES damage_types (id)`, from the effect's own `immuneBloonProperties` (an effect can differ from its projectile; Glue's corrosion is Acid). No effect falls back to `Unknown` in the real data |
+
+Not stored: `layers`, `chance`, `glueLevel`, `initialDelay`, `applyOnlyIfDamaged`, `distributeToChildren`, `damageModifierForCeramic`, `damageModifierForLeadOrDdt`. Indexes: the `UNIQUE` autoindex serves "effects of a projectile"; `idx_projectile_effects_damage_type_id` indexes the foreign key, following the same rule as `idx_projectiles_damage_type_id` (no query filters on it yet). No effect sits on a bloon-class alternative projectile (`MOAB`, `BFB`), so effect DPS is always summed. DPS formula in `docs/ranking.md`.
+
 ### Indexes
 
 | Index | Justification |
@@ -355,7 +377,7 @@ Tower name and category are stored once in `towers`, and damage type name and fl
 ### Known limitations
 
 - `extract_row` keeps only the first attack, first projectile and first ability of each upgrade, and `upgrades` keeps that summary unchanged. Every other attack and projectile (Wizard 30 upgrades, Ninja 16, Alchemist 32, Druid 26 of 64, `docs/data-notes.md`) is lost until migration `006_attacks.sql` (design above, issue #132; implementation #133). Until then, per-upgrade DPS and the NULL columns for Ninja 0-0-3, Wizard 0-0-5, Druid 0-3-0 and Alchemist 2-2-0 describe only the first entry.
-- After 006, still not stored: ability-owned attacks (`trim_ability` drops them), damage-over-time and other `effects` (so Alchemist `Splash` has NULL damage), `damageModifierForFortifiedMoabs`, and buffs (`damageAdditive` on the Wizard 0-0-5 zombie). DPS and MOAB DPS do not include them. The wiki lists a projectile's children (Ninja `Explosion` on a `Flash Bomb`) as siblings, so the tables cannot say which projectile spawns which; DPS sums them as the wiki lists them.
+- After 006, still not stored: ability-owned attacks (`trim_ability` drops them), non-damaging `effects` (damaging ones are in `projectile_effects` since 007), `damageModifierForFortifiedMoabs`, and buffs (`damageAdditive` on the Wizard 0-0-5 zombie). DPS and MOAB DPS do not include them. The wiki lists a projectile's children (Ninja `Explosion` on a `Flash Bomb`) as siblings, so the tables cannot say which projectile spawns which; DPS sums them as the wiki lists them.
 - A projectile with no `immuneBloonProperties` is stored as `Normal` and with no `filterInvisible` as camo-capable (the `extract_row` defaults), so an attack with no projectile does not tell us anything about camo or damage type; Alchemist 2-2-0 reads `can_hit_camo = 1` on `upgrades` for that reason, and has no `projectiles` rows.
 - `can_pop_*` are six columns on `damage_types` rather than a `bloon_properties` plus junction table. A junction table is the fully normal form, but it needs a join per flag; with six fixed properties the single join was preferred.
 - Migrations run inside one transaction, so they must not contain `BEGIN`/`COMMIT` or toggle `PRAGMA foreign_keys` (a no-op in a transaction); table rebuilds need another approach. `apply_migrations` also assumes one process at a time.

@@ -44,13 +44,20 @@ def damage_type_ids(connection: sqlite3.Connection) -> dict[str, int]:
     return {row[0]: row[1] for row in rows}
 
 
+def type_id_for(type_ids: dict[str, int], damage_type: str) -> int:
+    return type_ids.get(damage_type, type_ids["Unknown"])
+
+
+def column_values(row: dict[str, Any], columns: tuple[str, ...]) -> list[Any]:
+    return [int(row[key]) if isinstance(row[key], bool) else row[key] for key in columns]
+
+
 def upgrade_params(
     tower_id: int, type_ids: dict[str, int], code: str, stats: dict[str, Any]
 ) -> tuple[Any, ...]:
     row = extract_row(code, stats)
-    type_id = type_ids.get(row["damage_type"], type_ids["Unknown"])
-    values = [int(row[key]) if isinstance(row[key], bool) else row[key] for key in UPGRADE_COLUMNS]
-    return (tower_id, type_id, *values)
+    values = column_values(row, UPGRADE_COLUMNS)
+    return (tower_id, type_id_for(type_ids, row["damage_type"]), *values)
 
 
 PROJECTILE_COLUMNS = (
@@ -76,6 +83,37 @@ INSERT_PROJECTILE_SQL = (
 )
 
 
+EFFECT_COLUMNS = (
+    "effect_index",
+    "name",
+    "damage",
+    "tick_interval",
+    "lifespan",
+    "trigger_immediate",
+    "moab_bonus_damage",
+    "moab_only",
+)
+INSERT_EFFECT_SQL = (
+    "INSERT INTO projectile_effects (projectile_id, damage_type_id, "
+    + ", ".join(EFFECT_COLUMNS)
+    + ") VALUES (?, ?, "
+    + ", ".join("?" * len(EFFECT_COLUMNS))
+    + ")"
+)
+
+
+def insert_effects(
+    connection: sqlite3.Connection,
+    projectile_id: int,
+    type_ids: dict[str, int],
+    effects: list[dict[str, Any]],
+) -> None:
+    for effect in effects:
+        type_id = type_id_for(type_ids, effect["damage_type"])
+        values = column_values(effect, EFFECT_COLUMNS)
+        connection.execute(INSERT_EFFECT_SQL, (projectile_id, type_id, *values))
+
+
 def insert_attacks(
     connection: sqlite3.Connection, upgrade_id: int, type_ids: dict[str, int], stats: dict[str, Any]
 ) -> None:
@@ -85,15 +123,13 @@ def insert_attacks(
             (upgrade_id, attack["attack_index"], attack["name"], attack["rate"]),
         )
         for projectile in attack["projectiles"]:
-            type_id = type_ids.get(projectile["damage_type"], type_ids["Unknown"])
-            values = [
-                int(projectile[key]) if isinstance(projectile[key], bool) else projectile[key]
-                for key in PROJECTILE_COLUMNS
-            ]
-            connection.execute(
+            type_id = type_id_for(type_ids, projectile["damage_type"])
+            values = column_values(projectile, PROJECTILE_COLUMNS)
+            inserted = connection.execute(
                 INSERT_PROJECTILE_SQL,
                 (cursor.lastrowid, type_id, int(projectile["can_hit_camo"]), *values),
             )
+            insert_effects(connection, inserted.lastrowid, type_ids, projectile["effects"])
 
 
 def insert_upgrade(

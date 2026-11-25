@@ -175,13 +175,23 @@ def decode_page_content(page: dict[str, Any]) -> dict[str, Any]:
     return json.loads(page["revisions"][0]["slots"]["main"]["content"])
 
 
+def merge_order(base_entries: list[Any], override_entries: list[Any]) -> list[Any]:
+    merged = list(base_entries)
+    for entry in override_entries:
+        if entry not in merged:
+            merged.append(entry)
+    return merged
+
+
 def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
     """Overlay override onto a copy of base, merging nested dicts instead of replacing them."""
     result = copy.deepcopy(base)
     for key, value in override.items():
         if CODE_PATTERN.match(key):
             continue
-        if isinstance(value, dict) and isinstance(result.get(key), dict):
+        if key == "_order" and isinstance(value, list) and isinstance(result.get(key), list):
+            result[key] = merge_order(result[key], copy.deepcopy(value))
+        elif isinstance(value, dict) and isinstance(result.get(key), dict):
             result[key] = deep_merge(result[key], value)
         else:
             result[key] = value

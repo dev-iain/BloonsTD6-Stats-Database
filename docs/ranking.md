@@ -24,6 +24,11 @@ Computed by `upgrade_dps`, `upgrade_moab_dps` and `all_upgrade_dps` in `btd6/ran
 - Attack DPS = `Σ(damage × COALESCE(count, 1)) / rate`. NULL damage counts as 0; `unlimited_damage` projectiles are excluded; attacks with NULL or 0 `rate` or no usable projectile are skipped. Upgrade DPS is the sum of attack DPS, NULL when every attack is NULL (Alchemist 2-2-0).
 - `moab_only` projectiles are excluded from DPS and included in MOAB DPS. MOAB hit = `damage + COALESCE(moab_bonus_damage, 0)`.
 - When one attack lists projectiles named after bloon classes (`MOAB`, `BFB`), they are alternatives: DPS takes the smallest, MOAB DPS the largest (Wizard 0-0-5: 18.3030 and 38.3030).
+- Damage over time (`projectile_effects`, migration 007) is added per attack. For each effect on a projectile of an attack with rate `R`:
+  - `ticks = floor(lifespan / tick_interval) + trigger_immediate` (the wiki pads lifespans, such as 11 for interval 2, so flooring gives the intended tick count).
+  - effect DPS = `min(COALESCE(count, 1) × damage × ticks / R, damage / tick_interval)`. The first term is damage applied per second; the cap is what one bloon can take, because re-applying an effect refreshes it rather than stacking. This keeps effect DPS per target, like projectile DPS.
+  - MOAB effect DPS uses `damage + COALESCE(moab_bonus_damage, 0)` in both places; `moab_only` effects count only toward MOAB DPS.
+  - Effects count even when the projectile's own damage is NULL or unlimited. An attack whose only damage is an effect is usable (Glue Gunner 2-0-0: R = 1, damage 1, interval 2, lifespan 11, so ticks = 5 and DPS = `min(5, 0.5)` = 0.5). An effect with 0 ticks adds 0.0.
 
 ## `projectile_speed`, `range` and `projectile_lifespan`
 
@@ -76,8 +81,8 @@ Difficulty, same upgrades:
 
 ## Limitations
 
-- DPS ignores pierce, damage-over-time and armour layers.
-- Abilities, buffs to other towers, damage-over-time, and bonus damage to specific bloon types are not included.
+- DPS ignores pierce and armour layers. Damage over time is included (above), but not its ceramic and lead modifiers or its `layers` limit.
+- Abilities, buffs to other towers, spawned units (Engineer sentries, Beast Handler beasts), and bonus damage to specific bloon types other than MOAB-class are not included.
 - Pierce-weighted metrics assume every projectile uses its full pierce.
 
 ## Ranking order
