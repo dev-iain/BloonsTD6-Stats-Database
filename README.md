@@ -34,7 +34,7 @@ Options are passed through to `python -m btd6 start`:
 | `--no-browser` | do not open a browser tab |
 | `--host H`, `--port N` | where to serve (defaults `127.0.0.1` and `8000`) |
 
-Press Ctrl+C to stop. If the first download fails, the half-built database is removed so the next start tries again. The sections below cover each command on its own.
+Press Ctrl+C to stop. Running the start script again restarts the advisor: it stops the one already running on the same port first, so code changes and updates are picked up. If the first download fails, the half-built database is removed so the next start tries again. The sections below cover each command on its own.
 
 ## Build the database
 

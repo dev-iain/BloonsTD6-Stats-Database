@@ -88,3 +88,26 @@ Base case: A1, B1
 `form_to_recommend_options` rows (`tests/test_api_params_recommend.py`): `test_recommend_options_one_per_tower_*`, `test_recommend_options_owned_*` (str, one-item list, two items, multi-word name, empty list, `None`, no trailing path).
 
 Frontend static checks (`tests/test_frontend_recommend.py`): `recommend-one-per-tower` checkbox (`name="one_per_tower"`, `value="true"`, unchecked, inside `recommend-form`), the `Upgrade from` column after `Path` in `RECOMMEND_COLUMNS`, `append("owned"` and `Counting ` ... `owned towers` in `app.js`.
+
+## `GET /api/health`
+
+```python
+def health() -> dict[str, object]
+```
+Returns the app name and server process id so `start` can find and replace a running advisor. No database access.
+
+### ISP
+
+| Parameter | Characteristic | Partition | Value |
+|---|---|---|---|
+| database file | A) State | A1: Exists | fixture database |
+| | | A2: Missing | `tmp_path / "missing.db"` |
+
+Base case: A1
+
+### Base Choice Coverage
+
+| BCC Test | A | Oracle | Test Name |
+|---|---|---|---|
+| T1 | A1 | 200, `{"app": "btd6", "pid": os.getpid()}` | `test_health_reports_app_and_pid` |
+| T2 | A2 | same body (no 503) | `test_health_works_without_database` |

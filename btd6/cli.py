@@ -665,6 +665,10 @@ def build_database(args: argparse.Namespace) -> int:
 
 
 def run_start(args: argparse.Namespace) -> int:
+    problem = launcher.replace_running_advisor(args.host, args.port)
+    if problem is not None:
+        print(problem, file=sys.stderr)
+        return 1
     if args.refresh or not Path(args.db).exists():
         load_code = build_database(args)
         if load_code != 0:
